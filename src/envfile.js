@@ -1,10 +1,10 @@
-import * as dotenv from "dotenv";
-import * as path from "path";
+import * as dotenv from 'dotenv'
+import * as path from 'path'
 
 dotenv.config({
-  path: path.join(__dirname, "..", ".env"),
-});
+  path: path.join(__dirname, '..', '.env')
+})
 
 export default {
-  dbUrl: process.env.DB_URL,
-};
+  dbUrl: process.env.DB_URL
+}
