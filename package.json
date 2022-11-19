@@ -20,10 +20,12 @@
   },
   "homepage": "https://github.com/breno-felix/api-code-burger#readme",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mongoose": "^6.7.2"
   },
   "devDependencies": {
+    "@types/node": "^18.11.9",
     "nodemon": "^2.0.20",
     "sucrase": "^3.29.0"
   }
