@@ -1,0 +1,5 @@
+{
+    "*.js": [
+      "yarn test:staged"
+    ]
+}
