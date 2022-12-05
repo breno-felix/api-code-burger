@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "jest --watchAll",
-    "test:staged": "jest",
+    "test:staged": "jest --passWithNoTests",
     "dev": "nodemon",
     "debug": "nodemon --inspect",
     "prepare": " husky install "
