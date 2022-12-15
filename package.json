@@ -4,11 +4,11 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "jest --silent --colors --noStackTrace --passWithNoTests",
+    "test": "jest --colors --noStackTrace --passWithNoTests",
     "test:unit": "yarn test -- --watch -c jest-unit-config.js",
     "test:integration": "yarn test -- --watch -c jest-integration-config.js",
-    "test:staged": "yarn test -- --findRelatedTests",
-    "test:ci": "yarn test -- --coverage",
+    "test:staged": "yarn test -- --findRelatedTests --silent",
+    "test:ci": "yarn test -- --coverage --silent",
     "dev": "nodemon",
     "debug": "nodemon --inspect",
     "prepare": " husky install "
