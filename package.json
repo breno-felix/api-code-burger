@@ -4,12 +4,13 @@
   "description": "",
   "main": "src/main/server.js",
   "scripts": {
-    "test": "jest --colors --noStackTrace --passWithNoTests --runInBand",
+    "start": "NODE_ENV=production node src/main/server.js",
+    "test": "NODE_ENV=test jest --colors --noStackTrace --passWithNoTests --runInBand",
     "test:unit": "yarn test -- -c jest-unit-config.js",
-    "test:integration": "yarn test -- --watch -c jest-integration-config.js",
+    "test:integration": "yarn test -- -c jest-integration-config.js",
     "test:staged": "yarn test -- --findRelatedTests --silent",
     "test:ci": "yarn test -- --coverage --silent",
-    "dev": "nodemon",
+    "dev": "NODE_ENV=development nodemon",
     "debug": "nodemon --inspect",
     "prepare": " husky install "
   },
