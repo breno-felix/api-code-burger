@@ -1,54 +1,57 @@
-const MongoHelper = require('../helpers/mongo-helper')
+const MongooseHelper = require('../helpers/mongoose-helper')
+const env = require('../../main/envfile')
 const LoadUserByEmailRepository = require('./load-user-by-email-repository')
 const MissingParamError = require('../../utils/errors/missing-param-error')
-let db
+
+const userSchema = MongooseHelper.newSchema({
+  email: String,
+  password: String
+})
+
+const UserModel = MongooseHelper.newModel('user', userSchema)
 
 const makeSut = () => {
-  const userModel = db.collection('users')
-  const sut = new LoadUserByEmailRepository(userModel)
-  return {
-    userModel,
-    sut
-  }
+  return new LoadUserByEmailRepository(UserModel)
 }
 
 describe('LoadUserByEmail Repository', () => {
   beforeAll(async () => {
-    await MongoHelper.connect(process.env.MONGO_URL)
-    db = MongoHelper.db
+    await MongooseHelper.connect(env.urlMongooseTest)
   })
 
   beforeEach(async () => {
-    await db.collection('users').deleteMany
+    await UserModel.deleteMany()
   })
 
   afterAll(async () => {
-    await MongoHelper.disconnect()
+    await MongooseHelper.disconnect()
   })
 
   test('Should return null if no user is found', async () => {
-    const { sut } = makeSut()
+    const sut = makeSut()
     const user = await sut.load('invalid_email@mail.com')
     expect(user).toBeNull()
   })
 
   test('Should return an user if user is found', async () => {
-    const { sut, userModel } = makeSut()
-    const fakeUser = await userModel.insertOne({
-      email: 'valid_email@mail.com'
+    const sut = makeSut()
+    const fakeUser = new UserModel({
+      email: 'valid_email@mail.com',
+      password: 'hashed_password'
     })
+    await fakeUser.save()
     const user = await sut.load('valid_email@mail.com')
-    expect(user._id).toEqual(fakeUser.insertedId)
+    expect(user._id).toEqual(fakeUser._id)
   })
 
-  test('Should throw if no userModel if provided', async () => {
+  test('Should throw if no UserModel if provided', async () => {
     const sut = new LoadUserByEmailRepository()
     const promise = sut.load('any_email@mail.com')
     expect(promise).rejects.toThrow()
   })
 
   test('Should throw if no email if provided', async () => {
-    const { sut } = makeSut()
+    const sut = makeSut()
     const promise = sut.load()
     expect(promise).rejects.toThrow(new MissingParamError('email'))
   })
