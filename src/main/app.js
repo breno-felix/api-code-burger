@@ -1,18 +1,12 @@
 import express from 'express'
-import routes from './routes'
-import connectMongoDB from './database/database'
+import routes from '../routes'
 
 class App {
   constructor() {
     this.app = express()
 
-    this.database()
     this.middlewares()
     this.routes()
-  }
-
-  database() {
-    connectMongoDB()
   }
 
   middlewares() {
