@@ -4,11 +4,11 @@ mongoose.set('strictQuery', true)
 
 module.exports = {
   async connect(uri) {
-    const teste = await mongoose.connect(uri, {
+    const client = await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     })
-    return teste
+    return client
   },
 
   async disconnect() {
