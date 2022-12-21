@@ -1,6 +1,6 @@
 import MongooseHelper from '../infra/helpers/mongoose-helper'
-import env from './envfile'
-import app from './app'
+import env from './config/envfile'
+import app from './config/app'
 
 console.log('Wait connecting to the database')
 

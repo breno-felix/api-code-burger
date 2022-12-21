@@ -1,4 +1,4 @@
-const env = require('../../main/envfile')
+const env = require('../../main/config/envfile')
 const MongooseHelper = require('./mongoose-helper')
 
 const userSchema = MongooseHelper.newSchema({

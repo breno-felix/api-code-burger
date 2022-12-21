@@ -1,5 +1,5 @@
 const MongooseHelper = require('../helpers/mongoose-helper')
-const env = require('../../main/envfile')
+const env = require('../../main/config/envfile')
 const UserModel = require('../entities/UserModel')
 const LoadUserByEmailRepository = require('./load-user-by-email-repository')
 const MissingParamError = require('../../utils/errors/missing-param-error')

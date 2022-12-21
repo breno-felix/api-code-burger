@@ -6,6 +6,7 @@ dotenv.config({
     __dirname,
     '..',
     '..',
+    '..',
     process.env.NODE_ENV === 'test' ? '.env.testing' : '.env'
   )
 })
