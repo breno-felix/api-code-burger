@@ -1,14 +1,8 @@
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/envfile')
+const UserModel = require('../entities/UserModel')
 const LoadUserByEmailRepository = require('./load-user-by-email-repository')
 const MissingParamError = require('../../utils/errors/missing-param-error')
-
-const userSchema = MongooseHelper.newSchema({
-  email: String,
-  password: String
-})
-
-const UserModel = MongooseHelper.newModel('user', userSchema)
 
 const makeSut = () => {
   return new LoadUserByEmailRepository(UserModel)
