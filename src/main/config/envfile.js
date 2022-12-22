@@ -15,6 +15,7 @@ module.exports = {
   // production
   dbUrl: process.env.DB_URL,
   port: process.env.PORT,
+  secret: process.env.TOKEN_SECRET,
   // test
   urlMongooseTest: process.env.MONGODB_DSN
 }
