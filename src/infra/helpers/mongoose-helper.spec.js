@@ -1,12 +1,6 @@
 const env = require('../../main/config/envfile')
 const MongooseHelper = require('./mongoose-helper')
-
-const userSchema = MongooseHelper.newSchema({
-  email: String,
-  password: String
-})
-
-const UserModel = MongooseHelper.newModel('user', userSchema)
+const UserModel = require('../entities/UserModel')
 
 describe('Mongoose Helper', () => {
   afterEach(async () => {
