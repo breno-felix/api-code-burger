@@ -1,9 +1,10 @@
-import { Router } from 'express'
+const { Router } = require('express')
+const fg = require('fast-glob')
 
-const routes = new Router()
+const router = new Router()
 
-routes.get('/', (request, response) => {
-  return response.json({ message: 'Hello World' })
-})
+fg.sync('**/src/main/routes/**routes.js').forEach((file) =>
+  require(`../../../${file}`)(router)
+)
 
-export default routes
+module.exports = router

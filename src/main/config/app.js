@@ -1,5 +1,5 @@
-import express from 'express'
-import routes from './routes'
+const routes = require('./routes')
+const express = require('express')
 
 class App {
   constructor() {
@@ -14,8 +14,8 @@ class App {
   }
 
   routes() {
-    this.app.use(routes)
+    this.app.use('/api', routes)
   }
 }
 
-export default new App().app
+module.exports = new App().app
