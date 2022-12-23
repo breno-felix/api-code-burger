@@ -3,13 +3,13 @@ const env = require('../../main/config/envfile')
 const UserModel = require('../entities/UserModel')
 const MissingParamError = require('../../utils/errors/missing-param-error')
 const UpdateAccessTokenRepository = require('./update-access-token-repository')
+let fakeUserId
 
 const makeSut = () => {
   return new UpdateAccessTokenRepository(UserModel)
 }
 
 describe('UpdateAccessToken Repository', () => {
-  let fakeUserId
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
