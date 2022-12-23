@@ -8,7 +8,7 @@ MongooseHelper.connect(env.dbUrl)
   .then(() => {
     console.log('MongoDB Atlas Connected')
     app.listen(env.port, () =>
-      console.log(`server running on port ${env.port}`)
+      console.log(`server running at http://localhost:${env.port}`)
     )
   })
   .catch(console.error)
