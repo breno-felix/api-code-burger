@@ -2,13 +2,17 @@ const HttpResponse = require('../helpers/http-response')
 const { MissingParamError } = require('../../utils/errors')
 
 module.exports = class SignUpRouter {
+  constructor(signUpUseCase) {
+    this.signUpUseCase = signUpUseCase
+  }
+
   route(httpRequest) {
     if (!httpRequest || !httpRequest.body) {
       return {
         statusCode: 500
       }
     }
-    const { name, email, password, repeatPassword } = httpRequest.body
+    const { name, email, password, repeatPassword, admin } = httpRequest.body
     if (!name) {
       return HttpResponse.badRequest(new MissingParamError('name'))
     }
@@ -21,5 +25,6 @@ module.exports = class SignUpRouter {
     if (!repeatPassword) {
       return HttpResponse.badRequest(new MissingParamError('repeatPassword'))
     }
+    this.signUpUseCase.signUp(name, email, password, repeatPassword, admin)
   }
 }

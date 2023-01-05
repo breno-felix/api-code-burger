@@ -2,9 +2,23 @@ const { MissingParamError } = require('../../utils/errors')
 const SignUpRouter = require('./sign-up-router')
 
 const makeSut = () => {
-  const sut = new SignUpRouter()
+  class SignUpUseCaseSpy {
+    async signUp(name, email, password, repeatPassword, admin) {
+      this.name = name
+      this.email = email
+      this.password = password
+      this.repeatPassword = repeatPassword
+      this.admin = admin
+    }
+  }
+
+  const signUpUseCaseSpy = new SignUpUseCaseSpy()
+
+  const sut = new SignUpRouter(signUpUseCaseSpy)
+
   return {
-    sut
+    sut,
+    signUpUseCaseSpy
   }
 }
 
@@ -87,5 +101,26 @@ describe('Sign Up Router', () => {
     const httpResponse = await sut.route({})
     expect(httpResponse.statusCode).toBe(500)
     // expect(httpResponse.body.error).toBe(new ServerError().message)
+  })
+
+  test('Should call SignUpUseCase with correct params', async () => {
+    const { sut, signUpUseCaseSpy } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+    await sut.route(httpRequest)
+    expect(signUpUseCaseSpy.name).toBe(httpRequest.body.name)
+    expect(signUpUseCaseSpy.email).toBe(httpRequest.body.email)
+    expect(signUpUseCaseSpy.password).toBe(httpRequest.body.password)
+    expect(signUpUseCaseSpy.repeatPassword).toBe(
+      httpRequest.body.repeatPassword
+    )
+    expect(signUpUseCaseSpy.admin).toBe(httpRequest.body.admin)
   })
 })
