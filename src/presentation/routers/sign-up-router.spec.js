@@ -1,3 +1,6 @@
+const HttpResponse = require('../helpers/http-response')
+const { MissingParamError } = require('../../utils/errors')
+
 class SignUpRouter {
   route(httpRequest) {
     if (!httpRequest || !httpRequest.body) {
@@ -6,10 +9,17 @@ class SignUpRouter {
       }
     }
     const { name, email, password, repeatPassword } = httpRequest.body
-    if (!email || !password || !name || !repeatPassword) {
-      return {
-        statusCode: 400
-      }
+    if (!name) {
+      return HttpResponse.badRequest(new MissingParamError('name'))
+    }
+    if (!email) {
+      return HttpResponse.badRequest(new MissingParamError('email'))
+    }
+    if (!password) {
+      return HttpResponse.badRequest(new MissingParamError('password'))
+    }
+    if (!repeatPassword) {
+      return HttpResponse.badRequest(new MissingParamError('repeatPassword'))
     }
   }
 }
@@ -34,7 +44,7 @@ describe('Sign Up Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    expect(httpResponse.body.error).toBe(new MissingParamError('name').message)
   })
 
   test('Should return 400 if no email is provided', async () => {
@@ -49,7 +59,7 @@ describe('Sign Up Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
   })
 
   test('Should return 400 if no password is provided', async () => {
@@ -64,7 +74,9 @@ describe('Sign Up Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    expect(httpResponse.body.error).toBe(
+      new MissingParamError('password').message
+    )
   })
 
   test('Should return 400 if no repeatPassword is provided', async () => {
@@ -79,7 +91,9 @@ describe('Sign Up Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    expect(httpResponse.body.error).toBe(
+      new MissingParamError('repeatPassword').message
+    )
   })
 
   test('Should create user with admin false by default if no admin is provided', async () => {})
@@ -88,13 +102,13 @@ describe('Sign Up Router', () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route()
     expect(httpResponse.statusCode).toBe(500)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    // expect(httpResponse.body.error).toBe(new ServerError().message)
   })
 
   test('Should return 500 if httpRequest has no body', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route({})
     expect(httpResponse.statusCode).toBe(500)
-    // expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
+    // expect(httpResponse.body.error).toBe(new ServerError().message)
   })
 })
