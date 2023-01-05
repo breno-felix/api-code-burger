@@ -1,7 +1,21 @@
 const { MissingParamError } = require('../../utils/errors')
+const { ServerError } = require('../errors')
 const SignUpRouter = require('./sign-up-router')
 
 const makeSut = () => {
+  const signUpUseCaseSpy = makeSignUpUseCase()
+
+  const sut = new SignUpRouter({
+    signUpUseCase: signUpUseCaseSpy
+  })
+
+  return {
+    sut,
+    signUpUseCaseSpy
+  }
+}
+
+const makeSignUpUseCase = () => {
   class SignUpUseCaseSpy {
     async signUp(name, email, password, repeatPassword, admin) {
       this.name = name
@@ -11,15 +25,8 @@ const makeSut = () => {
       this.admin = admin
     }
   }
-
   const signUpUseCaseSpy = new SignUpUseCaseSpy()
-
-  const sut = new SignUpRouter(signUpUseCaseSpy)
-
-  return {
-    sut,
-    signUpUseCaseSpy
-  }
+  return signUpUseCaseSpy
 }
 
 describe('Sign Up Router', () => {
@@ -122,5 +129,31 @@ describe('Sign Up Router', () => {
       httpRequest.body.repeatPassword
     )
     expect(signUpUseCaseSpy.admin).toBe(httpRequest.body.admin)
+  })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const signUpUseCase = makeSignUpUseCase()
+    const suts = [].concat(
+      new SignUpRouter(),
+      new SignUpRouter({}),
+      new SignUpRouter({
+        signUpUseCase: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          email: 'any_email@mail.com',
+          password: 'any_password',
+          repeatPassword: 'any_password',
+          admin: false
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
   })
 })
