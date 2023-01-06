@@ -138,7 +138,7 @@ describe('Login Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
-    expect(httpResponse.body).toBe(authUseCaseSpy.accessToken)
+    expect(httpResponse.body.accessToken).toBe(authUseCaseSpy.accessToken)
   })
 
   test('Should return 400 if an invalid email is provided', async () => {
