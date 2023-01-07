@@ -53,6 +53,15 @@ const makeSignUpUseCaseWithRepeatedEmailError = () => {
   return new SignUpUseCaseSpy()
 }
 
+const makeSignUpUseCaseWithError = () => {
+  class SignUpUseCaseSpy {
+    signUp() {
+      throw new Error()
+    }
+  }
+  return new SignUpUseCaseSpy()
+}
+
 describe('Sign Up Router', () => {
   test('Should return 400 if no name is provided', async () => {
     const { sut } = makeSut()
@@ -153,32 +162,6 @@ describe('Sign Up Router', () => {
     expect(signUpUseCaseSpy.admin).toBe(httpRequest.body.admin)
   })
 
-  test('Should throw if invalid dependencies are provided', async () => {
-    const invalid = {}
-    const signUpUseCase = makeSignUpUseCase()
-    const suts = [].concat(
-      new SignUpRouter(),
-      new SignUpRouter({}),
-      new SignUpRouter({
-        signUpUseCase: invalid
-      })
-    )
-    for (const sut of suts) {
-      const httpRequest = {
-        body: {
-          name: 'any_name',
-          email: 'any_email@mail.com',
-          password: 'any_password',
-          repeatPassword: 'any_password',
-          admin: false
-        }
-      }
-      const httpResponse = await sut.route(httpRequest)
-      expect(httpResponse.statusCode).toBe(500)
-      expect(httpResponse.body.error).toBe(new ServerError().message)
-    }
-  })
-
   test('Should return 201 when valid params are provided', async () => {
     const { sut } = makeSut()
     const httpRequest = {
@@ -237,5 +220,54 @@ describe('Sign Up Router', () => {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new RepeatedEmailError().message)
+  })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const signUpUseCase = makeSignUpUseCase()
+    const suts = [].concat(
+      new SignUpRouter(),
+      new SignUpRouter({}),
+      new SignUpRouter({
+        signUpUseCase: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          email: 'any_email@mail.com',
+          password: 'any_password',
+          repeatPassword: 'any_password',
+          admin: false
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
+  })
+
+  test('Should throw if any dependency throws', async () => {
+    const signUpUseCase = makeSignUpUseCase()
+    const suts = [].concat(
+      new SignUpRouter({
+        authUseCase: makeSignUpUseCaseWithError()
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          email: 'any_email@mail.com',
+          password: 'any_password',
+          repeatPassword: 'any_password',
+          admin: false
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
   })
 })
