@@ -37,7 +37,7 @@ const makeSignUpUseCase = () => {
 
 const makeSignUpUseCaseWithRepeatPasswordError = () => {
   class SignUpUseCaseSpy {
-    signUp() {
+    async signUp() {
       throw new RepeatPasswordError()
     }
   }
@@ -46,7 +46,7 @@ const makeSignUpUseCaseWithRepeatPasswordError = () => {
 
 const makeSignUpUseCaseWithRepeatedEmailError = () => {
   class SignUpUseCaseSpy {
-    signUp() {
+    async signUp() {
       throw new RepeatedEmailError()
     }
   }
@@ -55,7 +55,7 @@ const makeSignUpUseCaseWithRepeatedEmailError = () => {
 
 const makeSignUpUseCaseWithError = () => {
   class SignUpUseCaseSpy {
-    signUp() {
+    async signUp() {
       throw new Error()
     }
   }
