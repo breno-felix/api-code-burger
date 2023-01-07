@@ -1,5 +1,9 @@
 const HttpResponse = require('../helpers/http-response')
-const { MissingParamError, RepeatPasswordError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  RepeatPasswordError,
+  RepeatedEmailError
+} = require('../../utils/errors')
 
 module.exports = class SignUpRouter {
   constructor({ signUpUseCase } = {}) {
@@ -34,6 +38,8 @@ module.exports = class SignUpRouter {
     } catch (error) {
       if (error instanceof RepeatPasswordError) {
         return HttpResponse.badRequest(new RepeatPasswordError())
+      } else if (error instanceof RepeatedEmailError) {
+        return HttpResponse.badRequest(new RepeatedEmailError())
       }
       return HttpResponse.serverError()
     }

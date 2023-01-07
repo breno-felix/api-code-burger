@@ -1,4 +1,8 @@
-const { MissingParamError, RepeatPasswordError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  RepeatPasswordError,
+  RepeatedEmailError
+} = require('../../utils/errors')
 const { ServerError } = require('../errors')
 const SignUpRouter = require('./sign-up-router')
 
@@ -35,6 +39,15 @@ const makeSignUpUseCaseWithRepeatPasswordError = () => {
   class SignUpUseCaseSpy {
     signUp() {
       throw new RepeatPasswordError()
+    }
+  }
+  return new SignUpUseCaseSpy()
+}
+
+const makeSignUpUseCaseWithRepeatedEmailError = () => {
+  class SignUpUseCaseSpy {
+    signUp() {
+      throw new RepeatedEmailError()
     }
   }
   return new SignUpUseCaseSpy()
@@ -205,5 +218,26 @@ describe('Sign Up Router', () => {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new RepeatPasswordError().message)
+  })
+
+  test('Should return 400 when email provided is not unique in user database', async () => {
+    const signUpUseCaseSpy = makeSignUpUseCaseWithRepeatedEmailError()
+
+    const sut = new SignUpRouter({
+      signUpUseCase: signUpUseCaseSpy
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'repeated_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new RepeatedEmailError().message)
   })
 })
