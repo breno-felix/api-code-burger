@@ -1,4 +1,4 @@
-const { MissingParamError } = require('../../utils/errors')
+const { MissingParamError, RepeatPasswordError } = require('../../utils/errors')
 const { ServerError } = require('../errors')
 const SignUpRouter = require('./sign-up-router')
 
@@ -23,10 +23,21 @@ const makeSignUpUseCase = () => {
       this.password = password
       this.repeatPassword = repeatPassword
       this.admin = admin
+      return this.isRegistered
     }
   }
   const signUpUseCaseSpy = new SignUpUseCaseSpy()
+  signUpUseCaseSpy.isRegistered = true
   return signUpUseCaseSpy
+}
+
+const makeSignUpUseCaseWithRepeatPasswordError = () => {
+  class SignUpUseCaseSpy {
+    signUp() {
+      throw new RepeatPasswordError()
+    }
+  }
+  return new SignUpUseCaseSpy()
 }
 
 describe('Sign Up Router', () => {
@@ -100,14 +111,14 @@ describe('Sign Up Router', () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route()
     expect(httpResponse.statusCode).toBe(500)
-    // expect(httpResponse.body.error).toBe(new ServerError().message)
+    expect(httpResponse.body.error).toBe(new ServerError().message)
   })
 
   test('Should return 500 if httpRequest has no body', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route({})
     expect(httpResponse.statusCode).toBe(500)
-    // expect(httpResponse.body.error).toBe(new ServerError().message)
+    expect(httpResponse.body.error).toBe(new ServerError().message)
   })
 
   test('Should call SignUpUseCase with correct params', async () => {
@@ -155,5 +166,44 @@ describe('Sign Up Router', () => {
       expect(httpResponse.statusCode).toBe(500)
       expect(httpResponse.body.error).toBe(new ServerError().message)
     }
+  })
+
+  test('Should return 201 when valid params are provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(201)
+    expect(httpResponse.body).toBe(
+      'The request was successful and a new resource was created as a result.'
+    )
+  })
+
+  test('Should return 400 when repeatPassword other than password is provided', async () => {
+    const signUpUseCaseSpy = makeSignUpUseCaseWithRepeatPasswordError()
+
+    const sut = new SignUpRouter({
+      signUpUseCase: signUpUseCaseSpy
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_other_password',
+        admin: false
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new RepeatPasswordError().message)
   })
 })
