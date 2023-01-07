@@ -118,8 +118,6 @@ describe('Sign Up Router', () => {
     )
   })
 
-  test('Should create user with admin false by default if no admin is provided', async () => {})
-
   test('Should return 500 if no httpRequest is provided', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route()
