@@ -28,7 +28,7 @@ module.exports = class SignUpRouter {
         return HttpResponse.badRequest(new MissingParamError('repeatPassword'))
       }
 
-      await this.userObjectShapeValidator.isValid(httpRequest)
+      await this.userObjectShapeValidator.isValid(httpRequest.body)
 
       await this.signUpUseCase.signUp(
         name,

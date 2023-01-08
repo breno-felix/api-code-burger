@@ -68,7 +68,9 @@ const makeSignUpUseCaseWithError = () => {
 
 const makeUserObjectShapeValidator = () => {
   class UserObjectShapeValidatorSpy {
-    async isValid(httpRequest) {}
+    async isValid(httpRequest) {
+      this.httpRequest = httpRequest
+    }
   }
 
   const userObjectShapeValidatorSpy = new UserObjectShapeValidatorSpy()
@@ -253,6 +255,21 @@ describe('Sign Up Router', () => {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new RepeatedEmailError().message)
+  })
+
+  test('Should call userObjectShapeValidator with correct httpRequest', async () => {
+    const { sut, userObjectShapeValidatorSpy } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+    await sut.route(httpRequest)
+    expect(userObjectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
   })
 
   test('Should return 400 if an invalid param is provided', async () => {
