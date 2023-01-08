@@ -84,6 +84,15 @@ const makeUserObjectShapeValidatorWithInvalidParamError = () => {
   return new UserObjectShapeValidatorSpy()
 }
 
+const makeUserObjectShapeValidatorWithError = () => {
+  class UserObjectShapeValidatorSpy {
+    async isValid() {
+      throw new Error()
+    }
+  }
+  return new UserObjectShapeValidatorSpy()
+}
+
 describe('Sign Up Router', () => {
   test('Should return 400 if no name is provided', async () => {
     const { sut } = makeSut()
@@ -268,7 +277,7 @@ describe('Sign Up Router', () => {
     expect(httpResponse.statusCode).toBe(400)
   })
 
-  test('Should throw if invalid dependencies are provided', async () => {
+  test('Should return 500 if invalid dependencies are provided', async () => {
     const invalid = {}
     const signUpUseCase = makeSignUpUseCase()
     const suts = [].concat(
@@ -301,11 +310,15 @@ describe('Sign Up Router', () => {
     }
   })
 
-  test('Should throw if any dependency throws', async () => {
+  test('Should return 500 if any dependency throw a new Error()', async () => {
     const signUpUseCase = makeSignUpUseCase()
     const suts = [].concat(
       new SignUpRouter({
-        authUseCase: makeSignUpUseCaseWithError()
+        signUpUseCase: makeSignUpUseCaseWithError()
+      }),
+      new SignUpRouter({
+        signUpUseCase,
+        userObjectShapeValidator: makeUserObjectShapeValidatorWithError()
       })
     )
     for (const sut of suts) {
