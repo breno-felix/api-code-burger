@@ -276,6 +276,13 @@ describe('Sign Up Router', () => {
       new SignUpRouter({}),
       new SignUpRouter({
         signUpUseCase: invalid
+      }),
+      new SignUpRouter({
+        signUpUseCase
+      }),
+      new SignUpRouter({
+        signUpUseCase,
+        userObjectShapeValidator: invalid
       })
     )
     for (const sut of suts) {
