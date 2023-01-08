@@ -1,21 +1,25 @@
 const {
   MissingParamError,
   RepeatPasswordError,
-  RepeatedEmailError
+  RepeatedEmailError,
+  InvalidParamError
 } = require('../../utils/errors')
 const { ServerError } = require('../errors')
 const SignUpRouter = require('./sign-up-router')
 
 const makeSut = () => {
   const signUpUseCaseSpy = makeSignUpUseCase()
+  const userObjectShapeValidatorSpy = makeUserObjectShapeValidator()
 
   const sut = new SignUpRouter({
-    signUpUseCase: signUpUseCaseSpy
+    signUpUseCase: signUpUseCaseSpy,
+    userObjectShapeValidator: userObjectShapeValidatorSpy
   })
 
   return {
     sut,
-    signUpUseCaseSpy
+    signUpUseCaseSpy,
+    userObjectShapeValidatorSpy
   }
 }
 
@@ -60,6 +64,24 @@ const makeSignUpUseCaseWithError = () => {
     }
   }
   return new SignUpUseCaseSpy()
+}
+
+const makeUserObjectShapeValidator = () => {
+  class UserObjectShapeValidatorSpy {
+    async isValid(httpRequest) {}
+  }
+
+  const userObjectShapeValidatorSpy = new UserObjectShapeValidatorSpy()
+  return userObjectShapeValidatorSpy
+}
+
+const makeUserObjectShapeValidatorWithInvalidParamError = () => {
+  class UserObjectShapeValidatorSpy {
+    async isValid() {
+      throw new InvalidParamError('description of some invalid parameter')
+    }
+  }
+  return new UserObjectShapeValidatorSpy()
 }
 
 describe('Sign Up Router', () => {
@@ -181,10 +203,11 @@ describe('Sign Up Router', () => {
   })
 
   test('Should return 400 when repeatPassword other than password is provided', async () => {
-    const signUpUseCaseSpy = makeSignUpUseCaseWithRepeatPasswordError()
+    const userObjectShapeValidator = makeUserObjectShapeValidator()
 
     const sut = new SignUpRouter({
-      signUpUseCase: signUpUseCaseSpy
+      signUpUseCase: makeSignUpUseCaseWithRepeatPasswordError(),
+      userObjectShapeValidator
     })
 
     const httpRequest = {
@@ -202,10 +225,11 @@ describe('Sign Up Router', () => {
   })
 
   test('Should return 400 when email provided is not unique in user database', async () => {
-    const signUpUseCaseSpy = makeSignUpUseCaseWithRepeatedEmailError()
+    const userObjectShapeValidator = makeUserObjectShapeValidator()
 
     const sut = new SignUpRouter({
-      signUpUseCase: signUpUseCaseSpy
+      signUpUseCase: makeSignUpUseCaseWithRepeatedEmailError(),
+      userObjectShapeValidator
     })
 
     const httpRequest = {
@@ -220,6 +244,28 @@ describe('Sign Up Router', () => {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new RepeatedEmailError().message)
+  })
+
+  test('Should return 400 if an invalid param is provided', async () => {
+    const signUpUseCase = makeSignUpUseCase()
+
+    const sut = new SignUpRouter({
+      signUpUseCase,
+      userObjectShapeValidator:
+        makeUserObjectShapeValidatorWithInvalidParamError()
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'invalid_name',
+        email: 'invalid_email@mail.com',
+        password: 'invalid_password',
+        repeatPassword: 'invalid_password',
+        admin: 'anything other than boolean'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
   })
 
   test('Should throw if invalid dependencies are provided', async () => {

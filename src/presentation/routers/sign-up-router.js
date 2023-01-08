@@ -2,12 +2,14 @@ const HttpResponse = require('../helpers/http-response')
 const {
   MissingParamError,
   RepeatPasswordError,
-  RepeatedEmailError
+  RepeatedEmailError,
+  InvalidParamError
 } = require('../../utils/errors')
 
 module.exports = class SignUpRouter {
-  constructor({ signUpUseCase } = {}) {
+  constructor({ signUpUseCase, userObjectShapeValidator } = {}) {
     this.signUpUseCase = signUpUseCase
+    this.userObjectShapeValidator = userObjectShapeValidator
   }
 
   async route(httpRequest) {
@@ -26,6 +28,8 @@ module.exports = class SignUpRouter {
         return HttpResponse.badRequest(new MissingParamError('repeatPassword'))
       }
 
+      await this.userObjectShapeValidator.isValid(httpRequest)
+
       await this.signUpUseCase.signUp(
         name,
         email,
@@ -40,6 +44,8 @@ module.exports = class SignUpRouter {
         return HttpResponse.badRequest(new RepeatPasswordError())
       } else if (error instanceof RepeatedEmailError) {
         return HttpResponse.badRequest(new RepeatedEmailError())
+      } else if (error instanceof InvalidParamError) {
+        return HttpResponse.badRequest(error)
       }
       return HttpResponse.serverError()
     }
