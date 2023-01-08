@@ -34,10 +34,12 @@ module.exports = class HttpResponse {
     }
   }
 
-  static Created(data) {
+  static created(data) {
     return {
       statusCode: 201,
-      body: 'The request was successful and a new resource was created as a result.'
+      body:
+        data ||
+        'The request was successful and a new resource was created as a result.'
     }
   }
 }

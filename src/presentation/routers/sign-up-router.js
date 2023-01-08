@@ -38,7 +38,7 @@ module.exports = class SignUpRouter {
         admin
       )
 
-      return HttpResponse.Created()
+      return HttpResponse.created()
     } catch (error) {
       if (error instanceof RepeatPasswordError) {
         return HttpResponse.badRequest(new RepeatPasswordError())
