@@ -98,8 +98,9 @@ describe('Login Router', () => {
       }
     }
     await sut.route(httpRequest)
-    expect(authUseCaseSpy.email).toBe(httpRequest.body.email)
-    expect(authUseCaseSpy.password).toBe(httpRequest.body.password)
+    requiredParams.forEach((param) => {
+      expect(authUseCaseSpy[param]).toBe(httpRequest.body[param])
+    })
   })
 
   test('Should return 401 when invalid credintials are provided', async () => {
