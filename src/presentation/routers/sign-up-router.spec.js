@@ -95,69 +95,26 @@ const makeUserObjectShapeValidatorWithError = () => {
   return new UserObjectShapeValidatorSpy()
 }
 
+const requiredParams = ['name', 'email', 'password', 'repeatPassword']
+
 describe('Sign Up Router', () => {
-  test('Should return 400 if no name is provided', async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        repeatPassword: 'any_password',
-        admin: false
+  requiredParams.forEach((param) => {
+    test(`Should return 400 if no ${param} is provided`, async () => {
+      const { sut } = makeSut()
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          email: 'any_email@mail.com',
+          password: 'any_password',
+          repeatPassword: 'any_password',
+          admin: false
+        }
       }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(new MissingParamError('name').message)
-  })
-
-  test('Should return 400 if no email is provided', async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        name: 'any_name',
-        password: 'any_password',
-        repeatPassword: 'any_password',
-        admin: false
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(new MissingParamError('email').message)
-  })
-
-  test('Should return 400 if no password is provided', async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        repeatPassword: 'any_password',
-        admin: false
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(
-      new MissingParamError('password').message
-    )
-  })
-
-  test('Should return 400 if no repeatPassword is provided', async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        admin: false
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(
-      new MissingParamError('repeatPassword').message
-    )
+      delete httpRequest.body[param]
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(400)
+      expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
+    })
   })
 
   test('Should return 500 if no httpRequest is provided', async () => {
