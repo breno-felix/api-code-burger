@@ -139,13 +139,9 @@ describe('Sign Up Router', () => {
       }
     }
     await sut.route(httpRequest)
-    expect(signUpUseCaseSpy.name).toBe(httpRequest.body.name)
-    expect(signUpUseCaseSpy.email).toBe(httpRequest.body.email)
-    expect(signUpUseCaseSpy.password).toBe(httpRequest.body.password)
-    expect(signUpUseCaseSpy.repeatPassword).toBe(
-      httpRequest.body.repeatPassword
-    )
-    expect(signUpUseCaseSpy.admin).toBe(httpRequest.body.admin)
+    requiredParams.forEach((param) => {
+      expect(signUpUseCaseSpy[param]).toBe(httpRequest.body[param])
+    })
   })
 
   test('Should return 201 when valid params are provided', async () => {
