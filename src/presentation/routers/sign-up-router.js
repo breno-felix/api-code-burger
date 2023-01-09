@@ -15,21 +15,13 @@ module.exports = class SignUpRouter {
   async route(httpRequest) {
     try {
       const { name, email, password, repeatPassword, admin } = httpRequest.body
-      if (!name) {
-        return HttpResponse.badRequest(new MissingParamError('name'))
-      }
-      if (!email) {
-        return HttpResponse.badRequest(new MissingParamError('email'))
-      }
-      if (!password) {
-        return HttpResponse.badRequest(new MissingParamError('password'))
-      }
-      if (!repeatPassword) {
-        return HttpResponse.badRequest(new MissingParamError('repeatPassword'))
-      }
-
+      const requiredParams = ['name', 'email', 'password', 'repeatPassword']
+      requiredParams.forEach((param) => {
+        if (!httpRequest.body[param]) {
+          throw new MissingParamError(param)
+        }
+      })
       await this.userObjectShapeValidator.isValid(httpRequest.body)
-
       await this.signUpUseCase.signUp(
         name,
         email,
@@ -37,7 +29,6 @@ module.exports = class SignUpRouter {
         repeatPassword,
         admin
       )
-
       return HttpResponse.created()
     } catch (error) {
       if (error instanceof RepeatPasswordError) {
@@ -45,6 +36,8 @@ module.exports = class SignUpRouter {
       } else if (error instanceof RepeatedEmailError) {
         return HttpResponse.badRequest(new RepeatedEmailError())
       } else if (error instanceof InvalidParamError) {
+        return HttpResponse.badRequest(error)
+      } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
       }
       return HttpResponse.serverError()
