@@ -96,6 +96,7 @@ const makeUserObjectShapeValidatorWithError = () => {
 }
 
 const requiredParams = ['name', 'email', 'password', 'repeatPassword']
+const invalidRequests = [undefined, {}]
 
 describe('Sign Up Router', () => {
   requiredParams.forEach((param) => {
@@ -117,18 +118,13 @@ describe('Sign Up Router', () => {
     })
   })
 
-  test('Should return 500 if no httpRequest is provided', async () => {
-    const { sut } = makeSut()
-    const httpResponse = await sut.route()
-    expect(httpResponse.statusCode).toBe(500)
-    expect(httpResponse.body.error).toBe(new ServerError().message)
-  })
-
-  test('Should return 500 if httpRequest has no body', async () => {
-    const { sut } = makeSut()
-    const httpResponse = await sut.route({})
-    expect(httpResponse.statusCode).toBe(500)
-    expect(httpResponse.body.error).toBe(new ServerError().message)
+  invalidRequests.forEach((httpRequest) => {
+    test('Should return 500 if the httpRequest is invalid', async () => {
+      const { sut } = makeSut()
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    })
   })
 
   test('Should call SignUpUseCase with correct params', async () => {
