@@ -25,12 +25,12 @@ const makeSut = () => {
 
 const makeSignUpUseCase = () => {
   class SignUpUseCaseSpy {
-    async signUp(name, email, password, repeatPassword, admin) {
-      this.name = name
-      this.email = email
-      this.password = password
-      this.repeatPassword = repeatPassword
-      this.admin = admin
+    async signUp(httpRequest) {
+      this.name = httpRequest.name
+      this.email = httpRequest.email
+      this.password = httpRequest.password
+      this.repeatPassword = httpRequest.repeatPassword
+      this.admin = httpRequest.admin
       return this.isRegistered
     }
   }

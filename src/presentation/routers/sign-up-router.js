@@ -14,7 +14,6 @@ module.exports = class SignUpRouter {
 
   async route(httpRequest) {
     try {
-      const { name, email, password, repeatPassword, admin } = httpRequest.body
       const requiredParams = ['name', 'email', 'password', 'repeatPassword']
       requiredParams.forEach((param) => {
         if (!httpRequest.body[param]) {
@@ -22,13 +21,7 @@ module.exports = class SignUpRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
-      await this.signUpUseCase.signUp(
-        name,
-        email,
-        password,
-        repeatPassword,
-        admin
-      )
+      await this.signUpUseCase.signUp(httpRequest.body)
       return HttpResponse.created()
     } catch (error) {
       if (error instanceof RepeatPasswordError) {
