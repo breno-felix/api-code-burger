@@ -141,6 +141,15 @@ describe('Auth UseCase', () => {
     expect(accessToken).toBeNull()
   })
 
+  test('Should call Encrypter with correct values', async () => {
+    const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
+    await sut.auth({ email: 'valid_email@mail.com', password: 'any_password' })
+    expect(encrypterSpy.password).toBe('any_password')
+    expect(encrypterSpy.hashedPassword).toBe(
+      loadUserByEmailRepositorySpy.user.password
+    )
+  })
+
   test('Should return null if an invalid password is provided', async () => {
     const { sut, encrypterSpy } = makeSut()
     encrypterSpy.isValid = false
@@ -149,15 +158,6 @@ describe('Auth UseCase', () => {
       password: 'invalid_password'
     })
     expect(accessToken).toBeNull()
-  })
-
-  test('Should call Encrypter with correct values', async () => {
-    const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
-    await sut.auth({ email: 'valid_email@mail.com', password: 'any_password' })
-    expect(encrypterSpy.password).toBe('any_password')
-    expect(encrypterSpy.hashedPassword).toBe(
-      loadUserByEmailRepositorySpy.user.password
-    )
   })
 
   test('Should call TokenGenerator with correct userId', async () => {
