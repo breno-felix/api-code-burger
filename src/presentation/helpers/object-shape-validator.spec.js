@@ -1,14 +1,27 @@
-const UserObjectShapeValidator = require('./user-object-shape-validator')
-const userSchema = require('./userSchema')
+const ObjectShapeValidator = require('./object-shape-validator')
 const { ValidationError } = require('yup')
 const { InvalidParamError, MissingParamError } = require('../../utils/errors')
 
 const makeSut = () => {
-  const sut = new UserObjectShapeValidator()
+  const yupSchemaSpy = makeYupSchema()
+
+  const sut = new ObjectShapeValidator({
+    yupSchema: yupSchemaSpy
+  })
 
   return {
-    sut
+    sut,
+    yupSchemaSpy
   }
+}
+
+const makeYupSchema = () => {
+  class YupSchemaSpy {
+    async validateSync(httpRequest) {
+      this.httpRequest = httpRequest
+    }
+  }
+  return new YupSchemaSpy()
 }
 
 describe('User Object Shape Validator', () => {
@@ -22,9 +35,9 @@ describe('User Object Shape Validator', () => {
   })
 
   test('Should call yup with correct httpRequest.body', async () => {
-    const { sut } = makeSut()
+    const { sut, yupSchemaSpy } = makeSut()
 
-    const validateSyncSpy = jest.spyOn(userSchema, 'validateSync')
+    const validateSyncSpy = jest.spyOn(yupSchemaSpy, 'validateSync')
 
     const httpRequest = {
       body: {
@@ -40,9 +53,9 @@ describe('User Object Shape Validator', () => {
   })
 
   test('Should throw new InvalidParamError if yup throw new yup.ValidationError', async () => {
-    const { sut } = makeSut()
+    const { sut, yupSchemaSpy } = makeSut()
 
-    jest.spyOn(userSchema, 'validateSync').mockImplementationOnce(() => {
+    jest.spyOn(yupSchemaSpy, 'validateSync').mockImplementationOnce(() => {
       throw new ValidationError()
     })
 
@@ -61,9 +74,9 @@ describe('User Object Shape Validator', () => {
   })
 
   test('Should throw new Error if yup throw new Error', async () => {
-    const { sut } = makeSut()
+    const { sut, yupSchemaSpy } = makeSut()
 
-    jest.spyOn(userSchema, 'validateSync').mockImplementationOnce(() => {
+    jest.spyOn(yupSchemaSpy, 'validateSync').mockImplementationOnce(() => {
       throw new Error()
     })
 
