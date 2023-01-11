@@ -1,5 +1,5 @@
 const { ValidationError } = require('yup')
-const { InvalidParamError, MissingParamError } = require('../../utils/errors')
+const { InvalidParamError, MissingParamError } = require('../errors')
 
 module.exports = class ObjectShapeValidator {
   constructor({ yupSchema } = {}) {
