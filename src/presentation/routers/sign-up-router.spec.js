@@ -9,17 +9,17 @@ const {
 
 const makeSut = () => {
   const signUpUseCaseSpy = makeSignUpUseCase()
-  const userObjectShapeValidatorSpy = makeUserObjectShapeValidator()
+  const objectShapeValidatorSpy = makeObjectShapeValidator()
 
   const sut = new SignUpRouter({
     signUpUseCase: signUpUseCaseSpy,
-    userObjectShapeValidator: userObjectShapeValidatorSpy
+    objectShapeValidator: objectShapeValidatorSpy
   })
 
   return {
     sut,
     signUpUseCaseSpy,
-    userObjectShapeValidatorSpy
+    objectShapeValidatorSpy
   }
 }
 
@@ -66,33 +66,33 @@ const makeSignUpUseCaseWithError = () => {
   return new SignUpUseCaseSpy()
 }
 
-const makeUserObjectShapeValidator = () => {
-  class UserObjectShapeValidatorSpy {
+const makeObjectShapeValidator = () => {
+  class ObjectShapeValidatorSpy {
     async isValid(httpRequest) {
       this.httpRequest = httpRequest
     }
   }
 
-  const userObjectShapeValidatorSpy = new UserObjectShapeValidatorSpy()
-  return userObjectShapeValidatorSpy
+  const objectShapeValidatorSpy = new ObjectShapeValidatorSpy()
+  return objectShapeValidatorSpy
 }
 
-const makeUserObjectShapeValidatorWithInvalidParamError = () => {
-  class UserObjectShapeValidatorSpy {
+const makeObjectShapeValidatorWithInvalidParamError = () => {
+  class ObjectShapeValidatorSpy {
     async isValid() {
       throw new InvalidParamError('description of some invalid parameter')
     }
   }
-  return new UserObjectShapeValidatorSpy()
+  return new ObjectShapeValidatorSpy()
 }
 
-const makeUserObjectShapeValidatorWithError = () => {
-  class UserObjectShapeValidatorSpy {
+const makeObjectShapeValidatorWithError = () => {
+  class ObjectShapeValidatorSpy {
     async isValid() {
       throw new Error()
     }
   }
-  return new UserObjectShapeValidatorSpy()
+  return new ObjectShapeValidatorSpy()
 }
 
 const requiredParams = ['name', 'email', 'password', 'repeatPassword']
@@ -163,11 +163,11 @@ describe('Sign Up Router', () => {
   })
 
   test('Should return 400 when repeatPassword other than password is provided', async () => {
-    const userObjectShapeValidator = makeUserObjectShapeValidator()
+    const objectShapeValidator = makeObjectShapeValidator()
 
     const sut = new SignUpRouter({
       signUpUseCase: makeSignUpUseCaseWithRepeatPasswordError(),
-      userObjectShapeValidator
+      objectShapeValidator
     })
 
     const httpRequest = {
@@ -185,11 +185,11 @@ describe('Sign Up Router', () => {
   })
 
   test('Should return 400 when email provided is not unique in user database', async () => {
-    const userObjectShapeValidator = makeUserObjectShapeValidator()
+    const objectShapeValidator = makeObjectShapeValidator()
 
     const sut = new SignUpRouter({
       signUpUseCase: makeSignUpUseCaseWithRepeatedEmailError(),
-      userObjectShapeValidator
+      objectShapeValidator
     })
 
     const httpRequest = {
@@ -206,8 +206,8 @@ describe('Sign Up Router', () => {
     expect(httpResponse.body.error).toBe(new RepeatedEmailError().message)
   })
 
-  test('Should call userObjectShapeValidator with correct httpRequest', async () => {
-    const { sut, userObjectShapeValidatorSpy } = makeSut()
+  test('Should call objectShapeValidator with correct httpRequest', async () => {
+    const { sut, objectShapeValidatorSpy } = makeSut()
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -218,7 +218,7 @@ describe('Sign Up Router', () => {
       }
     }
     await sut.route(httpRequest)
-    expect(userObjectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
+    expect(objectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
   })
 
   test('Should return 400 if an invalid param is provided', async () => {
@@ -226,8 +226,7 @@ describe('Sign Up Router', () => {
 
     const sut = new SignUpRouter({
       signUpUseCase,
-      userObjectShapeValidator:
-        makeUserObjectShapeValidatorWithInvalidParamError()
+      objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError()
     })
 
     const httpRequest = {
@@ -257,7 +256,7 @@ describe('Sign Up Router', () => {
       }),
       new SignUpRouter({
         signUpUseCase,
-        userObjectShapeValidator: invalid
+        objectShapeValidator: invalid
       })
     )
     for (const sut of suts) {
@@ -284,7 +283,7 @@ describe('Sign Up Router', () => {
       }),
       new SignUpRouter({
         signUpUseCase,
-        userObjectShapeValidator: makeUserObjectShapeValidatorWithError()
+        objectShapeValidator: makeObjectShapeValidatorWithError()
       })
     )
     for (const sut of suts) {

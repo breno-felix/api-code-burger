@@ -7,9 +7,9 @@ const {
 } = require('../../utils/errors')
 
 module.exports = class SignUpRouter {
-  constructor({ signUpUseCase, userObjectShapeValidator } = {}) {
+  constructor({ signUpUseCase, objectShapeValidator } = {}) {
     this.signUpUseCase = signUpUseCase
-    this.userObjectShapeValidator = userObjectShapeValidator
+    this.objectShapeValidator = objectShapeValidator
   }
 
   async route(httpRequest) {
@@ -21,7 +21,7 @@ module.exports = class SignUpRouter {
           throw new MissingParamError(param)
         }
       })
-      await this.userObjectShapeValidator.isValid(httpRequest.body)
+      await this.objectShapeValidator.isValid(httpRequest.body)
       await this.signUpUseCase.signUp(
         name,
         email,
