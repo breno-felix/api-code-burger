@@ -1,4 +1,4 @@
-const MissingParamError = require('../../utils/errors/missing-param-error')
+const { MissingParamServerError } = require('../../utils/errors')
 
 module.exports = class UpdateAccessTokenRepository {
   constructor(userModel) {
@@ -7,10 +7,10 @@ module.exports = class UpdateAccessTokenRepository {
 
   async update(userId, accessToken) {
     if (!userId) {
-      throw new MissingParamError('userId')
+      throw new MissingParamServerError('userId')
     }
     if (!accessToken) {
-      throw new MissingParamError('accessToken')
+      throw new MissingParamServerError('accessToken')
     }
     await this.userModel.updateOne(
       {

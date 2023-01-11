@@ -1,6 +1,6 @@
 const ObjectShapeValidator = require('./object-shape-validator')
 const { ValidationError } = require('yup')
-const { InvalidParamError, MissingParamError } = require('../../utils/errors')
+const { InvalidParamError, MissingParamServerError } = require('../errors')
 
 const makeSut = () => {
   const yupSchemaSpy = makeYupSchema()
@@ -31,7 +31,9 @@ describe('User Object Shape Validator', () => {
 
   test('Should throw new MissingParamError if no httpRequest is provided', async () => {
     const { sut } = makeSut()
-    expect(sut.isValid()).rejects.toThrow(new MissingParamError('httpRequest'))
+    expect(sut.isValid()).rejects.toThrow(
+      new MissingParamServerError('httpRequest')
+    )
   })
 
   test('Should call yup with correct httpRequest.body', async () => {

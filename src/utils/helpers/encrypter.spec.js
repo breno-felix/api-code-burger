@@ -9,7 +9,7 @@ jest.mock('bcrypt', () => ({
 
 const bcrypt = require('bcrypt')
 const Encrypter = require('./encrypter')
-const MissingParamError = require('../errors/missing-param-error')
+const { MissingParamServerError } = require('../errors')
 
 const makeSut = () => {
   return new Encrypter()
@@ -38,9 +38,9 @@ describe('Encrypter', () => {
 
   test('Should throw if no params are provided', async () => {
     const sut = makeSut()
-    expect(sut.compare()).rejects.toThrow(new MissingParamError('value'))
+    expect(sut.compare()).rejects.toThrow(new MissingParamServerError('value'))
     expect(sut.compare('any_value')).rejects.toThrow(
-      new MissingParamError('hash')
+      new MissingParamServerError('hash')
     )
   })
 })

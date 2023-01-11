@@ -1,5 +1,5 @@
 const { ValidationError } = require('yup')
-const { InvalidParamError, MissingParamError } = require('../errors')
+const { InvalidParamError, MissingParamServerError } = require('../errors')
 
 module.exports = class ObjectShapeValidator {
   constructor({ yupSchema } = {}) {
@@ -9,7 +9,7 @@ module.exports = class ObjectShapeValidator {
   async isValid(httpRequest) {
     try {
       if (!httpRequest) {
-        throw new MissingParamError('httpRequest')
+        throw new MissingParamServerError('httpRequest')
       }
       await this.yupSchema.validateSync(httpRequest.body)
     } catch (error) {
