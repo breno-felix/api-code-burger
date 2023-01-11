@@ -1,4 +1,6 @@
-const yup = require('yup')
+const UserObjectShapeValidator = require('./user-object-shape-validator')
+const userSchema = require('./userSchema')
+const { ValidationError } = require('yup')
 const { InvalidParamError, MissingParamError } = require('../../utils/errors')
 
 const makeSut = () => {
@@ -6,30 +8,6 @@ const makeSut = () => {
 
   return {
     sut
-  }
-}
-
-const schema = yup.object().shape({
-  name: yup.string().required(),
-  email: yup.string().email().required(),
-  password: yup.string().required().min(6),
-  repeatPassword: yup.ref('password'),
-  admin: yup.boolean()
-})
-
-class UserObjectShapeValidator {
-  async isValid(httpRequest) {
-    try {
-      if (!httpRequest) {
-        throw new MissingParamError('httpRequest')
-      }
-      await schema.validateSync(httpRequest.body)
-    } catch (error) {
-      if (error instanceof yup.ValidationError) {
-        throw new InvalidParamError(error.errors)
-      }
-      throw error
-    }
   }
 }
 
@@ -46,7 +24,7 @@ describe('User Object Shape Validator', () => {
   test('Should call yup with correct httpRequest.body', async () => {
     const { sut } = makeSut()
 
-    const validateSyncSpy = jest.spyOn(schema, 'validateSync')
+    const validateSyncSpy = jest.spyOn(userSchema, 'validateSync')
 
     const httpRequest = {
       body: {
@@ -64,8 +42,8 @@ describe('User Object Shape Validator', () => {
   test('Should throw new InvalidParamError if yup throw new yup.ValidationError', async () => {
     const { sut } = makeSut()
 
-    jest.spyOn(schema, 'validateSync').mockImplementationOnce(() => {
-      throw new yup.ValidationError()
+    jest.spyOn(userSchema, 'validateSync').mockImplementationOnce(() => {
+      throw new ValidationError()
     })
 
     const httpRequest = {
@@ -85,7 +63,7 @@ describe('User Object Shape Validator', () => {
   test('Should throw new Error if yup throw new Error', async () => {
     const { sut } = makeSut()
 
-    jest.spyOn(schema, 'validateSync').mockImplementationOnce(() => {
+    jest.spyOn(userSchema, 'validateSync').mockImplementationOnce(() => {
       throw new Error()
     })
 
