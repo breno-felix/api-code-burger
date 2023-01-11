@@ -1,4 +1,4 @@
-const { MissingParamError } = require('../../utils/errors')
+const { MissingParamServerError } = require('../../utils/errors')
 const AuthUseCase = require('./auth-usecase')
 
 const makeEncrypter = () => {
@@ -111,13 +111,13 @@ describe('Auth UseCase', () => {
   test('Should throw if no email is provided', async () => {
     const { sut } = makeSut()
     const promise = sut.auth()
-    expect(promise).rejects.toThrow(new MissingParamError('email'))
+    expect(promise).rejects.toThrow(new MissingParamServerError('email'))
   })
 
   test('Should throw if no password is provided', async () => {
     const { sut } = makeSut()
     const promise = sut.auth('any_email@mail.com')
-    expect(promise).rejects.toThrow(new MissingParamError('password'))
+    expect(promise).rejects.toThrow(new MissingParamServerError('password'))
   })
 
   test('Should call LoadUserByEmailRepository with correct email', async () => {

@@ -1,4 +1,4 @@
-const { MissingParamError } = require('../../utils/errors')
+const { MissingParamServerError } = require('../../utils/errors')
 module.exports = class AuthUseCase {
   constructor({
     loadUserByEmailRepository,
@@ -14,10 +14,10 @@ module.exports = class AuthUseCase {
 
   async auth(email, password) {
     if (!email) {
-      throw new MissingParamError('email')
+      throw new MissingParamServerError('email')
     }
     if (!password) {
-      throw new MissingParamError('password')
+      throw new MissingParamServerError('password')
     }
     const user = await this.loadUserByEmailRepository.load(email)
     const isValid =
