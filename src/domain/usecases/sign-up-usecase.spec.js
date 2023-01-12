@@ -228,4 +228,46 @@ describe('Sign up UseCase', () => {
       admin: httpRequest.body.admin
     })
   })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const loadUserByEmailRepository = makeLoadUserByEmailRepository()
+    const encrypter = makeEncrypter()
+    const suts = [].concat(
+      new SignUpUseCase(),
+      new SignUpUseCase({}),
+      new SignUpUseCase({
+        loadUserByEmailRepository: invalid
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository,
+        encrypter: invalid
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository,
+        encrypter
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        createUserRepository: invalid
+      })
+    )
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        repeatPassword: 'valid_password',
+        admin: false
+      }
+    }
+    for (const sut of suts) {
+      const promise = sut.signUp(httpRequest.body)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
