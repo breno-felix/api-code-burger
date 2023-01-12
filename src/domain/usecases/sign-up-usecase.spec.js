@@ -1,4 +1,7 @@
-const { MissingParamServerError } = require('../../utils/errors')
+const {
+  MissingParamServerError,
+  RepeatedEmailError
+} = require('../../utils/errors')
 
 class SignUpUseCase {
   constructor({ loadUserByEmailRepository } = {}) {
@@ -9,7 +12,10 @@ class SignUpUseCase {
     if (!httpRequest) {
       throw new MissingParamServerError('httpRequest')
     }
-    await this.loadUserByEmailRepository.load(httpRequest.email)
+    const user = await this.loadUserByEmailRepository.load(httpRequest.email)
+    if (user) {
+      throw new RepeatedEmailError()
+    }
   }
 }
 
@@ -21,10 +27,7 @@ const makeLoadUserByEmailRepository = () => {
     }
   }
   const loadUserByEmailRepositorySpy = new LoadUserByEmailRepositorySpy()
-  loadUserByEmailRepositorySpy.user = {
-    id: 'any_id',
-    password: 'hashed_password'
-  }
+  loadUserByEmailRepositorySpy.user = null
   return loadUserByEmailRepositorySpy
 }
 
@@ -60,6 +63,9 @@ describe('Sign up UseCase', () => {
 
   test('Should call LoadUserByEmailRepository with correct email', async () => {
     const { sut, loadUserByEmailRepositorySpy } = makeSut()
+
+    const validateSyncSpy = jest.spyOn(loadUserByEmailRepositorySpy, 'load')
+
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -70,6 +76,26 @@ describe('Sign up UseCase', () => {
       }
     }
     await sut.signUp(httpRequest.body)
-    expect(loadUserByEmailRepositorySpy.email).toBe(httpRequest.body.email)
+    expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.email)
+  })
+
+  test('Should throw new RepeatedEmailError if email provided already exists', async () => {
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    loadUserByEmailRepositorySpy.user = {
+      id: 'any_id'
+    }
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'invalid_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+
+    expect(sut.signUp(httpRequest.body)).rejects.toThrow(
+      new RepeatedEmailError()
+    )
   })
 })
