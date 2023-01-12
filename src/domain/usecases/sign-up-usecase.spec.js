@@ -270,4 +270,36 @@ describe('Sign up UseCase', () => {
       expect(promise).rejects.toThrow()
     }
   })
+
+  test('Should throw if dependency throw', async () => {
+    const loadUserByEmailRepository = makeLoadUserByEmailRepository()
+    const encrypter = makeEncrypter()
+    const suts = [].concat(
+      new SignUpUseCase({
+        loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError()
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository,
+        encrypter: makeEncrypterWithError()
+      }),
+      new SignUpUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        createUserRepository: makeCreateUserRepositoryWithError()
+      })
+    )
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        repeatPassword: 'valid_password',
+        admin: false
+      }
+    }
+    for (const sut of suts) {
+      const promise = sut.signUp(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
