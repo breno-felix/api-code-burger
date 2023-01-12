@@ -5,42 +5,57 @@ const {
 } = require('../../utils/errors')
 
 class SignUpUseCase {
-  constructor({ loadUserByEmailRepository, encrypter } = {}) {
+  constructor({
+    loadUserByEmailRepository,
+    encrypter,
+    createUserRepository
+  } = {}) {
     this.loadUserByEmailRepository = loadUserByEmailRepository
     this.encrypter = encrypter
+    this.createUserRepository = createUserRepository
   }
 
   async signUp(httpRequest) {
     if (!httpRequest) {
       throw new MissingParamServerError('httpRequest')
     }
-    const user = await this.loadUserByEmailRepository.load(httpRequest.email)
 
     if (httpRequest.repeatPassword !== httpRequest.password) {
       throw new RepeatPasswordError()
     }
 
+    const user = await this.loadUserByEmailRepository.load(httpRequest.email)
+
     if (user) {
       throw new RepeatedEmailError()
     }
 
-    this.encrypter.hash(httpRequest.password)
+    const hashedPassword = await this.encrypter.hash(httpRequest.password)
+    await this.createUserRepository.create({
+      name: httpRequest.name,
+      email: httpRequest.email,
+      password: hashedPassword,
+      admin: httpRequest.admin
+    })
   }
 }
 
 const makeSut = () => {
   const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository()
   const encrypterSpy = makeEncrypter()
+  const createUserRepositorySpy = makeCreateUserRepository()
 
   const sut = new SignUpUseCase({
     loadUserByEmailRepository: loadUserByEmailRepositorySpy,
-    encrypter: encrypterSpy
+    encrypter: encrypterSpy,
+    createUserRepository: createUserRepositorySpy
   })
 
   return {
     sut,
     loadUserByEmailRepositorySpy,
-    encrypterSpy
+    encrypterSpy,
+    createUserRepositorySpy
   }
 }
 
@@ -63,6 +78,28 @@ const makeLoadUserByEmailRepositoryWithError = () => {
     }
   }
   return new LoadUserByEmailRepositorySpy()
+}
+
+const makeCreateUserRepository = () => {
+  class CreateUserRepositorySpy {
+    async create({ name, email, password, admin }) {
+      this.name = name
+      this.email = email
+      this.password = password
+      this.admin = admin
+    }
+  }
+  const createUserRepositorySpy = new CreateUserRepositorySpy()
+  return createUserRepositorySpy
+}
+
+const makeCreateUserRepositoryWithError = () => {
+  class CreateUserRepositorySpy {
+    async create() {
+      throw new Error()
+    }
+  }
+  return new CreateUserRepositorySpy()
 }
 
 const makeEncrypter = () => {
@@ -166,5 +203,29 @@ describe('Sign up UseCase', () => {
 
     await sut.signUp(httpRequest.body)
     expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.password)
+  })
+
+  test('Should call CreateUserRepository with correct values', async () => {
+    const { sut, createUserRepositorySpy, encrypterSpy } = makeSut()
+
+    const validateSyncSpy = jest.spyOn(createUserRepositorySpy, 'create')
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        repeatPassword: 'valid_password',
+        admin: false
+      }
+    }
+
+    await sut.signUp(httpRequest.body)
+    expect(validateSyncSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name,
+      email: httpRequest.body.email,
+      password: encrypterSpy.hashedPassword,
+      admin: httpRequest.body.admin
+    })
   })
 })
