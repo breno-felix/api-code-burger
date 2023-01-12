@@ -1,6 +1,7 @@
 const {
   MissingParamServerError,
-  RepeatedEmailError
+  RepeatedEmailError,
+  RepeatPasswordError
 } = require('../../utils/errors')
 
 class SignUpUseCase {
@@ -13,6 +14,11 @@ class SignUpUseCase {
       throw new MissingParamServerError('httpRequest')
     }
     const user = await this.loadUserByEmailRepository.load(httpRequest.email)
+
+    if (httpRequest.repeatPassword !== httpRequest.password) {
+      throw new RepeatPasswordError()
+    }
+
     if (user) {
       throw new RepeatedEmailError()
     }
@@ -58,6 +64,24 @@ describe('Sign up UseCase', () => {
     const { sut } = makeSut()
     expect(sut.signUp()).rejects.toThrow(
       new MissingParamServerError('httpRequest')
+    )
+  })
+
+  test('Should throw a new RepeatPasswordError if repeatPassword does not match the password', async () => {
+    const { sut } = makeSut()
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_other_password',
+        admin: false
+      }
+    }
+
+    expect(sut.signUp(httpRequest.body)).rejects.toThrow(
+      new RepeatPasswordError()
     )
   })
 
