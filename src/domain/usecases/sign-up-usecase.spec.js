@@ -5,8 +5,9 @@ const {
 } = require('../../utils/errors')
 
 class SignUpUseCase {
-  constructor({ loadUserByEmailRepository } = {}) {
+  constructor({ loadUserByEmailRepository, encrypter } = {}) {
     this.loadUserByEmailRepository = loadUserByEmailRepository
+    this.encrypter = encrypter
   }
 
   async signUp(httpRequest) {
@@ -22,6 +23,24 @@ class SignUpUseCase {
     if (user) {
       throw new RepeatedEmailError()
     }
+
+    this.encrypter.hash(httpRequest.password)
+  }
+}
+
+const makeSut = () => {
+  const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository()
+  const encrypterSpy = makeEncrypter()
+
+  const sut = new SignUpUseCase({
+    loadUserByEmailRepository: loadUserByEmailRepositorySpy,
+    encrypter: encrypterSpy
+  })
+
+  return {
+    sut,
+    loadUserByEmailRepositorySpy,
+    encrypterSpy
   }
 }
 
@@ -46,17 +65,24 @@ const makeLoadUserByEmailRepositoryWithError = () => {
   return new LoadUserByEmailRepositorySpy()
 }
 
-const makeSut = () => {
-  const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository()
-
-  const sut = new SignUpUseCase({
-    loadUserByEmailRepository: loadUserByEmailRepositorySpy
-  })
-
-  return {
-    sut,
-    loadUserByEmailRepositorySpy
+const makeEncrypter = () => {
+  class EncrypterSpy {
+    async hash(password) {
+      this.password = password
+      return this.hashedPassword
+    }
   }
+  const encrypterSpy = new EncrypterSpy()
+  encrypterSpy.hashedPassword = 'hashed_password'
+  return encrypterSpy
+}
+const makeEncrypterWithError = () => {
+  class EncrypterSpy {
+    async hash() {
+      throw new Error()
+    }
+  }
+  return new EncrypterSpy()
 }
 
 describe('Sign up UseCase', () => {
@@ -121,5 +147,24 @@ describe('Sign up UseCase', () => {
     expect(sut.signUp(httpRequest.body)).rejects.toThrow(
       new RepeatedEmailError()
     )
+  })
+
+  test('Should call Encrypter with correct password', async () => {
+    const { sut, encrypterSpy } = makeSut()
+
+    const validateSyncSpy = jest.spyOn(encrypterSpy, 'hash')
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        repeatPassword: 'valid_password',
+        admin: false
+      }
+    }
+
+    await sut.signUp(httpRequest.body)
+    expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.password)
   })
 })
