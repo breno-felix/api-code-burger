@@ -50,4 +50,16 @@ describe('LoadUserByEmail Repository', () => {
     }).toEqual(validUser)
     expect(user._id).toEqual(expect.anything())
   })
+
+  test('Should throw if no userModel if provided', async () => {
+    const sut = new CreateUserRepository()
+    const validUser = {
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+      admin: false
+    }
+    const promise = sut.create(validUser)
+    expect(promise).rejects.toThrow()
+  })
 })
