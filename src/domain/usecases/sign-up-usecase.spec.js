@@ -167,7 +167,7 @@ describe('Sign up UseCase', () => {
     }
 
     await sut.signUp(httpRequest.body)
-    expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.password)
+    expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.password, 10)
   })
 
   test('Should call CreateUserRepository with correct values', async () => {
