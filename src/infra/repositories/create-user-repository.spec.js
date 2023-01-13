@@ -1,20 +1,8 @@
+const CreateUserRepository = require('./create-user-repository')
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const UserModel = require('../entities/UserModel')
 const { MissingParamServerError } = require('../../utils/errors')
-
-class CreateUserRepository {
-  constructor(userModel) {
-    this.userModel = userModel
-  }
-
-  async create(userObject) {
-    if (!userObject) {
-      throw new MissingParamServerError('userObject')
-    }
-    await this.userModel.create(userObject)
-  }
-}
 
 const makeSut = () => {
   return new CreateUserRepository(UserModel)

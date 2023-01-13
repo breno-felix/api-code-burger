@@ -1,8 +1,8 @@
+const UpdateAccessTokenRepository = require('./update-access-token-repository')
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const UserModel = require('../entities/UserModel')
 const { MissingParamServerError } = require('../../utils/errors')
-const UpdateAccessTokenRepository = require('./update-access-token-repository')
 let fakeUserId
 
 const makeSut = () => {
