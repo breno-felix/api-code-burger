@@ -50,7 +50,7 @@ describe('Encrypter', () => {
     )
   })
 
-  test('Should call bcrypt.hash with correct value', async () => {
+  test('Should call bcrypt.hash with correct values', async () => {
     const sut = makeSut()
     await sut.hash('any_value', 10)
     expect(bcrypt.value).toBe('any_value')
@@ -61,5 +61,13 @@ describe('Encrypter', () => {
     const sut = makeSut()
     const hash = await sut.hash('any_value', 10)
     expect(hash).toBe('hashed_value')
+  })
+
+  test('Should throw if no params are provided to encrypter.hash', async () => {
+    const sut = makeSut()
+    expect(sut.hash()).rejects.toThrow(new MissingParamServerError('value'))
+    expect(sut.hash('any_value')).rejects.toThrow(
+      new MissingParamServerError('saltRounds')
+    )
   })
 })
