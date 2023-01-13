@@ -1,6 +1,7 @@
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const UserModel = require('../entities/UserModel')
+const { MissingParamServerError } = require('../../utils/errors')
 
 class CreateUserRepository {
   constructor(userModel) {
@@ -8,6 +9,9 @@ class CreateUserRepository {
   }
 
   async create(userObject) {
+    if (!userObject) {
+      throw new MissingParamServerError('userObject')
+    }
     await this.userModel.create(userObject)
   }
 }
@@ -61,5 +65,12 @@ describe('LoadUserByEmail Repository', () => {
     }
     const promise = sut.create(validUser)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no userObject is provided', async () => {
+    const sut = makeSut()
+    expect(sut.create()).rejects.toThrow(
+      new MissingParamServerError('userObject')
+    )
   })
 })
