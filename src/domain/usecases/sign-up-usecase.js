@@ -30,7 +30,7 @@ module.exports = class SignUpUseCase {
       throw new RepeatedEmailError()
     }
 
-    const hashedPassword = await this.encrypter.hash(httpRequest.password, 10)
+    const hashedPassword = await this.encrypter.hash(httpRequest.password)
     await this.createUserRepository.create({
       name: httpRequest.name,
       email: httpRequest.email,

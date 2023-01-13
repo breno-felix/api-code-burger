@@ -6,9 +6,8 @@ jest.mock('bcrypt', () => ({
     this.hashed = hashed
     return this.isValid
   },
-  async hash(value, saltRounds) {
+  async hash(value) {
     this.value = value
-    this.saltRounds = saltRounds
     return this.valueHashed
   }
 }))
@@ -18,7 +17,7 @@ const Encrypter = require('./encrypter')
 const { MissingParamServerError } = require('../errors')
 
 const makeSut = () => {
-  return new Encrypter()
+  return new Encrypter(10)
 }
 
 describe('Encrypter', () => {
@@ -50,22 +49,25 @@ describe('Encrypter', () => {
     )
   })
 
-  test('Should call bcrypt.hash with correct values', async () => {
+  test('Should call bcrypt.hash with correct value', async () => {
     const sut = makeSut()
-    await sut.hash('any_value', 10)
+    await sut.hash('any_value')
     expect(bcrypt.value).toBe('any_value')
-    expect(bcrypt.saltRounds).toBe(10)
   })
 
   test('Should return hash if bcrypt.hash returns hash', async () => {
     const sut = makeSut()
-    const hash = await sut.hash('any_value', 10)
-    expect(hash).toBe('hashed_value')
+    const hash = await sut.hash('any_value')
+    expect(hash).toBe(bcrypt.valueHashed)
   })
 
-  test('Should throw if no params are provided to encrypter.hash', async () => {
+  test('Should throw if no value is provided to encrypter.hash', async () => {
     const sut = makeSut()
     expect(sut.hash()).rejects.toThrow(new MissingParamServerError('value'))
+  })
+
+  test('Should throw if no saltRounds is provided', async () => {
+    const sut = new Encrypter()
     expect(sut.hash('any_value')).rejects.toThrow(
       new MissingParamServerError('saltRounds')
     )
