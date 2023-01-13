@@ -56,4 +56,10 @@ describe('Encrypter', () => {
     expect(bcrypt.value).toBe('any_value')
     expect(bcrypt.saltRounds).toBe(10)
   })
+
+  test('Should return hash if bcrypt.hash returns hash', async () => {
+    const sut = makeSut()
+    const hash = await sut.hash('any_value', 10)
+    expect(hash).toBe('hashed_value')
+  })
 })
