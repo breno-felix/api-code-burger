@@ -55,6 +55,21 @@ describe('LoadUserByEmail Repository', () => {
     expect(user._id).toEqual(expect.anything())
   })
 
+  test('Should create user with the admin param false by default', async () => {
+    const sut = makeSut()
+
+    const validUser = {
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password'
+    }
+    await sut.create(validUser)
+    const user = await UserModel.findOne({
+      email: validUser.email
+    })
+    expect(user.admin).toBe(false)
+  })
+
   test('Should throw if no userModel if provided', async () => {
     const sut = new CreateUserRepository()
     const validUser = {

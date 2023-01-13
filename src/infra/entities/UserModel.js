@@ -4,7 +4,7 @@ const userSchema = MongooseHelper.newSchema({
   name: String,
   email: String,
   password: String,
-  admin: Boolean,
+  admin: { type: Boolean, default: false },
   accessToken: String
 })
 
