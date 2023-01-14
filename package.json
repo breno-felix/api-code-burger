@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main/server.js",
   "scripts": {
-    "start": "NODE_ENV=production node src/main/server.js",
+    "start": "NODE_ENV=production node -r sucrase/register src/main/server.js",
     "test": "NODE_ENV=test jest --colors --noStackTrace --passWithNoTests --runInBand",
     "test:unit": "yarn test -- -c jest-unit-config.js",
     "test:integration": "yarn test -- -c jest-integration-config.js",
