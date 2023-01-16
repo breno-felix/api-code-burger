@@ -93,4 +93,28 @@ describe('User Object Shape Validator', () => {
     }
     await expect(sut.isValid(httpRequest)).rejects.toThrow(new Error())
   })
+
+  test('Should throw if invalid dependency is provided', async () => {
+    const invalid = {}
+    const suts = [].concat(
+      new ObjectShapeValidator(),
+      new ObjectShapeValidator({}),
+      new ObjectShapeValidator({
+        yupSchema: invalid
+      })
+    )
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        repeatPassword: 'any_password',
+        admin: false
+      }
+    }
+    for (const sut of suts) {
+      const promise = sut.isValid(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
