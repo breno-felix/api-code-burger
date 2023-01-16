@@ -2,10 +2,15 @@ const request = require('supertest')
 const app = require('../config/app')
 const MongooseHelper = require('../../infra/helpers/mongoose-helper')
 const env = require('../config/envfile')
+const UserModel = require('../../infra/entities/UserModel')
 
 describe('Login Routes', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
+  })
+
+  beforeEach(async () => {
+    await UserModel.deleteMany()
   })
 
   afterAll(async () => {

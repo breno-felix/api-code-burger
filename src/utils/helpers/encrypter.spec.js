@@ -17,7 +17,7 @@ const Encrypter = require('./encrypter')
 const { MissingParamServerError } = require('../errors')
 
 const makeSut = () => {
-  return new Encrypter(10)
+  return new Encrypter('10')
 }
 
 describe('Encrypter', () => {

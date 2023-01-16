@@ -108,6 +108,7 @@ const makeSut = () => {
 }
 
 const requiredParams = ['email', 'password']
+const invalidRequests = [undefined, {}]
 
 describe('Auth UseCase', () => {
   requiredParams.forEach((param) => {
@@ -121,6 +122,15 @@ describe('Auth UseCase', () => {
 
       await expect(sut.auth(httpRequest)).rejects.toThrow(
         new MissingParamServerError(param)
+      )
+    })
+  })
+
+  invalidRequests.forEach((httpRequest) => {
+    test('Should throw new MissingParamServerError if no param is provided', async () => {
+      const { sut } = makeSut()
+      await expect(sut.auth(httpRequest)).rejects.toThrow(
+        new MissingParamServerError('email')
       )
     })
   })

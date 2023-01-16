@@ -24,9 +24,8 @@ module.exports = class Encrypter {
     if (!this.saltRounds) {
       throw new MissingParamServerError('saltRounds')
     }
-    if (typeof this.saltRounds === 'string') {
-      this.saltRounds = parseInt(this.saltRounds)
-    }
+
+    this.saltRounds = parseInt(this.saltRounds)
 
     const hash = await bcrypt.hash(value, this.saltRounds)
     return hash
