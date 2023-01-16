@@ -36,7 +36,7 @@ describe('User Object Shape Validator', () => {
     )
   })
 
-  test('Should call yup with correct httpRequest.body', async () => {
+  test('Should call yup with correct httpRequest', async () => {
     const { sut, yupSchemaSpy } = makeSut()
 
     const validateSyncSpy = jest.spyOn(yupSchemaSpy, 'validateSync')
@@ -50,7 +50,7 @@ describe('User Object Shape Validator', () => {
         admin: false
       }
     }
-    await sut.isValid(httpRequest)
+    await sut.isValid(httpRequest.body)
     expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 

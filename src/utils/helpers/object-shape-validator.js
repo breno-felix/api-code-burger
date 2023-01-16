@@ -11,7 +11,7 @@ module.exports = class ObjectShapeValidator {
       if (!httpRequest) {
         throw new MissingParamServerError('httpRequest')
       }
-      await this.yupSchema.validateSync(httpRequest.body)
+      await this.yupSchema.validateSync(httpRequest)
     } catch (error) {
       if (error instanceof ValidationError) {
         throw new InvalidParamError(error.errors)
