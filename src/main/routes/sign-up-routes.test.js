@@ -55,4 +55,26 @@ describe('Sign Up Routes', () => {
       expect(response.status).toBe(400)
     })
   })
+
+  test('Should return 400 if invalid email is provided', async () => {
+    const userTest = {
+      name: 'valid_name',
+      email: 'invalid_email',
+      password: 'valid_password',
+      repeatPassword: 'valid_password'
+    }
+    const response = await request(app).post('/api/sign-up').send(userTest)
+    expect(response.status).toBe(400)
+  })
+
+  test('Should return 400 when repeatPassword does not match the password', async () => {
+    const userTest = {
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+      repeatPassword: 'any_other_password'
+    }
+    const response = await request(app).post('/api/sign-up').send(userTest)
+    expect(response.status).toBe(400)
+  })
 })
