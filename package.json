@@ -2,11 +2,17 @@
   "name": "api-code-burger",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "src/main/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon",
-    "debug": "nodemon --inspect"
+    "start": "NODE_ENV=production node -r sucrase/register src/main/server.js",
+    "test": "NODE_ENV=test jest --colors --noStackTrace --passWithNoTests --runInBand",
+    "test:unit": "yarn test -- -c jest-unit-config.js",
+    "test:integration": "yarn test -- -c jest-integration-config.js",
+    "test:staged": "yarn test -- --findRelatedTests --silent",
+    "test:ci": "yarn test -- --coverage --silent",
+    "dev": "NODE_ENV=development nodemon",
+    "debug": "nodemon --inspect",
+    "prepare": " husky install "
   },
   "repository": {
     "type": "git",
@@ -20,21 +26,33 @@
   },
   "homepage": "https://github.com/breno-felix/api-code-burger#readme",
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "mongoose": "^6.7.2"
+    "fast-glob": "^3.2.12",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.12.1",
+    "mongoose": "^6.8.0",
+    "validator": "^13.7.0",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^4.1.4",
     "@types/node": "^18.11.9",
-    "eslint": "^8.0.1",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-jest": "^27.1.6",
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.0.0",
+    "husky": "^8.0.2",
+    "jest": "^29.3.1",
+    "lint-staged": "^13.0.4",
     "nodemon": "^2.0.20",
     "prettier": "^2.7.1",
-    "sucrase": "^3.29.0"
+    "sucrase": "^3.29.0",
+    "supertest": "^6.3.3"
   }
 }
