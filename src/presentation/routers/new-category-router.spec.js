@@ -73,6 +73,15 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
+const makeObjectShapeValidatorWithError = () => {
+  class ObjectShapeValidatorSpy {
+    async isValid() {
+      throw new Error()
+    }
+  }
+  return new ObjectShapeValidatorSpy()
+}
+
 const makeNewCategoryUseCase = () => {
   class NewCategoryUseCaseSpy {
     async record(httpRequest) {
@@ -86,12 +95,21 @@ const makeNewCategoryUseCase = () => {
 }
 
 const makeNewCategoryUseCaseWithRepeatedNameError = () => {
-  class NewCategoryUseCaseSpySpy {
+  class NewCategoryUseCaseSpy {
     async record() {
       throw new RepeatedNameError()
     }
   }
-  return new NewCategoryUseCaseSpySpy()
+  return new NewCategoryUseCaseSpy()
+}
+
+const makeNewCategoryUseCaseWithError = () => {
+  class NewCategoryUseCaseSpy {
+    async record() {
+      throw new Error()
+    }
+  }
+  return new NewCategoryUseCaseSpy()
 }
 
 const requiredParams = ['name']
@@ -209,6 +227,29 @@ describe('New Category Router', () => {
         new NewCategoryRouter({
           newCategoryUseCase,
           objectShapeValidator: invalid
+        })
+      )
+      for (const sut of suts) {
+        const httpRequest = {
+          body: {
+            name: 'any_name'
+          }
+        }
+        const httpResponse = await sut.route(httpRequest)
+        expect(httpResponse.statusCode).toBe(500)
+        expect(httpResponse.body.error).toBe(new ServerError().message)
+      }
+    })
+
+    test('Should return 500 if any dependency throw a new Error()', async () => {
+      const newCategoryUseCase = makeNewCategoryUseCase()
+      const suts = [].concat(
+        new NewCategoryRouter({
+          newCategoryUseCase: makeNewCategoryUseCaseWithError()
+        }),
+        new NewCategoryRouter({
+          newCategoryUseCase,
+          objectShapeValidator: makeObjectShapeValidatorWithError()
         })
       )
       for (const sut of suts) {
