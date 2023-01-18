@@ -1,7 +1,8 @@
 const HttpResponse = require('../helpers/http-response')
 
 class NewCategoryRouter {
-  constructor({ objectShapeValidator } = {}) {
+  constructor({ newCategoryUseCase, objectShapeValidator } = {}) {
+    this.newCategoryUseCase = newCategoryUseCase
     this.objectShapeValidator = objectShapeValidator
   }
 
@@ -14,6 +15,7 @@ class NewCategoryRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
+      await this.newCategoryUseCase.record(httpRequest.body)
     } catch (error) {
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
@@ -30,14 +32,17 @@ const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
+  const newCategoryUseCaseSpy = makeNewCategoryUseCaseSpy()
 
   const sut = new NewCategoryRouter({
-    objectShapeValidator: objectShapeValidatorSpy
+    objectShapeValidator: objectShapeValidatorSpy,
+    newCategoryUseCase: newCategoryUseCaseSpy
   })
 
   return {
     sut,
-    objectShapeValidatorSpy
+    objectShapeValidatorSpy,
+    newCategoryUseCaseSpy
   }
 }
 
@@ -59,6 +64,18 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
     }
   }
   return new ObjectShapeValidatorSpy()
+}
+
+const makeNewCategoryUseCaseSpy = () => {
+  class NewCategoryUseCaseSpySpy {
+    async record(httpRequest) {
+      this.name = httpRequest.name
+      return this.isRegistered
+    }
+  }
+  const newCategoryUseCaseSpySpy = new NewCategoryUseCaseSpySpy()
+  newCategoryUseCaseSpySpy.isRegistered = true
+  return newCategoryUseCaseSpySpy
 }
 
 const requiredParams = ['name']
@@ -111,6 +128,19 @@ describe('New Category Router', () => {
       }
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(400)
+    })
+
+    test('Should call NewCategoryUseCase with correct params', async () => {
+      const { sut, newCategoryUseCaseSpy } = makeSut()
+      const httpRequest = {
+        body: {
+          name: 'any_name'
+        }
+      }
+      await sut.route(httpRequest)
+      requiredParams.forEach((param) => {
+        expect(newCategoryUseCaseSpy[param]).toBe(httpRequest.body[param])
+      })
     })
   })
 })
