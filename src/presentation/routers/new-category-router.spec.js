@@ -16,6 +16,7 @@ class NewCategoryRouter {
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
       await this.newCategoryUseCase.record(httpRequest.body)
+      return HttpResponse.created()
     } catch (error) {
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
@@ -117,8 +118,11 @@ describe('New Category Router', () => {
     })
 
     test('Should return 400 if an invalid param is provided', async () => {
+      const newCategoryUseCase = makeNewCategoryUseCaseSpy()
+
       const sut = new NewCategoryRouter({
-        objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError()
+        objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError(),
+        newCategoryUseCase
       })
 
       const httpRequest = {
@@ -141,6 +145,20 @@ describe('New Category Router', () => {
       requiredParams.forEach((param) => {
         expect(newCategoryUseCaseSpy[param]).toBe(httpRequest.body[param])
       })
+    })
+
+    test('Should return 201 when valid params are provided', async () => {
+      const { sut } = makeSut()
+      const httpRequest = {
+        body: {
+          name: 'valid_name'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(201)
+      expect(httpResponse.body).toBe(
+        'The request was successful and a new resource was created as a result.'
+      )
     })
   })
 })

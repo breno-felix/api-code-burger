@@ -184,10 +184,10 @@ describe('Sign Up Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        name: 'any_name',
-        email: 'any_email@mail.com',
-        password: 'any_password',
-        repeatPassword: 'any_password',
+        name: 'valid_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        repeatPassword: 'valid_password',
         admin: false
       }
     }
