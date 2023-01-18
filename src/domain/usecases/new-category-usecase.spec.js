@@ -56,6 +56,15 @@ const makeLoadCategoryByNameRepository = () => {
   return loadCategoryByNameRepositorySpy
 }
 
+const makeLoadCategoryByNameRepositoryWithError = () => {
+  class LoadCategoryByNameRepositorySpy {
+    async load() {
+      throw new Error()
+    }
+  }
+  return new LoadCategoryByNameRepositorySpy()
+}
+
 const makeCreateCategoryRepository = () => {
   class CreateCategoryRepositorySpy {
     async create({ name, email, password, admin }) {
@@ -67,6 +76,15 @@ const makeCreateCategoryRepository = () => {
   }
   const createCategoryRepositorySpy = new CreateCategoryRepositorySpy()
   return createCategoryRepositorySpy
+}
+
+const makeCreateCategoryRepositoryWithError = () => {
+  class CreateCategoryRepositorySpy {
+    async create() {
+      throw new Error()
+    }
+  }
+  return new CreateCategoryRepositorySpy()
 }
 
 describe('Sign up UseCase', () => {
@@ -148,6 +166,29 @@ describe('Sign up UseCase', () => {
     }
     for (const sut of suts) {
       const promise = sut.record(httpRequest.body)
+      expect(promise).rejects.toThrow()
+    }
+  })
+
+  test('Should throw if dependency throw', async () => {
+    const loadCategoryByNameRepository = makeLoadCategoryByNameRepository()
+    const suts = [].concat(
+      new NewCategoryUseCase({
+        loadCategoryByNameRepository:
+          makeLoadCategoryByNameRepositoryWithError()
+      }),
+      new NewCategoryUseCase({
+        loadCategoryByNameRepository,
+        createCategoryRepository: makeCreateCategoryRepositoryWithError()
+      })
+    )
+    const httpRequest = {
+      body: {
+        name: 'any_name'
+      }
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest)
       expect(promise).rejects.toThrow()
     }
   })
