@@ -123,4 +123,32 @@ describe('Sign up UseCase', () => {
       name: httpRequest.body.name
     })
   })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const loadCategoryByNameRepository = makeLoadCategoryByNameRepository()
+    const suts = [].concat(
+      new NewCategoryUseCase(),
+      new NewCategoryUseCase({}),
+      new NewCategoryUseCase({
+        loadUserByEmailRepository: invalid
+      }),
+      new NewCategoryUseCase({
+        loadCategoryByNameRepository
+      }),
+      new NewCategoryUseCase({
+        loadCategoryByNameRepository,
+        createCategoryRepository: invalid
+      })
+    )
+    const httpRequest = {
+      body: {
+        name: 'any_name'
+      }
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest.body)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
