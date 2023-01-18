@@ -39,7 +39,7 @@ const {
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
-  const newCategoryUseCaseSpy = makeNewCategoryUseCaseSpy()
+  const newCategoryUseCaseSpy = makeNewCategoryUseCase()
 
   const sut = new NewCategoryRouter({
     objectShapeValidator: objectShapeValidatorSpy,
@@ -73,16 +73,16 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
-const makeNewCategoryUseCaseSpy = () => {
-  class NewCategoryUseCaseSpySpy {
+const makeNewCategoryUseCase = () => {
+  class NewCategoryUseCaseSpy {
     async record(httpRequest) {
       this.name = httpRequest.name
       return this.isRegistered
     }
   }
-  const newCategoryUseCaseSpySpy = new NewCategoryUseCaseSpySpy()
-  newCategoryUseCaseSpySpy.isRegistered = true
-  return newCategoryUseCaseSpySpy
+  const newCategoryUseCaseSpy = new NewCategoryUseCaseSpy()
+  newCategoryUseCaseSpy.isRegistered = true
+  return newCategoryUseCaseSpy
 }
 
 const makeNewCategoryUseCaseWithRepeatedNameError = () => {
@@ -133,7 +133,7 @@ describe('New Category Router', () => {
     })
 
     test('Should return 400 if an invalid param is provided', async () => {
-      const newCategoryUseCase = makeNewCategoryUseCaseSpy()
+      const newCategoryUseCase = makeNewCategoryUseCase()
 
       const sut = new NewCategoryRouter({
         objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError(),
@@ -192,6 +192,35 @@ describe('New Category Router', () => {
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new RepeatedNameError().message)
+    })
+
+    test('Should return 500 if invalid dependencies are provided', async () => {
+      const invalid = {}
+      const newCategoryUseCase = makeNewCategoryUseCase()
+      const suts = [].concat(
+        new NewCategoryRouter(),
+        new NewCategoryRouter({}),
+        new NewCategoryRouter({
+          newCategoryUseCase: invalid
+        }),
+        new NewCategoryRouter({
+          newCategoryUseCase
+        }),
+        new NewCategoryRouter({
+          newCategoryUseCase,
+          objectShapeValidator: invalid
+        })
+      )
+      for (const sut of suts) {
+        const httpRequest = {
+          body: {
+            name: 'any_name'
+          }
+        }
+        const httpResponse = await sut.route(httpRequest)
+        expect(httpResponse.statusCode).toBe(500)
+        expect(httpResponse.body.error).toBe(new ServerError().message)
+      }
     })
   })
 })
