@@ -17,6 +17,7 @@ module.exports = {
   port: process.env.PORT,
   secret: process.env.TOKEN_SECRET,
   saltRounds: process.env.SALT_ROUNDS,
+  expiresIn: process.env.TOKEN_EXPIRESIN,
   // test
   urlMongooseTest: process.env.MONGODB_DSN
 }

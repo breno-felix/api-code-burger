@@ -15,7 +15,10 @@ module.exports = class LoginRouterComposer {
       userModel
     )
     const encrypter = new Encrypter()
-    const tokenGenerator = new TokenGenerator(env.secret)
+    const tokenGenerator = new TokenGenerator({
+      secret: env.secret,
+      expiresIn: env.expiresIn
+    })
     const authUseCase = new AuthUseCase({
       loadUserByEmailRepository,
       updateAccessTokenRepository,

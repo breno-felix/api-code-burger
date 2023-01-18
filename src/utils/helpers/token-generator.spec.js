@@ -1,8 +1,9 @@
 jest.mock('jsonwebtoken', () => ({
   token: 'any_token',
-  sign(id, secret) {
+  sign({ id }, secret, { expiresIn }) {
     this.id = id
     this.secret = secret
+    this.expiresIn = expiresIn
     return this.token
   }
 }))
@@ -12,7 +13,7 @@ const { MissingParamServerError } = require('../errors')
 const TokenGenerator = require('./token-generator')
 
 const makeSut = () => {
-  return new TokenGenerator('secret')
+  return new TokenGenerator({ secret: 'secret', expiresIn: '5d' })
 }
 
 describe('Token Generator', () => {
@@ -34,6 +35,7 @@ describe('Token Generator', () => {
     await sut.generate('any_id')
     expect(jwt.id).toBe('any_id')
     expect(jwt.secret).toBe(sut.secret)
+    expect(jwt.expiresIn).toBe(sut.expiresIn)
   })
 
   test('Should throw if no secret is provided', async () => {
