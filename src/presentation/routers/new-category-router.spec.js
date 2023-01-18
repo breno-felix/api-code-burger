@@ -15,7 +15,9 @@ class NewCategoryRouter {
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
     } catch (error) {
-      if (error instanceof MissingParamError) {
+      if (error instanceof InvalidParamError) {
+        return HttpResponse.badRequest(error)
+      } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
       }
       return HttpResponse.serverError()
@@ -24,7 +26,7 @@ class NewCategoryRouter {
 }
 
 const { ServerError } = require('../errors')
-const { MissingParamError } = require('../../utils/errors')
+const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
@@ -48,6 +50,15 @@ const makeObjectShapeValidator = () => {
 
   const objectShapeValidatorSpy = new ObjectShapeValidatorSpy()
   return objectShapeValidatorSpy
+}
+
+const makeObjectShapeValidatorWithInvalidParamError = () => {
+  class ObjectShapeValidatorSpy {
+    async isValid() {
+      throw new InvalidParamError('description of some invalid parameter')
+    }
+  }
+  return new ObjectShapeValidatorSpy()
 }
 
 const requiredParams = ['name']
@@ -86,6 +97,20 @@ describe('New Category Router', () => {
       }
       await sut.route(httpRequest)
       expect(objectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
+    })
+
+    test('Should return 400 if an invalid param is provided', async () => {
+      const sut = new NewCategoryRouter({
+        objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError()
+      })
+
+      const httpRequest = {
+        body: {
+          name: 'invalid_name'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(400)
     })
   })
 })
