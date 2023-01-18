@@ -1,6 +1,7 @@
 class NewCategoryUseCase {
-  constructor({ loadCategoryByNameRepository } = {}) {
+  constructor({ loadCategoryByNameRepository, createCategoryRepository } = {}) {
     this.loadCategoryByNameRepository = loadCategoryByNameRepository
+    this.createCategoryRepository = createCategoryRepository
   }
 
   async record(httpRequest) {
@@ -15,6 +16,10 @@ class NewCategoryUseCase {
     if (category) {
       throw new RepeatedNameError()
     }
+
+    await this.createCategoryRepository.create({
+      name: httpRequest.name
+    })
   }
 }
 
@@ -25,14 +30,17 @@ const {
 
 const makeSut = () => {
   const loadCategoryByNameRepositorySpy = makeLoadCategoryByNameRepository()
+  const createCategoryRepositorySpy = makeCreateCategoryRepository()
 
   const sut = new NewCategoryUseCase({
-    loadCategoryByNameRepository: loadCategoryByNameRepositorySpy
+    loadCategoryByNameRepository: loadCategoryByNameRepositorySpy,
+    createCategoryRepository: createCategoryRepositorySpy
   })
 
   return {
     sut,
-    loadCategoryByNameRepositorySpy
+    loadCategoryByNameRepositorySpy,
+    createCategoryRepositorySpy
   }
 }
 
@@ -46,6 +54,19 @@ const makeLoadCategoryByNameRepository = () => {
   const loadCategoryByNameRepositorySpy = new LoadCategoryByNameRepositorySpy()
   loadCategoryByNameRepositorySpy.category = null
   return loadCategoryByNameRepositorySpy
+}
+
+const makeCreateCategoryRepository = () => {
+  class CreateCategoryRepositorySpy {
+    async create({ name, email, password, admin }) {
+      this.name = name
+      this.email = email
+      this.password = password
+      this.admin = admin
+    }
+  }
+  const createCategoryRepositorySpy = new CreateCategoryRepositorySpy()
+  return createCategoryRepositorySpy
 }
 
 describe('Sign up UseCase', () => {
@@ -84,5 +105,22 @@ describe('Sign up UseCase', () => {
     expect(sut.record(httpRequest.body)).rejects.toThrow(
       new RepeatedNameError()
     )
+  })
+
+  test('Should call CreateCategoryRepository with correct values', async () => {
+    const { sut, createCategoryRepositorySpy } = makeSut()
+
+    const validateSyncSpy = jest.spyOn(createCategoryRepositorySpy, 'create')
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name'
+      }
+    }
+
+    await sut.record(httpRequest.body)
+    expect(validateSyncSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name
+    })
   })
 })
