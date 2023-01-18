@@ -11,10 +11,17 @@ class NewCategoryUseCase {
     const category = await this.loadCategoryByNameRepository.load(
       httpRequest.name
     )
+
+    if (category) {
+      throw new RepeatedNameError()
+    }
   }
 }
 
-const { MissingParamServerError } = require('../../utils/errors')
+const {
+  MissingParamServerError,
+  RepeatedNameError
+} = require('../../utils/errors')
 
 const makeSut = () => {
   const loadCategoryByNameRepositorySpy = makeLoadCategoryByNameRepository()
@@ -61,5 +68,21 @@ describe('Sign up UseCase', () => {
     }
     await sut.record(httpRequest.body)
     expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.name)
+  })
+
+  test('Should throw new RepeatedNameError if name provided already exists', async () => {
+    const { sut, loadCategoryByNameRepositorySpy } = makeSut()
+    loadCategoryByNameRepositorySpy.category = {
+      id: 'any_id'
+    }
+    const httpRequest = {
+      body: {
+        name: 'any_name'
+      }
+    }
+
+    expect(sut.record(httpRequest.body)).rejects.toThrow(
+      new RepeatedNameError()
+    )
   })
 })
