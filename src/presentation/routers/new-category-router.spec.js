@@ -18,7 +18,9 @@ class NewCategoryRouter {
       await this.newCategoryUseCase.record(httpRequest.body)
       return HttpResponse.created()
     } catch (error) {
-      if (error instanceof InvalidParamError) {
+      if (error instanceof RepeatedNameError) {
+        return HttpResponse.badRequest(new RepeatedNameError())
+      } else if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
       } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
@@ -29,7 +31,11 @@ class NewCategoryRouter {
 }
 
 const { ServerError } = require('../errors')
-const { MissingParamError, InvalidParamError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  InvalidParamError,
+  RepeatedNameError
+} = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
@@ -77,6 +83,15 @@ const makeNewCategoryUseCaseSpy = () => {
   const newCategoryUseCaseSpySpy = new NewCategoryUseCaseSpySpy()
   newCategoryUseCaseSpySpy.isRegistered = true
   return newCategoryUseCaseSpySpy
+}
+
+const makeNewCategoryUseCaseWithRepeatedNameError = () => {
+  class NewCategoryUseCaseSpySpy {
+    async record() {
+      throw new RepeatedNameError()
+    }
+  }
+  return new NewCategoryUseCaseSpySpy()
 }
 
 const requiredParams = ['name']
@@ -159,6 +174,24 @@ describe('New Category Router', () => {
       expect(httpResponse.body).toBe(
         'The request was successful and a new resource was created as a result.'
       )
+    })
+
+    test('Should return 400 when name provided is not unique in category database', async () => {
+      const objectShapeValidator = makeObjectShapeValidator()
+
+      const sut = new NewCategoryRouter({
+        newCategoryUseCase: makeNewCategoryUseCaseWithRepeatedNameError(),
+        objectShapeValidator
+      })
+
+      const httpRequest = {
+        body: {
+          name: 'any_name'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(400)
+      expect(httpResponse.body.error).toBe(new RepeatedNameError().message)
     })
   })
 })
