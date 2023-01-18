@@ -127,7 +127,7 @@ describe('Sign Up Router', () => {
     })
   })
 
-  test('Should call objectShapeValidator with correct httpRequest', async () => {
+  test('Should call objectShapeValidator with correct httpRequest.body', async () => {
     const { sut, objectShapeValidatorSpy } = makeSut()
     const httpRequest = {
       body: {
