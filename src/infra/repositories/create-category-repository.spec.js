@@ -44,4 +44,13 @@ describe('CreateCategory Repository', () => {
     }).toEqual(validCategory)
     expect(category._id).toEqual(expect.anything())
   })
+
+  test('Should throw if no categoryModel if provided', async () => {
+    const sut = new CreateCategoryRepository()
+    const validCategory = {
+      name: 'valid_name'
+    }
+    const promise = sut.create(validCategory)
+    expect(promise).rejects.toThrow()
+  })
 })
