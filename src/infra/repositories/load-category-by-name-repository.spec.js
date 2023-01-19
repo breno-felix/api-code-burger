@@ -4,6 +4,9 @@ class LoadCategoryByNameRepository {
   }
 
   async load(name) {
+    if (!name) {
+      throw new MissingParamServerError('name')
+    }
     const category = await this.categoryModel.findOne({ name })
     return category
   }
@@ -12,6 +15,7 @@ class LoadCategoryByNameRepository {
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const CategoryModel = require('../entities/CategoryModel')
+const { MissingParamServerError } = require('../../utils/errors')
 
 const makeSut = () => {
   return new LoadCategoryByNameRepository(CategoryModel)
@@ -50,5 +54,11 @@ describe('LoadCategoryByName Repository', () => {
     const sut = new LoadCategoryByNameRepository()
     const promise = sut.load('any_name')
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no name is provided', async () => {
+    const sut = makeSut()
+    const promise = sut.load()
+    expect(promise).rejects.toThrow(new MissingParamServerError('name'))
   })
 })
