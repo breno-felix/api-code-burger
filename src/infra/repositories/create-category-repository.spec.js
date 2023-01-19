@@ -4,6 +4,9 @@ class CreateCategoryRepository {
   }
 
   async create(categoryObject) {
+    if (!categoryObject) {
+      throw new MissingParamServerError('categoryObject')
+    }
     await this.categoryModel.create(categoryObject)
   }
 }
@@ -11,6 +14,7 @@ class CreateCategoryRepository {
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const CategoryModel = require('../entities/CategoryModel')
+const { MissingParamServerError } = require('../../utils/errors')
 
 const makeSut = () => {
   return new CreateCategoryRepository(CategoryModel)
@@ -52,5 +56,12 @@ describe('CreateCategory Repository', () => {
     }
     const promise = sut.create(validCategory)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no categoryObject is provided', async () => {
+    const sut = makeSut()
+    expect(sut.create()).rejects.toThrow(
+      new MissingParamServerError('categoryObject')
+    )
   })
 })
