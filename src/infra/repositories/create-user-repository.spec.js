@@ -8,7 +8,7 @@ const makeSut = () => {
   return new CreateUserRepository(UserModel)
 }
 
-describe('LoadUserByEmail Repository', () => {
+describe('CreateUser Repository', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
