@@ -1,17 +1,4 @@
-class LoadCategoryByNameRepository {
-  constructor(categoryModel) {
-    this.categoryModel = categoryModel
-  }
-
-  async load(name) {
-    if (!name) {
-      throw new MissingParamServerError('name')
-    }
-    const category = await this.categoryModel.findOne({ name })
-    return category
-  }
-}
-
+const LoadCategoryByNameRepository = require('./load-category-by-name-repository')
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const CategoryModel = require('../entities/CategoryModel')
