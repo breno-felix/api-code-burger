@@ -35,4 +35,14 @@ describe('LoadCategoryByName Repository', () => {
     const category = await sut.load('invalid_name')
     expect(category).toBeNull()
   })
+
+  test('Should return an category if category is found', async () => {
+    const sut = makeSut()
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const category = await sut.load('valid_name')
+    expect(category._id).toEqual(fakeCategory._id)
+  })
 })
