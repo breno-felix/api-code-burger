@@ -49,4 +49,19 @@ describe('New Category Routes', () => {
       expect(response.status).toBe(400)
     })
   })
+
+  test('Should return 400 when name is not unique', async () => {
+    const category = {
+      name: 'any_name'
+    }
+    await request(app).post('/api/new-category').send(category)
+
+    const categoryTest = {
+      name: 'any_name'
+    }
+    const response = await request(app)
+      .post('/api/new-category')
+      .send(categoryTest)
+    expect(response.status).toBe(400)
+  })
 })
