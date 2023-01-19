@@ -1,16 +1,4 @@
-class CreateCategoryRepository {
-  constructor(categoryModel) {
-    this.categoryModel = categoryModel
-  }
-
-  async create(categoryObject) {
-    if (!categoryObject) {
-      throw new MissingParamServerError('categoryObject')
-    }
-    await this.categoryModel.create(categoryObject)
-  }
-}
-
+const CreateCategoryRepository = require('./create-category-repository')
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const CategoryModel = require('../entities/CategoryModel')
