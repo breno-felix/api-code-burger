@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/main/server.js",
   "scripts": {
+    "build:deploy": "NODE_ENV=production yarn install",
     "start": "NODE_ENV=production node -r sucrase/register src/main/server.js",
     "test": "NODE_ENV=test jest --colors --noStackTrace --passWithNoTests --runInBand",
     "test:unit": "yarn test -- -c jest-unit-config.js",
