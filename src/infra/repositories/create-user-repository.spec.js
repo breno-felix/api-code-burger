@@ -8,7 +8,7 @@ const makeSut = () => {
   return new CreateUserRepository(UserModel)
 }
 
-describe('LoadUserByEmail Repository', () => {
+describe('CreateUser Repository', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
@@ -58,7 +58,7 @@ describe('LoadUserByEmail Repository', () => {
     expect(user.admin).toBe(false)
   })
 
-  test('Should throw if no userModel if provided', async () => {
+  test('Should throw if no userModel is provided', async () => {
     const sut = new CreateUserRepository()
     const validUser = {
       name: 'valid_name',
