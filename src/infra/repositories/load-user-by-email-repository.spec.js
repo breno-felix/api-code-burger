@@ -38,13 +38,13 @@ describe('LoadUserByEmail Repository', () => {
     expect(user._id).toEqual(fakeUser._id)
   })
 
-  test('Should throw if no UserModel if provided', async () => {
+  test('Should throw if no UserModel is provided', async () => {
     const sut = new LoadUserByEmailRepository()
     const promise = sut.load('any_email@mail.com')
     expect(promise).rejects.toThrow()
   })
 
-  test('Should throw if no email if provided', async () => {
+  test('Should throw if no email is provided', async () => {
     const sut = makeSut()
     const promise = sut.load()
     expect(promise).rejects.toThrow(new MissingParamServerError('email'))
