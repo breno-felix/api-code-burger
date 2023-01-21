@@ -1,16 +1,4 @@
-class CreateProductRepository {
-  constructor(productModel) {
-    this.productModel = productModel
-  }
-
-  async create(productObject) {
-    if (!productObject) {
-      throw new MissingParamServerError('productObject')
-    }
-    return await this.productModel.create(productObject)
-  }
-}
-
+const CreateProductRepository = require('./create-product-repository')
 const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const ProductModel = require('../entities/ProductModel')
