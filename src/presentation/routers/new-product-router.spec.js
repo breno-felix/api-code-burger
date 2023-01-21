@@ -3,7 +3,7 @@ const HttpResponse = require('../helpers/http-response')
 class NewProductRouter {
   async route(httpRequest) {
     try {
-      const requiredParamsBody = ['name', 'price', 'category']
+      const requiredParamsBody = ['name', 'price', 'category_id']
       requiredParamsBody.forEach((param) => {
         if (!httpRequest.body[param]) {
           throw new MissingParamError(param)
@@ -35,7 +35,7 @@ const makeSut = () => {
   }
 }
 
-const requiredParamsBody = ['name', 'price', 'category']
+const requiredParamsBody = ['name', 'price', 'category_id']
 const requiredParamsFile = ['filename']
 const invalidRequests = [
   undefined,
@@ -49,7 +49,7 @@ const invalidRequests = [
     body: {
       name: 'any_name',
       price: 10.01,
-      category: 'any_id_category'
+      category_id: 'any_category_id'
     }
   }
 ]
@@ -62,7 +62,7 @@ describe('New Product Router', () => {
         body: {
           name: 'any_name',
           price: 10.01,
-          category: 'any_id_category'
+          category_id: 'any_category_id'
         }
       }
       delete httpRequest.body[param]
@@ -79,7 +79,7 @@ describe('New Product Router', () => {
         body: {
           name: 'any_name',
           price: 10.01,
-          category: 'any_id_category'
+          category_id: 'any_category_id'
         },
         file: {
           filename: 'any_name'
