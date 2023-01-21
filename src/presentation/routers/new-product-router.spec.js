@@ -244,4 +244,38 @@ describe('New Product Router', () => {
       'The request was successful and a new resource was created as a result.'
     )
   })
+
+  test('Should return 500 if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const objectShapeValidator = makeObjectShapeValidator()
+    const suts = [].concat(
+      new NewProductRouter(),
+      new NewProductRouter({}),
+      new NewProductRouter({
+        objectShapeValidator: invalid
+      }),
+      new NewProductRouter({
+        objectShapeValidator
+      }),
+      new NewProductRouter({
+        objectShapeValidator,
+        createProductRepository: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          price: 10.01,
+          category_id: 'any_category_id'
+        },
+        file: {
+          filename: 'any_name'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
+  })
 })
