@@ -1,6 +1,10 @@
 const HttpResponse = require('../helpers/http-response')
 
 class NewProductRouter {
+  constructor({ objectShapeValidator } = {}) {
+    this.objectShapeValidator = objectShapeValidator
+  }
+
   async route(httpRequest) {
     try {
       const requiredParamsBody = ['name', 'price', 'category_id']
@@ -15,6 +19,7 @@ class NewProductRouter {
           throw new MissingParamError(param)
         }
       })
+      await this.objectShapeValidator.isValid(httpRequest.body)
     } catch (error) {
       if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
@@ -28,11 +33,27 @@ const { ServerError } = require('../errors')
 const { MissingParamError } = require('../../utils/errors')
 
 const makeSut = () => {
-  const sut = new NewProductRouter()
+  const objectShapeValidatorSpy = makeObjectShapeValidator()
+
+  const sut = new NewProductRouter({
+    objectShapeValidator: objectShapeValidatorSpy
+  })
 
   return {
-    sut
+    sut,
+    objectShapeValidatorSpy
   }
+}
+
+const makeObjectShapeValidator = () => {
+  class ObjectShapeValidatorSpy {
+    async isValid(httpRequest) {
+      this.httpRequest = httpRequest
+    }
+  }
+
+  const objectShapeValidatorSpy = new ObjectShapeValidatorSpy()
+  return objectShapeValidatorSpy
 }
 
 const requiredParamsBody = ['name', 'price', 'category_id']
@@ -99,5 +120,21 @@ describe('New Product Router', () => {
       expect(httpResponse.statusCode).toBe(500)
       expect(httpResponse.body.error).toBe(new ServerError().message)
     })
+  })
+
+  test('Should call objectShapeValidator with correct httpRequest.body', async () => {
+    const { sut, objectShapeValidatorSpy } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        price: 10.01,
+        category_id: 'any_category_id'
+      },
+      file: {
+        filename: 'any_name'
+      }
+    }
+    await sut.route(httpRequest)
+    expect(objectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
   })
 })
