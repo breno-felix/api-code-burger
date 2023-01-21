@@ -4,6 +4,9 @@ class CreateProductRepository {
   }
 
   async create(productObject) {
+    if (!productObject) {
+      throw new MissingParamServerError('productObject')
+    }
     return await this.productModel.create(productObject)
   }
 }
@@ -12,6 +15,7 @@ const MongooseHelper = require('../helpers/mongoose-helper')
 const env = require('../../main/config/envfile')
 const ProductModel = require('../entities/ProductModel')
 const CategoryModel = require('../entities/CategoryModel')
+const { MissingParamServerError } = require('../../utils/errors')
 
 const makeSut = () => {
   return new CreateProductRepository(ProductModel)
@@ -69,5 +73,12 @@ describe('Create Product Repository', () => {
     }
     const promise = sut.create(validProduct)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no productObject is provided', async () => {
+    const sut = makeSut()
+    expect(sut.create()).rejects.toThrow(
+      new MissingParamServerError('productObject')
+    )
   })
 })
