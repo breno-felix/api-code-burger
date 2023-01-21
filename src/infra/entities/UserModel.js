@@ -8,4 +8,4 @@ const userSchema = MongooseHelper.newSchema({
   accessToken: String
 })
 
-module.exports = MongooseHelper.newModel('user', userSchema)
+module.exports = MongooseHelper.newModel('User', userSchema)

@@ -4,4 +4,4 @@ const categorySchema = MongooseHelper.newSchema({
   name: String
 })
 
-module.exports = MongooseHelper.newModel('category', categorySchema)
+module.exports = MongooseHelper.newModel('Category', categorySchema)
