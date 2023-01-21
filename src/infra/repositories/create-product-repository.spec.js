@@ -53,4 +53,21 @@ describe('Create Product Repository', () => {
     }).toEqual(validProduct)
     expect(product._id).toEqual(expect.anything())
   })
+
+  test('Should throw if no productModel is provided', async () => {
+    const sut = new CreateProductRepository()
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+
+    const validProduct = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id,
+      imagePath: 'valid_image_path'
+    }
+    const promise = sut.create(validProduct)
+    expect(promise).rejects.toThrow()
+  })
 })
