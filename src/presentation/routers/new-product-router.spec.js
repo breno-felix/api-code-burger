@@ -27,6 +27,7 @@ class NewProductRouter {
         category_id: httpRequest.body.category_id,
         imagePath: httpRequest.file.filename
       })
+      return HttpResponse.created()
     } catch (error) {
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
@@ -223,5 +224,24 @@ describe('New Product Router', () => {
       category_id: httpRequest.body.category_id,
       imagePath: httpRequest.file.filename
     })
+  })
+
+  test('Should return 201 when valid params are provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        price: 10.01,
+        category_id: 'valid_category_id'
+      },
+      file: {
+        filename: 'valid_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(201)
+    expect(httpResponse.body).toBe(
+      'The request was successful and a new resource was created as a result.'
+    )
   })
 })
