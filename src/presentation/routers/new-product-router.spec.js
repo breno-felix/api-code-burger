@@ -1,8 +1,9 @@
 const HttpResponse = require('../helpers/http-response')
 
 class NewProductRouter {
-  constructor({ objectShapeValidator } = {}) {
+  constructor({ objectShapeValidator, createProductRepository } = {}) {
     this.objectShapeValidator = objectShapeValidator
+    this.createProductRepository = createProductRepository
   }
 
   async route(httpRequest) {
@@ -20,6 +21,12 @@ class NewProductRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
+      await this.createProductRepository.create({
+        name: httpRequest.body.name,
+        price: httpRequest.body.price,
+        category_id: httpRequest.body.category_id,
+        imagePath: httpRequest.file.filename
+      })
     } catch (error) {
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
@@ -36,14 +43,17 @@ const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
+  const createProductRepositorySpy = makeCreateProductRepository()
 
   const sut = new NewProductRouter({
-    objectShapeValidator: objectShapeValidatorSpy
+    objectShapeValidator: objectShapeValidatorSpy,
+    createProductRepository: createProductRepositorySpy
   })
 
   return {
     sut,
-    objectShapeValidatorSpy
+    objectShapeValidatorSpy,
+    createProductRepositorySpy
   }
 }
 
@@ -65,6 +75,28 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
     }
   }
   return new ObjectShapeValidatorSpy()
+}
+
+const makeCreateProductRepository = () => {
+  class CreateProductRepositorySpy {
+    async create({ name, price, category_id, imagePath }) {
+      this.name = name
+      this.email = price
+      this.password = category_id
+      this.admin = imagePath
+    }
+  }
+  const createProductRepositorySpy = new CreateProductRepositorySpy()
+  return createProductRepositorySpy
+}
+
+const makeCreateProductRepositoryWithError = () => {
+  class CreateProductRepositorySpy {
+    async create() {
+      throw new Error()
+    }
+  }
+  return new CreateProductRepositorySpy()
 }
 
 const requiredParamsBody = ['name', 'price', 'category_id']
@@ -166,5 +198,30 @@ describe('New Product Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
+  })
+
+  test('Should call CreateProductRepository with correct values', async () => {
+    const { sut, createProductRepositorySpy } = makeSut()
+
+    const createSpy = jest.spyOn(createProductRepositorySpy, 'create')
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        price: 10.01,
+        category_id: 'valid_category_id'
+      },
+      file: {
+        filename: 'valid_name'
+      }
+    }
+
+    await sut.route(httpRequest)
+    expect(createSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name,
+      price: httpRequest.body.price,
+      category_id: httpRequest.body.category_id,
+      imagePath: httpRequest.file.filename
+    })
   })
 })
