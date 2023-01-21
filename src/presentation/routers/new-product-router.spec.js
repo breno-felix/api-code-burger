@@ -24,6 +24,7 @@ class NewProductRouter {
   }
 }
 
+const { ServerError } = require('../errors')
 const { MissingParamError } = require('../../utils/errors')
 
 const makeSut = () => {
@@ -36,6 +37,22 @@ const makeSut = () => {
 
 const requiredParamsBody = ['name', 'price', 'category']
 const requiredParamsFile = ['filename']
+const invalidRequests = [
+  undefined,
+  {},
+  {
+    file: {
+      filename: 'any_name'
+    }
+  },
+  {
+    body: {
+      name: 'any_name',
+      price: 10.01,
+      category: 'any_id_category'
+    }
+  }
+]
 
 describe('New Product Router', () => {
   requiredParamsBody.forEach((param) => {
@@ -72,6 +89,15 @@ describe('New Product Router', () => {
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
+    })
+  })
+
+  invalidRequests.forEach((httpRequest) => {
+    test('Should return 500 if the httpRequest is invalid', async () => {
+      const { sut } = makeSut()
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
     })
   })
 })
