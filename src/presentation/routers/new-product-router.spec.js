@@ -78,6 +78,15 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
+const makeObjectShapeValidatorWithError = () => {
+  class ObjectShapeValidatorSpy {
+    async isValid() {
+      throw new Error()
+    }
+  }
+  return new ObjectShapeValidatorSpy()
+}
+
 const makeCreateProductRepository = () => {
   class CreateProductRepositorySpy {
     async create({ name, price, category_id, imagePath }) {
@@ -260,6 +269,35 @@ describe('New Product Router', () => {
       new NewProductRouter({
         objectShapeValidator,
         createProductRepository: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          name: 'any_name',
+          price: 10.01,
+          category_id: 'any_category_id'
+        },
+        file: {
+          filename: 'any_name'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
+  })
+
+  test('Should return 500 if any dependency throw a new Error()', async () => {
+    const objectShapeValidator = makeObjectShapeValidator()
+
+    const suts = [].concat(
+      new NewProductRouter({
+        objectShapeValidator: makeObjectShapeValidatorWithError()
+      }),
+      new NewProductRouter({
+        objectShapeValidator,
+        createProductRepository: makeCreateProductRepositoryWithError()
       })
     )
     for (const sut of suts) {
