@@ -21,12 +21,14 @@ module.exports = class NewProductRouter {
           throw new MissingParamError(param)
         }
       })
+      const { name, price, category_id } = httpRequest.body
+      const { filename: imagePath } = httpRequest.file
       await this.objectShapeValidator.isValid(httpRequest.body)
       await this.createProductRepository.create({
-        name: httpRequest.body.name,
-        price: httpRequest.body.price,
-        category_id: httpRequest.body.category_id,
-        imagePath: httpRequest.file.filename
+        name,
+        price,
+        category_id,
+        imagePath
       })
       return HttpResponse.created()
     } catch (error) {
