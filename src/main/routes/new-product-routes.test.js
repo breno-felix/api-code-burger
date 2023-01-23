@@ -5,6 +5,7 @@ const env = require('../config/envfile')
 const ProductModel = require('../../infra/entities/ProductModel')
 const CategoryModel = require('../../infra/entities/CategoryModel')
 const path = require('path')
+const MissingParamError = require('../../utils/errors/missing-param-error')
 
 describe('New Product Routes', () => {
   beforeAll(async () => {
@@ -59,5 +60,34 @@ describe('New Product Routes', () => {
     expect(products[0].category_id.toString()).toBe(productTest.category_id)
     expect(products[0].imagePath).toEqual(expect.anything())
     await products[0].remove()
+  })
+
+  test('Should return 400 if no name is provided', async () => {
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const productTest = {
+      price: 10.01,
+      category_id: fakeCategory._id.toString()
+    }
+
+    const response = await request(app)
+      .post('/api/new-product')
+      .field('price', productTest.price)
+      .field('category_id', productTest.category_id)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
+    expect(response.body.error).toBe(new MissingParamError('name').message)
   })
 })

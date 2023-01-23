@@ -1,5 +1,8 @@
 const HttpResponse = require('../helpers/http-response')
 const { MissingParamError, InvalidParamError } = require('../../utils/errors')
+const fs = require('fs')
+const path = require('path')
+const { promisify } = require('util')
 
 module.exports = class NewProductRouter {
   constructor({ objectShapeValidator, createProductRepository } = {}) {
@@ -21,9 +24,9 @@ module.exports = class NewProductRouter {
           throw new MissingParamError(param)
         }
       })
+      await this.objectShapeValidator.isValid(httpRequest.body)
       const { name, price, category_id } = httpRequest.body
       const { filename: imagePath } = httpRequest.file
-      await this.objectShapeValidator.isValid(httpRequest.body)
       await this.createProductRepository.create({
         name,
         price,
@@ -32,6 +35,19 @@ module.exports = class NewProductRouter {
       })
       return HttpResponse.created()
     } catch (error) {
+      if (httpRequest && httpRequest.file && httpRequest.file.filename) {
+        await fs.unlink(
+          path.resolve(
+            __dirname,
+            '..',
+            '..',
+            '..',
+            'uploads',
+            httpRequest.file.filename
+          ),
+          () => {}
+        )
+      }
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
       } else if (error instanceof MissingParamError) {
