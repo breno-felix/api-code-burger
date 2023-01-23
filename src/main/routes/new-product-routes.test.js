@@ -90,4 +90,22 @@ describe('New Product Routes', () => {
     expect(response.status).toBe(400)
     expect(response.body.error).toBe(new MissingParamError('name').message)
   })
+
+  test('Should return 400 if no file is provided', async () => {
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const productTest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id.toString()
+    }
+
+    const response = await request(app)
+      .post('/api/new-product')
+      .send(productTest)
+    expect(response.status).toBe(400)
+    expect(response.body.error).toBe(new MissingParamError('filename').message)
+  })
 })
