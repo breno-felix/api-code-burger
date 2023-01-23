@@ -71,15 +71,7 @@ const makeCreateProductRepositoryWithError = () => {
 
 const requiredParamsBody = ['name', 'price', 'category_id']
 const requiredParamsFile = ['filename']
-const invalidRequests = [
-  undefined,
-  {},
-  {
-    file: {
-      filename: 'any_name'
-    }
-  }
-]
+const invalidRequests = [undefined, {}]
 
 describe('New Product Router', () => {
   requiredParamsBody.forEach((param) => {
@@ -117,6 +109,19 @@ describe('New Product Router', () => {
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
     })
+  })
+
+  test(`Should return 400 if no httpRequest.body is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {},
+      file: {
+        filename: 'any_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new MissingParamError('name').message)
   })
 
   test(`Should return 400 if no httpRequest.file is provided`, async () => {
