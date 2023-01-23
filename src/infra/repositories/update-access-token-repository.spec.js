@@ -17,6 +17,7 @@ describe('UpdateAccessToken Repository', () => {
   beforeEach(async () => {
     await UserModel.deleteMany()
     const fakeUser = new UserModel({
+      name: 'valid_name',
       email: 'valid_email@mail.com',
       password: 'hashed_password'
     })

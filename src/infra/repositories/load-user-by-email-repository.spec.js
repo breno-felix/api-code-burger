@@ -30,6 +30,7 @@ describe('LoadUserByEmail Repository', () => {
   test('Should return an user if user is found', async () => {
     const sut = makeSut()
     const fakeUser = new UserModel({
+      name: 'valid_name',
       email: 'valid_email@mail.com',
       password: 'hashed_password'
     })

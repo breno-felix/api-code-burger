@@ -18,6 +18,7 @@ describe('Mongoose Helper', () => {
   test('Should create a new document in MongoDB with mongoose', async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
     const fakeUser = new UserModel({
+      name: 'any_name',
       email: 'any_email@mail.com',
       password: 'hashed_password'
     })
@@ -28,6 +29,7 @@ describe('Mongoose Helper', () => {
   test('Should return a document if document is found in mongodb with mongoose', async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
     const fakeUser = new UserModel({
+      name: 'any_name',
       email: 'any_email@mail.com',
       password: 'hashed_password'
     })

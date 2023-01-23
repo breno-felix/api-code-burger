@@ -20,6 +20,7 @@ describe('Login Routes', () => {
 
   test('Should return 200 when valid credentials are provided', async () => {
     const fakeUser = new UserModel({
+      name: 'valid_name',
       email: 'valid_email@mail.com',
       password: bcrypt.hashSync('hashed_password', 10)
     })
