@@ -1,9 +1,9 @@
 const CreateProductRepository = require('./create-product-repository')
-const MongooseHelper = require('../helpers/mongoose-helper')
-const env = require('../../main/config/envfile')
-const ProductModel = require('../entities/ProductModel')
-const CategoryModel = require('../entities/CategoryModel')
-const { MissingParamServerError } = require('../../utils/errors')
+const MongooseHelper = require('../../helpers/mongoose-helper')
+const env = require('../../../main/config/envfile')
+const ProductModel = require('../../entities/ProductModel')
+const CategoryModel = require('../../entities/CategoryModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new CreateProductRepository(ProductModel)

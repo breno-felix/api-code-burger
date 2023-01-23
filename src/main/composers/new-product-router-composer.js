@@ -1,6 +1,6 @@
 const NewProductRouter = require('../../presentation/routers/new-product-router')
 const ObjectShapeValidator = require('../../utils/helpers/object-shape-validator')
-const CreateProductRepository = require('../../infra/repositories/create-product-repository')
+const CreateProductRepository = require('../../infra/repositories/product/create-product-repository')
 const productModel = require('../../infra/entities/ProductModel')
 const yupProductSchema = require('../../utils/helpers/yup-productSchema')
 
