@@ -1,8 +1,8 @@
 const UpdateAccessTokenRepository = require('./update-access-token-repository')
-const MongooseHelper = require('../helpers/mongoose-helper')
-const env = require('../../main/config/envfile')
-const UserModel = require('../entities/UserModel')
-const { MissingParamServerError } = require('../../utils/errors')
+const MongooseHelper = require('../../helpers/mongoose-helper')
+const env = require('../../../main/config/envfile')
+const UserModel = require('../../entities/UserModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 let fakeUserId
 
 const makeSut = () => {
@@ -17,6 +17,7 @@ describe('UpdateAccessToken Repository', () => {
   beforeEach(async () => {
     await UserModel.deleteMany()
     const fakeUser = new UserModel({
+      name: 'valid_name',
       email: 'valid_email@mail.com',
       password: 'hashed_password'
     })

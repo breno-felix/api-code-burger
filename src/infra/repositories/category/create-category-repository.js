@@ -1,4 +1,4 @@
-const { MissingParamServerError } = require('../../utils/errors')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 module.exports = class CreateCategoryRepository {
   constructor(categoryModel) {

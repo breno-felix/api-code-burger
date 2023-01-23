@@ -1,8 +1,8 @@
 const CreateUserRepository = require('./create-user-repository')
-const MongooseHelper = require('../helpers/mongoose-helper')
-const env = require('../../main/config/envfile')
-const UserModel = require('../entities/UserModel')
-const { MissingParamServerError } = require('../../utils/errors')
+const MongooseHelper = require('../../helpers/mongoose-helper')
+const env = require('../../../main/config/envfile')
+const UserModel = require('../../entities/UserModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new CreateUserRepository(UserModel)

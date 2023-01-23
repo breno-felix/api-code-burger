@@ -74,7 +74,7 @@ describe('Sign up UseCase', () => {
   test('Should call LoadCategoryByNameRepository with correct name', async () => {
     const { sut, loadCategoryByNameRepositorySpy } = makeSut()
 
-    const validateSyncSpy = jest.spyOn(loadCategoryByNameRepositorySpy, 'load')
+    const loadSpy = jest.spyOn(loadCategoryByNameRepositorySpy, 'load')
 
     const httpRequest = {
       body: {
@@ -82,7 +82,7 @@ describe('Sign up UseCase', () => {
       }
     }
     await sut.record(httpRequest.body)
-    expect(validateSyncSpy).toHaveBeenCalledWith(httpRequest.body.name)
+    expect(loadSpy).toHaveBeenCalledWith(httpRequest.body.name)
   })
 
   test('Should throw new RepeatedNameError if name provided already exists', async () => {
@@ -104,7 +104,7 @@ describe('Sign up UseCase', () => {
   test('Should call CreateCategoryRepository with correct values', async () => {
     const { sut, createCategoryRepositorySpy } = makeSut()
 
-    const validateSyncSpy = jest.spyOn(createCategoryRepositorySpy, 'create')
+    const createSpy = jest.spyOn(createCategoryRepositorySpy, 'create')
 
     const httpRequest = {
       body: {
@@ -113,7 +113,7 @@ describe('Sign up UseCase', () => {
     }
 
     await sut.record(httpRequest.body)
-    expect(validateSyncSpy).toHaveBeenCalledWith({
+    expect(createSpy).toHaveBeenCalledWith({
       name: httpRequest.body.name
     })
   })

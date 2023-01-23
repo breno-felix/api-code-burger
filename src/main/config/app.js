@@ -1,5 +1,6 @@
 const routes = require('./routes')
 const express = require('express')
+const path = require('path')
 
 class App {
   constructor() {
@@ -11,6 +12,10 @@ class App {
 
   middlewares() {
     this.app.use(express.json())
+    this.app.use(
+      '/product-file',
+      express.static(path.resolve(__dirname, '..', '..', '..', 'uploads'))
+    )
   }
 
   routes() {

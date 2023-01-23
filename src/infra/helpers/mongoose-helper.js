@@ -31,5 +31,9 @@ module.exports = {
 
   getTypeOfObjectId() {
     return mongoose.Types.ObjectId
+  },
+
+  getObjectId() {
+    return mongoose.ObjectId
   }
 }

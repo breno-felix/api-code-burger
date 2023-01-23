@@ -1,7 +1,7 @@
 const MongooseHelper = require('../helpers/mongoose-helper')
 
 const categorySchema = MongooseHelper.newSchema({
-  name: String
+  name: { type: String, required: true, unique: true }
 })
 
-module.exports = MongooseHelper.newModel('category', categorySchema)
+module.exports = MongooseHelper.newModel('Category', categorySchema)
