@@ -17,7 +17,7 @@ module.exports = class NewProductRouter {
       })
       const requiredParamsFile = ['filename']
       requiredParamsFile.forEach((param) => {
-        if (!httpRequest.file[param]) {
+        if (!httpRequest.file || !httpRequest.file[param]) {
           throw new MissingParamError(param)
         }
       })

@@ -78,13 +78,6 @@ const invalidRequests = [
     file: {
       filename: 'any_name'
     }
-  },
-  {
-    body: {
-      name: 'any_name',
-      price: 10.01,
-      category_id: 'any_category_id'
-    }
   }
 ]
 
@@ -124,6 +117,22 @@ describe('New Product Router', () => {
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
     })
+  })
+
+  test(`Should return 400 if no httpRequest.file is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        price: 10.01,
+        category_id: 'any_category_id'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(
+      new MissingParamError('filename').message
+    )
   })
 
   invalidRequests.forEach((httpRequest) => {
