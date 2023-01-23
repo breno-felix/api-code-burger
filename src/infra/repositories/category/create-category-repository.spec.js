@@ -1,8 +1,8 @@
 const CreateCategoryRepository = require('./create-category-repository')
-const MongooseHelper = require('../helpers/mongoose-helper')
-const env = require('../../main/config/envfile')
-const CategoryModel = require('../entities/CategoryModel')
-const { MissingParamServerError } = require('../../utils/errors')
+const MongooseHelper = require('../../helpers/mongoose-helper')
+const env = require('../../../main/config/envfile')
+const CategoryModel = require('../../entities/CategoryModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new CreateCategoryRepository(CategoryModel)
