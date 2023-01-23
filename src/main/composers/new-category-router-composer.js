@@ -1,6 +1,6 @@
 const NewCategoryRouter = require('../../presentation/routers/new-category-router')
 const NewCategoryUseCase = require('../../domain/usecases/new-category-usecase')
-const LoadCategoryByNameRepository = require('../../infra/repositories/load-category-by-name-repository')
+const LoadCategoryByNameRepository = require('../../infra/repositories/category/load-category-by-name-repository')
 const CreateCategoryRepository = require('../../infra/repositories/category/create-category-repository')
 const ObjectShapeValidator = require('../../utils/helpers/object-shape-validator')
 const categoryModel = require('../../infra/entities/CategoryModel')
