@@ -108,4 +108,34 @@ describe('New Product Routes', () => {
     expect(response.status).toBe(400)
     expect(response.body.error).toBe(new MissingParamError('filename').message)
   })
+
+  test('Should return 400 if invalid price is provided', async () => {
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const productTest = {
+      name: 'valid_name',
+      price: 'invalid_price',
+      category_id: fakeCategory._id.toString()
+    }
+
+    const response = await request(app)
+      .post('/api/new-product')
+      .field('name', productTest.name)
+      .field('price', productTest.price)
+      .field('category_id', productTest.category_id)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
+  })
 })
