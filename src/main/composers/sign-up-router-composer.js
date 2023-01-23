@@ -1,6 +1,6 @@
 const SignUpRouter = require('../../presentation/routers/sign-up-router')
 const SignUpUseCase = require('../../domain/usecases/sign-up-usecase')
-const LoadUserByEmailRepository = require('../../infra/repositories/load-user-by-email-repository')
+const LoadUserByEmailRepository = require('../../infra/repositories/user/load-user-by-email-repository')
 const Encrypter = require('../../utils/helpers/encrypter')
 const CreateUserRepository = require('../../infra/repositories/user/create-user-repository')
 const ObjectShapeValidator = require('../../utils/helpers/object-shape-validator')
