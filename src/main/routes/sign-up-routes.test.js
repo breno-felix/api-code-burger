@@ -11,7 +11,7 @@ describe('Sign Up Routes', () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await UserModel.deleteMany()
   })
 

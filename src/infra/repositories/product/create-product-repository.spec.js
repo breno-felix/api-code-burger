@@ -14,7 +14,7 @@ describe('Create Product Repository', () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await ProductModel.deleteMany()
     await CategoryModel.deleteMany()
   })

@@ -14,8 +14,11 @@ describe('UpdateAccessToken Repository', () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await UserModel.deleteMany()
+  })
+
+  beforeEach(async () => {
     const fakeUser = new UserModel({
       name: 'valid_name',
       email: 'valid_email@mail.com',

@@ -13,7 +13,7 @@ describe('LoadCategoryByName Repository', () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await CategoryModel.deleteMany()
   })
 

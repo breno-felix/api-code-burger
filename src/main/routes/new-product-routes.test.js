@@ -1,16 +1,16 @@
 const request = require('supertest')
 const app = require('../config/app')
-const MongooseHelper = require('../../infra/helpers/mongoose-helper')
 const env = require('../config/envfile')
+const MongooseHelper = require('../../infra/helpers/mongoose-helper')
 const ProductModel = require('../../infra/entities/ProductModel')
 const CategoryModel = require('../../infra/entities/CategoryModel')
-const path = require('path')
-const MissingParamError = require('../../utils/errors/missing-param-error')
 const UserModel = require('../../infra/entities/UserModel')
+const MissingParamError = require('../../utils/errors/missing-param-error')
+const path = require('path')
 const bcrypt = require('bcrypt')
 let accessToken
 
-const loginUser = async (email, password) => {
+const accessloginRouter = async (email, password) => {
   const response = await request(app)
     .post('/api/login')
     .send({ email, password })
@@ -22,17 +22,16 @@ const loginUser = async (email, password) => {
 describe('New Product Routes', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
-    await UserModel.deleteMany()
     const fakeUser = new UserModel({
       name: 'valid_name',
       email: 'valid_email@mail.com',
       password: bcrypt.hashSync('hashed_password', 10)
     })
     await fakeUser.save()
-    accessToken = await loginUser('valid_email@mail.com', 'hashed_password')
+    accessToken = await accessloginRouter(fakeUser.email, 'hashed_password')
   })
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await ProductModel.deleteMany()
     await CategoryModel.deleteMany()
   })
