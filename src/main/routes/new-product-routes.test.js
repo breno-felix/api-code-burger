@@ -6,10 +6,30 @@ const ProductModel = require('../../infra/entities/ProductModel')
 const CategoryModel = require('../../infra/entities/CategoryModel')
 const path = require('path')
 const MissingParamError = require('../../utils/errors/missing-param-error')
+const UserModel = require('../../infra/entities/UserModel')
+const bcrypt = require('bcrypt')
+let accessToken
+
+const loginUser = async (email, password) => {
+  const response = await request(app)
+    .post('/api/login')
+    .send({ email, password })
+  expect(response.status).toBe(200)
+
+  return response.body.accessToken
+}
 
 describe('New Product Routes', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
+    await UserModel.deleteMany()
+    const fakeUser = new UserModel({
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: bcrypt.hashSync('hashed_password', 10)
+    })
+    await fakeUser.save()
+    accessToken = await loginUser('valid_email@mail.com', 'hashed_password')
   })
 
   beforeEach(async () => {
@@ -18,7 +38,12 @@ describe('New Product Routes', () => {
   })
 
   afterAll(async () => {
+    await UserModel.deleteMany()
     await MongooseHelper.disconnect()
+  })
+
+  test('Should require authorization', async () => {
+    await request(app).post('/api/new-product').expect(401)
   })
 
   test('Should return 201 when valid data are provided', async () => {
@@ -36,6 +61,7 @@ describe('New Product Routes', () => {
     }
     const response = await request(app)
       .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
       .field('name', productTest.name)
       .field('price', productTest.price)
       .field('category_id', productTest.category_id)
@@ -74,6 +100,7 @@ describe('New Product Routes', () => {
 
     const response = await request(app)
       .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
       .field('price', productTest.price)
       .field('category_id', productTest.category_id)
       .attach(
@@ -104,6 +131,7 @@ describe('New Product Routes', () => {
 
     const response = await request(app)
       .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
       .send(productTest)
     expect(response.status).toBe(400)
     expect(response.body.error).toBe(new MissingParamError('filename').message)
@@ -122,6 +150,7 @@ describe('New Product Routes', () => {
 
     const response = await request(app)
       .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
       .field('name', productTest.name)
       .field('price', productTest.price)
       .field('category_id', productTest.category_id)
