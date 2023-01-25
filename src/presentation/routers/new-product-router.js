@@ -2,7 +2,6 @@ const HttpResponse = require('../helpers/http-response')
 const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 const fs = require('fs')
 const path = require('path')
-const { promisify } = require('util')
 
 module.exports = class NewProductRouter {
   constructor({ objectShapeValidator, createProductRepository } = {}) {

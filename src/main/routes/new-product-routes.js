@@ -8,7 +8,7 @@ module.exports = (router) => {
   router.post(
     '/new-product',
     authMiddleware,
-    multerMiddleware.single('file'),
+    multerMiddleware,
     adapt(newCategoryRouter)
   )
 }
