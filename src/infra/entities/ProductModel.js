@@ -16,6 +16,9 @@ const productSchema = MongooseHelper.newSchema(
     imagePath: { type: String, required: true }
   },
   {
+    timestamps: true
+  },
+  {
     virtuals: {
       urlPath: {
         get() {
