@@ -5,7 +5,21 @@ const path = require('path')
 const env = require('../../main/config/envfile')
 const aws = require('aws-sdk')
 
-const s3 = new aws.S3()
+const removeUpload = async (key) => {
+  if (env.storageTypes === 's3') {
+    new aws.S3()
+      .deleteObject({
+        Bucket: 'codeburger',
+        Key: key
+      })
+      .promise()
+  } else {
+    await fs.unlink(
+      path.resolve(__dirname, '..', '..', '..', 'uploads', key),
+      () => {}
+    )
+  }
+}
 
 module.exports = class NewProductRouter {
   constructor({ objectShapeValidator, createProductRepository } = {}) {
@@ -39,24 +53,7 @@ module.exports = class NewProductRouter {
       return HttpResponse.created()
     } catch (error) {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
-        if (env.storageTypes === 's3') {
-          s3.deleteObject({
-            Bucket: 'codeburger',
-            Key: httpRequest.file.key
-          }).promise()
-        } else {
-          await fs.unlink(
-            path.resolve(
-              __dirname,
-              '..',
-              '..',
-              '..',
-              'uploads',
-              httpRequest.file.key
-            ),
-            () => {}
-          )
-        }
+        removeUpload(httpRequest.file.key)
       }
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
