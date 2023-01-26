@@ -1,0 +1,38 @@
+class LoadCategoryByIdRepository {
+  constructor(categoryModel) {
+    this.categoryModel = categoryModel
+  }
+
+  async load(id) {
+    const category = await this.categoryModel.findOne({ _id: id })
+    return category
+  }
+}
+
+const MongooseHelper = require('../../helpers/mongoose-helper')
+const env = require('../../../main/config/envfile')
+const CategoryModel = require('../../entities/CategoryModel')
+
+const makeSut = () => {
+  return new LoadCategoryByIdRepository(CategoryModel)
+}
+
+describe('LoadCategoryById Repository', () => {
+  beforeAll(async () => {
+    await MongooseHelper.connect(env.urlMongooseTest)
+  })
+
+  afterEach(async () => {
+    await CategoryModel.deleteMany()
+  })
+
+  afterAll(async () => {
+    await MongooseHelper.disconnect()
+  })
+
+  test('Should return null if no category is found', async () => {
+    const sut = makeSut()
+    const category = await sut.load('63d26841431c2ca8e12c2832')
+    expect(category).toBeNull()
+  })
+})
