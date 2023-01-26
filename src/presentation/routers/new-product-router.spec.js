@@ -4,17 +4,17 @@ const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
-  const createProductRepositorySpy = makeCreateProductRepository()
+  const newProductUseCaseSpy = makeNewProductUseCase()
 
   const sut = new NewProductRouter({
     objectShapeValidator: objectShapeValidatorSpy,
-    createProductRepository: createProductRepositorySpy
+    newProductUseCase: newProductUseCaseSpy
   })
 
   return {
     sut,
     objectShapeValidatorSpy,
-    createProductRepositorySpy
+    newProductUseCaseSpy
   }
 }
 
@@ -47,26 +47,26 @@ const makeObjectShapeValidatorWithError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
-const makeCreateProductRepository = () => {
-  class CreateProductRepositorySpy {
-    async create({ name, price, category_id, imagePath }) {
+const makeNewProductUseCase = () => {
+  class NewProductUseCaseSpy {
+    async record({ name, price, category_id, imagePath }) {
       this.name = name
       this.email = price
       this.password = category_id
       this.admin = imagePath
     }
   }
-  const createProductRepositorySpy = new CreateProductRepositorySpy()
-  return createProductRepositorySpy
+  const newProductUseCaseSpy = new NewProductUseCaseSpy()
+  return newProductUseCaseSpy
 }
 
-const makeCreateProductRepositoryWithError = () => {
-  class CreateProductRepositorySpy {
-    async create() {
+const makeNewProductUseCaseWithError = () => {
+  class NewProductUseCaseSpy {
+    async record() {
       throw new Error()
     }
   }
-  return new CreateProductRepositorySpy()
+  return new NewProductUseCaseSpy()
 }
 
 const requiredParamsBody = ['name', 'price', 'category_id']
@@ -182,10 +182,10 @@ describe('New Product Router', () => {
     expect(httpResponse.statusCode).toBe(400)
   })
 
-  test('Should call CreateProductRepository with correct values', async () => {
-    const { sut, createProductRepositorySpy } = makeSut()
+  test('Should call newProductUseCase with correct values', async () => {
+    const { sut, newProductUseCaseSpy } = makeSut()
 
-    const createSpy = jest.spyOn(createProductRepositorySpy, 'create')
+    const recordSpy = jest.spyOn(newProductUseCaseSpy, 'record')
 
     const httpRequest = {
       body: {
@@ -199,7 +199,7 @@ describe('New Product Router', () => {
     }
 
     await sut.route(httpRequest)
-    expect(createSpy).toHaveBeenCalledWith({
+    expect(recordSpy).toHaveBeenCalledWith({
       name: httpRequest.body.name,
       price: httpRequest.body.price,
       category_id: httpRequest.body.category_id,
@@ -240,7 +240,7 @@ describe('New Product Router', () => {
       }),
       new NewProductRouter({
         objectShapeValidator,
-        createProductRepository: invalid
+        newProductUseCase: invalid
       })
     )
     for (const sut of suts) {
@@ -269,7 +269,7 @@ describe('New Product Router', () => {
       }),
       new NewProductRouter({
         objectShapeValidator,
-        createProductRepository: makeCreateProductRepositoryWithError()
+        newProductUseCase: makeNewProductUseCaseWithError()
       })
     )
     for (const sut of suts) {

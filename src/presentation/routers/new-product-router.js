@@ -22,9 +22,9 @@ const removeUpload = async (key) => {
 }
 
 module.exports = class NewProductRouter {
-  constructor({ objectShapeValidator, createProductRepository } = {}) {
+  constructor({ objectShapeValidator, newProductUseCase } = {}) {
     this.objectShapeValidator = objectShapeValidator
-    this.createProductRepository = createProductRepository
+    this.newProductUseCase = newProductUseCase
   }
 
   async route(httpRequest) {
@@ -44,7 +44,7 @@ module.exports = class NewProductRouter {
       await this.objectShapeValidator.isValid(httpRequest.body)
       const { name, price, category_id } = httpRequest.body
       const { key: imagePath } = httpRequest.file
-      await this.createProductRepository.create({
+      await this.newProductUseCase.record({
         name,
         price,
         category_id,
