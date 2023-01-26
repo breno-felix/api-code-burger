@@ -4,6 +4,10 @@ class LoadCategoryByIdRepository {
   }
 
   async load(id) {
+    if (!id) {
+      throw new MissingParamServerError('id')
+    }
+
     const category = await this.categoryModel.findOne({ _id: id })
     return category
   }
@@ -12,6 +16,7 @@ class LoadCategoryByIdRepository {
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const CategoryModel = require('../../entities/CategoryModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new LoadCategoryByIdRepository(CategoryModel)
@@ -50,5 +55,11 @@ describe('LoadCategoryById Repository', () => {
     const sut = new LoadCategoryByIdRepository()
     const promise = sut.load('63d26841431c2ca8e12c2832')
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no id is provided', async () => {
+    const sut = makeSut()
+    const promise = sut.load()
+    expect(promise).rejects.toThrow(new MissingParamServerError('id'))
   })
 })
