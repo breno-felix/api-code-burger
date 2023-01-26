@@ -45,4 +45,10 @@ describe('LoadCategoryById Repository', () => {
     const category = await sut.load(fakeCategory._id)
     expect(category._id).toEqual(fakeCategory._id)
   })
+
+  test('Should throw if no CategoryModel is provided', async () => {
+    const sut = new LoadCategoryByIdRepository()
+    const promise = sut.load('63d26841431c2ca8e12c2832')
+    expect(promise).rejects.toThrow()
+  })
 })
