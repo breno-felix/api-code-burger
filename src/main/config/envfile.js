@@ -22,6 +22,8 @@ module.exports = {
   saltRounds: process.env.SALT_ROUNDS,
   expiresIn: process.env.TOKEN_EXPIRESIN,
   appUrl: process.env.APP_URL,
+  storageTypes: process.env.STORAGE_TYPES,
+  storageURL: process.env.STORAGE_URL,
   // test
   port: process.env.PORT,
   urlMongooseTest: process.env.MONGODB_DSN

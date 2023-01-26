@@ -5,3 +5,4 @@ coverage
 .vscode
 globalConfig.json
 yarn.lock
+Amazon S3.md

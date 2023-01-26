@@ -133,7 +133,7 @@ describe('New Product Routes', () => {
       .auth(accessToken, { type: 'bearer' })
       .send(productTest)
     expect(response.status).toBe(400)
-    expect(response.body.error).toBe(new MissingParamError('filename').message)
+    expect(response.body.error).toBe(new MissingParamError('key').message)
   })
 
   test('Should return 400 if invalid price is provided', async () => {

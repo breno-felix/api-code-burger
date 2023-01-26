@@ -70,7 +70,7 @@ const makeCreateProductRepositoryWithError = () => {
 }
 
 const requiredParamsBody = ['name', 'price', 'category_id']
-const requiredParamsFile = ['filename']
+const requiredParamsFile = ['key']
 const invalidRequests = [undefined, {}]
 
 describe('New Product Router', () => {
@@ -101,7 +101,7 @@ describe('New Product Router', () => {
           category_id: 'any_category_id'
         },
         file: {
-          filename: 'any_name'
+          key: 'any_name'
         }
       }
       delete httpRequest.file[param]
@@ -116,7 +116,7 @@ describe('New Product Router', () => {
     const httpRequest = {
       body: {},
       file: {
-        filename: 'any_name'
+        key: 'any_name'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -135,9 +135,7 @@ describe('New Product Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(
-      new MissingParamError('filename').message
-    )
+    expect(httpResponse.body.error).toBe(new MissingParamError('key').message)
   })
 
   invalidRequests.forEach((httpRequest) => {
@@ -158,7 +156,7 @@ describe('New Product Router', () => {
         category_id: 'any_category_id'
       },
       file: {
-        filename: 'any_name'
+        key: 'any_name'
       }
     }
     await sut.route(httpRequest)
@@ -177,7 +175,7 @@ describe('New Product Router', () => {
         category_id: 'invalid_category_id'
       },
       file: {
-        filename: 'any_name'
+        key: 'any_name'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -196,7 +194,7 @@ describe('New Product Router', () => {
         category_id: 'valid_category_id'
       },
       file: {
-        filename: 'valid_name'
+        key: 'valid_name'
       }
     }
 
@@ -205,7 +203,7 @@ describe('New Product Router', () => {
       name: httpRequest.body.name,
       price: httpRequest.body.price,
       category_id: httpRequest.body.category_id,
-      imagePath: httpRequest.file.filename
+      imagePath: httpRequest.file.key
     })
   })
 
@@ -218,7 +216,7 @@ describe('New Product Router', () => {
         category_id: 'valid_category_id'
       },
       file: {
-        filename: 'valid_name'
+        key: 'valid_name'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -253,7 +251,7 @@ describe('New Product Router', () => {
           category_id: 'any_category_id'
         },
         file: {
-          filename: 'any_name'
+          key: 'any_name'
         }
       }
       const httpResponse = await sut.route(httpRequest)
@@ -282,7 +280,7 @@ describe('New Product Router', () => {
           category_id: 'any_category_id'
         },
         file: {
-          filename: 'any_name'
+          key: 'any_name'
         }
       }
       const httpResponse = await sut.route(httpRequest)
