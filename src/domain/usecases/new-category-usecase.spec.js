@@ -164,7 +164,7 @@ describe('New Category UseCase', () => {
       }
     }
     for (const sut of suts) {
-      const promise = sut.record(httpRequest)
+      const promise = sut.record(httpRequest.body)
       expect(promise).rejects.toThrow()
     }
   })

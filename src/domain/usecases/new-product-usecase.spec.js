@@ -56,6 +56,15 @@ const makeLoadCategoryByIdRepository = () => {
   return loadCategoryByIdRepositorySpy
 }
 
+const makeLoadCategoryByIdRepositoryWithError = () => {
+  class LoadCategoryByIdRepositorySpy {
+    async load() {
+      throw new Error()
+    }
+  }
+  return new LoadCategoryByIdRepositorySpy()
+}
+
 const makeCreateProductRepository = () => {
   class CreateProductRepositorySpy {
     async create({ name, price, category_id, imagePath }) {
@@ -67,6 +76,15 @@ const makeCreateProductRepository = () => {
   }
   const createProductRepositorySpy = new CreateProductRepositorySpy()
   return createProductRepositorySpy
+}
+
+const makeCreateProductRepositoryWithError = () => {
+  class CreateProductRepositorySpy {
+    async create() {
+      throw new Error()
+    }
+  }
+  return new CreateProductRepositorySpy()
 }
 
 describe('New Product UseCase', () => {
@@ -116,7 +134,7 @@ describe('New Product UseCase', () => {
     const httpRequest = {
       name: 'valid_name',
       price: 10.01,
-      category_id: 'invalid_category_id',
+      category_id: 'valid_category_id',
       imagePath: 'valid_name'
     }
 
@@ -139,6 +157,29 @@ describe('New Product UseCase', () => {
       new NewProductUseCase({
         loadCategoryByIdRepository,
         createProductRepository: invalid
+      })
+    )
+    const httpRequest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: 'invalid_category_id',
+      imagePath: 'valid_name'
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
+
+  test('Should throw if dependency throw', async () => {
+    const loadCategoryByIdRepository = makeLoadCategoryByIdRepository()
+    const suts = [].concat(
+      new NewProductUseCase({
+        loadCategoryByNameRepository: makeLoadCategoryByIdRepositoryWithError()
+      }),
+      new NewProductUseCase({
+        loadCategoryByIdRepository,
+        createCategoryRepository: makeCreateProductRepositoryWithError()
       })
     )
     const httpRequest = {
