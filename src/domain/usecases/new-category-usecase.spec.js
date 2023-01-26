@@ -63,7 +63,7 @@ const makeCreateCategoryRepositoryWithError = () => {
   return new CreateCategoryRepositorySpy()
 }
 
-describe('Sign up UseCase', () => {
+describe('New Category UseCase', () => {
   test('Should throw new MissingParamServerError if no httpRequest is provided', async () => {
     const { sut } = makeSut()
     expect(sut.record()).rejects.toThrow(
