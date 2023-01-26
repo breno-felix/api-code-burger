@@ -8,11 +8,20 @@ class NewProductUseCase {
       throw new MissingParamServerError('httpRequest')
     }
 
-    await this.loadCategoryByIdRepository.load(httpRequest.category_id)
+    const category = await this.loadCategoryByIdRepository.load(
+      httpRequest.category_id
+    )
+
+    if (!category) {
+      throw new CategoryNotCreatedError()
+    }
   }
 }
 
-const { MissingParamServerError } = require('../../utils/errors')
+const {
+  MissingParamServerError,
+  CategoryNotCreatedError
+} = require('../../utils/errors')
 
 const makeSut = () => {
   const loadCategoryByIdRepositorySpy = makeLoadCategoryByIdRepository()
@@ -35,7 +44,9 @@ const makeLoadCategoryByIdRepository = () => {
     }
   }
   const loadCategoryByIdRepositorySpy = new LoadCategoryByIdRepositorySpy()
-  loadCategoryByIdRepositorySpy.category = null
+  loadCategoryByIdRepositorySpy.category = {
+    id: 'valid_id'
+  }
   return loadCategoryByIdRepositorySpy
 }
 
@@ -60,5 +71,21 @@ describe('New Product UseCase', () => {
     }
     await sut.record(httpRequest)
     expect(loadSpy).toHaveBeenCalledWith(httpRequest.category_id)
+  })
+
+  test('Should throw new CategoryNotCreatedError if category_id provided do not exists', async () => {
+    const { sut, loadCategoryByIdRepositorySpy } = makeSut()
+    loadCategoryByIdRepositorySpy.category = null
+
+    const httpRequest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: 'invalid_category_id',
+      imagePath: 'valid_name'
+    }
+
+    expect(sut.record(httpRequest)).rejects.toThrow(
+      new CategoryNotCreatedError()
+    )
   })
 })
