@@ -1,26 +1,4 @@
-class NewProductUseCase {
-  constructor({ loadCategoryByIdRepository, createProductRepository } = {}) {
-    this.loadCategoryByIdRepository = loadCategoryByIdRepository
-    this.createProductRepository = createProductRepository
-  }
-
-  async record(httpRequest) {
-    if (!httpRequest) {
-      throw new MissingParamServerError('httpRequest')
-    }
-
-    const category = await this.loadCategoryByIdRepository.load(
-      httpRequest.category_id
-    )
-
-    if (!category) {
-      throw new CategoryNotCreatedError()
-    }
-
-    await this.createProductRepository.create(httpRequest)
-  }
-}
-
+const NewProductUseCase = require('./new-product-usecase')
 const {
   MissingParamServerError,
   CategoryNotCreatedError
@@ -175,7 +153,7 @@ describe('New Product UseCase', () => {
     const loadCategoryByIdRepository = makeLoadCategoryByIdRepository()
     const suts = [].concat(
       new NewProductUseCase({
-        loadCategoryByNameRepository: makeLoadCategoryByIdRepositoryWithError()
+        loadCategoryByIdRepository: makeLoadCategoryByIdRepositoryWithError()
       }),
       new NewProductUseCase({
         loadCategoryByIdRepository,
