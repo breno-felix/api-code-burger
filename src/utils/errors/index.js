@@ -4,6 +4,7 @@ const RepeatPasswordError = require('./repeat-password-error')
 const RepeatedEmailError = require('./repeated-email-error')
 const RepeatedNameError = require('./repeated-name-error')
 const MissingParamServerError = require('./missing-param-server-error')
+const CategoryNotCreatedError = require('./category-not-created-error')
 
 module.exports = {
   MissingParamError,
@@ -11,5 +12,6 @@ module.exports = {
   RepeatPasswordError,
   RepeatedEmailError,
   MissingParamServerError,
-  RepeatedNameError
+  RepeatedNameError,
+  CategoryNotCreatedError
 }

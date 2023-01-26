@@ -1,5 +1,9 @@
 const HttpResponse = require('../helpers/http-response')
-const { MissingParamError, InvalidParamError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  InvalidParamError,
+  CategoryNotCreatedError
+} = require('../../utils/errors')
 const fs = require('fs')
 const path = require('path')
 const env = require('../../main/config/envfile')
@@ -55,7 +59,9 @@ module.exports = class NewProductRouter {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
         removeUpload(httpRequest.file.key)
       }
-      if (error instanceof InvalidParamError) {
+      if (error instanceof CategoryNotCreatedError) {
+        return HttpResponse.badRequest(new CategoryNotCreatedError())
+      } else if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
       } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)

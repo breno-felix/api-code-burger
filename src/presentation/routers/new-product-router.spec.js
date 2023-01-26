@@ -1,6 +1,10 @@
 const NewProductRouter = require('./new-product-router')
 const { ServerError } = require('../errors')
-const { MissingParamError, InvalidParamError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  InvalidParamError,
+  CategoryNotCreatedError
+} = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
@@ -52,12 +56,21 @@ const makeNewProductUseCase = () => {
     async record({ name, price, category_id, imagePath }) {
       this.name = name
       this.email = price
-      this.password = category_id
-      this.admin = imagePath
+      this.category_id = category_id
+      this.imagePath = imagePath
     }
   }
   const newProductUseCaseSpy = new NewProductUseCaseSpy()
   return newProductUseCaseSpy
+}
+
+const makeNewProductUseCaseWithCategoryNotCreatedError = () => {
+  class NewProductUseCaseSpy {
+    async record() {
+      throw new CategoryNotCreatedError()
+    }
+  }
+  return new NewProductUseCaseSpy()
 }
 
 const makeNewProductUseCaseWithError = () => {
@@ -224,6 +237,29 @@ describe('New Product Router', () => {
     expect(httpResponse.body).toBe(
       'The request was successful and a new resource was created as a result.'
     )
+  })
+
+  test('Should return 400 when category_id does not exist in category database', async () => {
+    const objectShapeValidator = makeObjectShapeValidator()
+
+    const sut = new NewProductRouter({
+      newProductUseCase: makeNewProductUseCaseWithCategoryNotCreatedError(),
+      objectShapeValidator
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        price: 10.01,
+        category_id: 'invalid_category_id'
+      },
+      file: {
+        key: 'valid_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new CategoryNotCreatedError().message)
   })
 
   test('Should return 500 if invalid dependencies are provided', async () => {
