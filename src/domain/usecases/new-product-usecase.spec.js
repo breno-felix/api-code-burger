@@ -123,4 +123,33 @@ describe('New Product UseCase', () => {
     await sut.record(httpRequest)
     expect(createSpy).toHaveBeenCalledWith(httpRequest)
   })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const loadCategoryByIdRepository = makeLoadCategoryByIdRepository()
+    const suts = [].concat(
+      new NewProductUseCase(),
+      new NewProductUseCase({}),
+      new NewProductUseCase({
+        loadUserByEmailRepository: invalid
+      }),
+      new NewProductUseCase({
+        loadCategoryByIdRepository
+      }),
+      new NewProductUseCase({
+        loadCategoryByIdRepository,
+        createProductRepository: invalid
+      })
+    )
+    const httpRequest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: 'invalid_category_id',
+      imagePath: 'valid_name'
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
