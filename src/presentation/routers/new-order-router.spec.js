@@ -18,7 +18,9 @@ class NewOrderRouter {
       await this.newOrderUseCase.record(httpRequest.body)
       return HttpResponse.created()
     } catch (error) {
-      if (error instanceof InvalidParamError) {
+      if (error instanceof ProductNotCreatedError) {
+        return HttpResponse.badRequest(new ProductNotCreatedError())
+      } else if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
       } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
@@ -29,7 +31,11 @@ class NewOrderRouter {
 }
 
 const { ServerError } = require('../errors')
-const { MissingParamError, InvalidParamError } = require('../../utils/errors')
+const {
+  MissingParamError,
+  InvalidParamError,
+  ProductNotCreatedError
+} = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
@@ -77,6 +83,15 @@ const makeNewOrderUseCase = () => {
   const newOrderUseCaseSpy = new NewOrderUseCaseSpy()
   newOrderUseCaseSpy.isRegistered = true
   return newOrderUseCaseSpy
+}
+
+const makeNewOrderUseCaseWithProductNotCreatedError = () => {
+  class NewOrderUseCaseSpy {
+    async record() {
+      throw new ProductNotCreatedError()
+    }
+  }
+  return new NewOrderUseCaseSpy()
 }
 
 const requiredParams = ['products']
@@ -157,5 +172,23 @@ describe('New Order Router', () => {
     expect(httpResponse.body).toBe(
       'The request was successful and a new resource was created as a result.'
     )
+  })
+
+  test('Should return 400 when some product_id of products does not exist in product database', async () => {
+    const objectShapeValidator = makeObjectShapeValidator()
+
+    const sut = new NewOrderRouter({
+      newOrderUseCase: makeNewOrderUseCaseWithProductNotCreatedError(),
+      objectShapeValidator
+    })
+
+    const httpRequest = {
+      body: {
+        products: ['any_array']
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new ProductNotCreatedError().message)
   })
 })
