@@ -182,6 +182,9 @@ describe('New Order Router', () => {
 
   test('Should call NewOrderUseCase with correct params', async () => {
     const { sut, newOrderUseCaseSpy } = makeSut()
+
+    const recordSpy = jest.spyOn(newOrderUseCaseSpy, 'record')
+
     const httpRequest = {
       body: {
         products: ['any_array']
@@ -189,8 +192,9 @@ describe('New Order Router', () => {
       userId: 'any_user_id'
     }
     await sut.route(httpRequest)
-    requiredParams.forEach((param) => {
-      expect(newOrderUseCaseSpy[param]).toBe(httpRequest.body[param])
+    expect(recordSpy).toHaveBeenCalledWith({
+      user_id: httpRequest.userId,
+      products: httpRequest.body.products
     })
   })
 

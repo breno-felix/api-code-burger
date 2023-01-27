@@ -26,7 +26,12 @@ module.exports = class NewOrderRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
-      await this.newOrderUseCase.record(httpRequest.body)
+      const { products } = httpRequest.body
+      const { userId: user_id } = httpRequest
+      await this.newOrderUseCase.record({
+        user_id,
+        products
+      })
       return HttpResponse.created()
     } catch (error) {
       if (error instanceof ProductNotCreatedError) {
