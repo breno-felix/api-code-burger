@@ -191,4 +191,33 @@ describe('New Order Router', () => {
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new ProductNotCreatedError().message)
   })
+
+  test('Should return 500 if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const newOrderUseCase = makeNewOrderUseCase()
+    const suts = [].concat(
+      new NewOrderRouter(),
+      new NewOrderRouter({}),
+      new NewOrderRouter({
+        newOrderUseCase: invalid
+      }),
+      new NewOrderRouter({
+        newOrderUseCase
+      }),
+      new NewOrderRouter({
+        newOrderUseCase,
+        objectShapeValidator: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          products: ['any_array']
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
+  })
 })
