@@ -130,6 +130,20 @@ describe('New Order Router', () => {
     )
   })
 
+  test(`Should return 400 if no httpRequest.userId is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        products: ['any_array']
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(
+      new MissingParamError('userId').message
+    )
+  })
+
   invalidRequests.forEach((httpRequest) => {
     test('Should return 500 if the httpRequest is invalid', async () => {
       const { sut } = makeSut()
