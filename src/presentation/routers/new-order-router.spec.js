@@ -13,10 +13,12 @@ class NewOrderRouter {
       if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
       }
+      return HttpResponse.serverError()
     }
   }
 }
 
+const { ServerError } = require('../errors')
 const { MissingParamError } = require('../../utils/errors')
 
 const makeSut = () => {
@@ -28,6 +30,7 @@ const makeSut = () => {
 }
 
 const requiredParams = ['products']
+const invalidRequests = [undefined, {}]
 
 describe('New Order Router', () => {
   requiredParams.forEach((param) => {
@@ -42,6 +45,15 @@ describe('New Order Router', () => {
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
+    })
+  })
+
+  invalidRequests.forEach((httpRequest) => {
+    test('Should return 500 if the httpRequest is invalid', async () => {
+      const { sut } = makeSut()
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
     })
   })
 })
