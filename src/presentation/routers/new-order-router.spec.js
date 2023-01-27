@@ -1,8 +1,9 @@
 const HttpResponse = require('../helpers/http-response')
 
 class NewOrderRouter {
-  constructor({ objectShapeValidator } = {}) {
+  constructor({ objectShapeValidator, newOrderUseCase } = {}) {
     this.objectShapeValidator = objectShapeValidator
+    this.newOrderUseCase = newOrderUseCase
   }
 
   async route(httpRequest) {
@@ -14,6 +15,7 @@ class NewOrderRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
+      await this.newOrderUseCase.record(httpRequest.body)
     } catch (error) {
       if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
@@ -30,14 +32,17 @@ const { MissingParamError, InvalidParamError } = require('../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
+  const newOrderUseCaseSpy = makeNewOrderUseCase()
 
   const sut = new NewOrderRouter({
-    objectShapeValidator: objectShapeValidatorSpy
+    objectShapeValidator: objectShapeValidatorSpy,
+    newOrderUseCase: newOrderUseCaseSpy
   })
 
   return {
     sut,
-    objectShapeValidatorSpy
+    objectShapeValidatorSpy,
+    newOrderUseCaseSpy
   }
 }
 
@@ -59,6 +64,18 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
     }
   }
   return new ObjectShapeValidatorSpy()
+}
+
+const makeNewOrderUseCase = () => {
+  class NewOrderUseCaseSpy {
+    async record(httpRequest) {
+      this.products = httpRequest.products
+      return this.isRegistered
+    }
+  }
+  const newOrderUseCaseSpy = new NewOrderUseCaseSpy()
+  newOrderUseCaseSpy.isRegistered = true
+  return newOrderUseCaseSpy
 }
 
 const requiredParams = ['products']
@@ -112,5 +129,18 @@ describe('New Order Router', () => {
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
+  })
+
+  test('Should call NewOrderUseCase with correct params', async () => {
+    const { sut, newOrderUseCaseSpy } = makeSut()
+    const httpRequest = {
+      body: {
+        products: ['any_array']
+      }
+    }
+    await sut.route(httpRequest)
+    requiredParams.forEach((param) => {
+      expect(newOrderUseCaseSpy[param]).toBe(httpRequest.body[param])
+    })
   })
 })
