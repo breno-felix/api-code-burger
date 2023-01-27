@@ -73,6 +73,15 @@ const makeObjectShapeValidatorWithInvalidParamError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
+const makeObjectShapeValidatorWithError = () => {
+  class ObjectShapeValidatorSpy {
+    async isValid() {
+      throw new Error()
+    }
+  }
+  return new ObjectShapeValidatorSpy()
+}
+
 const makeNewOrderUseCase = () => {
   class NewOrderUseCaseSpy {
     async record(httpRequest) {
@@ -89,6 +98,15 @@ const makeNewOrderUseCaseWithProductNotCreatedError = () => {
   class NewOrderUseCaseSpy {
     async record() {
       throw new ProductNotCreatedError()
+    }
+  }
+  return new NewOrderUseCaseSpy()
+}
+
+const makeNewOrderUseCaseWithError = () => {
+  class NewOrderUseCaseSpy {
+    async record() {
+      throw new Error()
     }
   }
   return new NewOrderUseCaseSpy()
@@ -207,6 +225,29 @@ describe('New Order Router', () => {
       new NewOrderRouter({
         newOrderUseCase,
         objectShapeValidator: invalid
+      })
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          products: ['any_array']
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body.error).toBe(new ServerError().message)
+    }
+  })
+
+  test('Should return 500 if any dependency throw a new Error()', async () => {
+    const newOrderUseCase = makeNewOrderUseCase()
+    const suts = [].concat(
+      new NewOrderRouter({
+        newOrderUseCase: makeNewOrderUseCaseWithError()
+      }),
+      new NewOrderRouter({
+        newOrderUseCase,
+        objectShapeValidator: makeObjectShapeValidatorWithError()
       })
     )
     for (const sut of suts) {
