@@ -19,6 +19,12 @@ module.exports = class NewOrderRouter {
           throw new MissingParamError(param)
         }
       })
+      const requiredParamsRequest = ['userId']
+      requiredParamsRequest.forEach((param) => {
+        if (!httpRequest[param]) {
+          throw new MissingParamError(param)
+        }
+      })
       await this.objectShapeValidator.isValid(httpRequest.body)
       await this.newOrderUseCase.record(httpRequest.body)
       return HttpResponse.created()

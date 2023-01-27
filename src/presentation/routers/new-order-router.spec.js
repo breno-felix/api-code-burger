@@ -83,6 +83,7 @@ const makeNewOrderUseCaseWithError = () => {
 
 const requiredParams = ['products']
 const invalidRequests = [undefined, {}]
+const requiredParamsRequest = ['userId']
 
 describe('New Order Router', () => {
   requiredParams.forEach((param) => {
@@ -94,6 +95,22 @@ describe('New Order Router', () => {
         }
       }
       delete httpRequest.body[param]
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(400)
+      expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
+    })
+  })
+
+  requiredParamsRequest.forEach((param) => {
+    test(`Should return 400 if no ${param} is provided in httpRequest`, async () => {
+      const { sut } = makeSut()
+      const httpRequest = {
+        body: {
+          products: ['any_array']
+        },
+        userId: 'any_user_id'
+      }
+      delete httpRequest[param]
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
@@ -114,7 +131,8 @@ describe('New Order Router', () => {
     const httpRequest = {
       body: {
         products: ['any_array']
-      }
+      },
+      userId: 'any_user_id'
     }
     await sut.route(httpRequest)
     expect(objectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
@@ -127,8 +145,9 @@ describe('New Order Router', () => {
 
     const httpRequest = {
       body: {
-        products: ['any_array']
-      }
+        products: ['invalid_array']
+      },
+      userId: 'any_user_id'
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
@@ -139,7 +158,8 @@ describe('New Order Router', () => {
     const httpRequest = {
       body: {
         products: ['any_array']
-      }
+      },
+      userId: 'any_user_id'
     }
     await sut.route(httpRequest)
     requiredParams.forEach((param) => {
@@ -151,8 +171,9 @@ describe('New Order Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        products: ['any_array']
-      }
+        products: ['valid_array']
+      },
+      userId: 'any_user_id'
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(201)
@@ -171,8 +192,9 @@ describe('New Order Router', () => {
 
     const httpRequest = {
       body: {
-        products: ['any_array']
-      }
+        products: ['invalid_array']
+      },
+      userId: 'any_user_id'
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
@@ -200,7 +222,8 @@ describe('New Order Router', () => {
       const httpRequest = {
         body: {
           products: ['any_array']
-        }
+        },
+        userId: 'any_user_id'
       }
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(500)
@@ -223,7 +246,8 @@ describe('New Order Router', () => {
       const httpRequest = {
         body: {
           products: ['any_array']
-        }
+        },
+        userId: 'any_user_id'
       }
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(500)
