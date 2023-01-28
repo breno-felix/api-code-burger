@@ -151,4 +151,40 @@ describe('New Order UseCase', () => {
     await sut.record(httpRequest)
     expect(createSpy).toHaveBeenCalledWith(httpRequest)
   })
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const invalid = {}
+    const loadProductByIdRepository = makeLoadProductByIdRepository()
+    const suts = [].concat(
+      new NewOrderUseCase(),
+      new NewOrderUseCase({}),
+      new NewOrderUseCase({
+        loadProductByIdRepository: invalid
+      }),
+      new NewOrderUseCase({
+        loadProductByIdRepository
+      }),
+      new NewOrderUseCase({
+        loadProductByIdRepository,
+        createOrderRepository: invalid
+      })
+    )
+    const httpRequest = {
+      userId: 'any_user_id',
+      products: [
+        {
+          product_id: 'any_id',
+          quantity: 1
+        },
+        {
+          product_id: 'some_id',
+          quantity: 2
+        }
+      ]
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
 })
