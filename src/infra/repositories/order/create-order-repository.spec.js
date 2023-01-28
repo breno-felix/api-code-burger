@@ -4,6 +4,9 @@ class CreateOrderRepository {
   }
 
   async create(orderObject) {
+    if (!orderObject) {
+      throw new MissingParamServerError('orderObject')
+    }
     return await this.orderModel.create(orderObject)
   }
 }
@@ -14,6 +17,7 @@ const OrderModel = require('../../entities/OrderModel')
 const UserModel = require('../../entities/UserModel')
 const CategoryModel = require('../../entities/CategoryModel')
 const ProductModel = require('../../entities/ProductModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new CreateOrderRepository(OrderModel)
@@ -141,5 +145,12 @@ describe('CreateOrder Repository', () => {
     }
     const promise = sut.create(validOrder)
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no orderObject is provided', async () => {
+    const sut = makeSut()
+    expect(sut.create()).rejects.toThrow(
+      new MissingParamServerError('orderObject')
+    )
   })
 })
