@@ -1,16 +1,4 @@
-class CreateOrderRepository {
-  constructor(orderModel) {
-    this.orderModel = orderModel
-  }
-
-  async create(orderObject) {
-    if (!orderObject) {
-      throw new MissingParamServerError('orderObject')
-    }
-    return await this.orderModel.create(orderObject)
-  }
-}
-
+const CreateOrderRepository = require('./create-order-repository')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const OrderModel = require('../../entities/OrderModel')
