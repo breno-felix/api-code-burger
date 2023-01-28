@@ -4,6 +4,9 @@ class LoadProductByIdRepository {
   }
 
   async load(id) {
+    if (!id) {
+      throw new MissingParamServerError('id')
+    }
     const product = await this.productModel.findOne({ _id: id })
     return product
   }
@@ -13,6 +16,7 @@ const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const ProductModel = require('../../entities/ProductModel')
 const CategoryModel = require('../../entities/CategoryModel')
+const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new LoadProductByIdRepository(ProductModel)
@@ -59,5 +63,11 @@ describe('LoadProductById Repository', () => {
     const sut = new LoadProductByIdRepository()
     const promise = sut.load('63d26841431c2ca8e12c2832')
     expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if no id is provided', async () => {
+    const sut = makeSut()
+    const promise = sut.load()
+    expect(promise).rejects.toThrow(new MissingParamServerError('id'))
   })
 })
