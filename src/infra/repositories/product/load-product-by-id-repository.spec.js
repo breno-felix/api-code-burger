@@ -12,6 +12,7 @@ class LoadProductByIdRepository {
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const ProductModel = require('../../entities/ProductModel')
+const CategoryModel = require('../../entities/CategoryModel')
 
 const makeSut = () => {
   return new LoadProductByIdRepository(ProductModel)
@@ -24,6 +25,7 @@ describe('LoadProductById Repository', () => {
 
   afterEach(async () => {
     await ProductModel.deleteMany()
+    await CategoryModel.deleteMany()
   })
 
   afterAll(async () => {
@@ -34,5 +36,22 @@ describe('LoadProductById Repository', () => {
     const sut = makeSut()
     const product = await sut.load('63d26841431c2ca8e12c2832')
     expect(product).toBeNull()
+  })
+
+  test('Should return an product if product is found', async () => {
+    const sut = makeSut()
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const fakeProduct = new ProductModel({
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id,
+      imagePath: 'valid_image_path'
+    })
+    await fakeProduct.save()
+    const product = await sut.load(fakeProduct._id)
+    expect(product._id).toEqual(fakeProduct._id)
   })
 })
