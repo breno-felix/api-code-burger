@@ -1,19 +1,47 @@
 class NewOrderUseCase {
+  constructor({ loadProductByIdRepository } = {}) {
+    this.loadProductByIdRepository = loadProductByIdRepository
+  }
+
   async record(httpRequest) {
     if (!httpRequest) {
       throw new MissingParamServerError('httpRequest')
     }
+
+    httpRequest.products.map(async (product) => {
+      await this.loadProductByIdRepository.load(product.product_id)
+      return null
+    })
   }
 }
 
 const { MissingParamServerError } = require('../../utils/errors')
 
 const makeSut = () => {
-  const sut = new NewOrderUseCase()
+  const loadProductByIdRepositorySpy = makeLoadProductByIdRepository()
+
+  const sut = new NewOrderUseCase({
+    loadProductByIdRepository: loadProductByIdRepositorySpy
+  })
 
   return {
-    sut
+    sut,
+    loadProductByIdRepositorySpy
   }
+}
+
+const makeLoadProductByIdRepository = () => {
+  class LoadProductByIdRepositorySpy {
+    async load(id) {
+      this.id = id
+      return this.product
+    }
+  }
+  const loadProductByIdRepositorySpy = new LoadProductByIdRepositorySpy()
+  loadProductByIdRepositorySpy.product = {
+    id: 'valid_id'
+  }
+  return loadProductByIdRepositorySpy
 }
 
 describe('New Order UseCase', () => {
@@ -21,6 +49,36 @@ describe('New Order UseCase', () => {
     const { sut } = makeSut()
     expect(sut.record()).rejects.toThrow(
       new MissingParamServerError('httpRequest')
+    )
+  })
+
+  test('Should call LoadProductByIdRepository with correct id', async () => {
+    const { sut, loadProductByIdRepositorySpy } = makeSut()
+
+    const loadSpy = jest.spyOn(loadProductByIdRepositorySpy, 'load')
+
+    const httpRequest = {
+      userId: 'any_user_id',
+      products: [
+        {
+          product_id: 'any_id',
+          quantity: 1
+        },
+        {
+          product_id: 'some_id',
+          quantity: 2
+        }
+      ]
+    }
+    await sut.record(httpRequest)
+    expect(loadSpy).toHaveBeenCalledTimes(2)
+    expect(loadSpy).toHaveBeenNthCalledWith(
+      1,
+      httpRequest.products[0].product_id
+    )
+    expect(loadSpy).toHaveBeenNthCalledWith(
+      2,
+      httpRequest.products[1].product_id
     )
   })
 })
