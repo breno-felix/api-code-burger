@@ -95,4 +95,51 @@ describe('CreateOrder Repository', () => {
     }).toEqual(validOrder)
     expect(order._id).toEqual(expect.anything())
   })
+
+  test('Should throw if no orderModel is provided', async () => {
+    const sut = new CreateOrderRepository()
+    const fakeUser = new UserModel({
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+      admin: false
+    })
+    await fakeUser.save()
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+
+    const fakeProduct = new ProductModel({
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id,
+      imagePath: 'valid_image_path'
+    })
+    await fakeProduct.save()
+
+    const fakeProductTwo = new ProductModel({
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id,
+      imagePath: 'valid_image_path'
+    })
+    await fakeProductTwo.save()
+
+    const validOrder = {
+      user_id: fakeUser._id,
+      products: [
+        {
+          product_id: fakeProduct._id,
+          quantity: 1
+        },
+        {
+          product_id: fakeProductTwo._id,
+          quantity: 2
+        }
+      ]
+    }
+    const promise = sut.create(validOrder)
+    expect(promise).rejects.toThrow()
+  })
 })
