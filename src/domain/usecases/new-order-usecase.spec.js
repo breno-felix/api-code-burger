@@ -57,6 +57,15 @@ const makeLoadProductByIdRepository = () => {
   return loadProductByIdRepositorySpy
 }
 
+const makeLoadProductByIdRepositoryWithError = () => {
+  class LoadProductByIdRepositorySpy {
+    async load() {
+      throw new Error()
+    }
+  }
+  return new LoadProductByIdRepositorySpy()
+}
+
 const makeCreateOrderRepository = () => {
   class CreateOrderRepositorySpy {
     async create({ user_id, products }) {
@@ -66,6 +75,15 @@ const makeCreateOrderRepository = () => {
   }
   const createOrderRepositorySpy = new CreateOrderRepositorySpy()
   return createOrderRepositorySpy
+}
+
+const makeCreateOrderRepositoryWithError = () => {
+  class CreateOrderRepositorySpy {
+    async create() {
+      throw new Error()
+    }
+  }
+  return new CreateOrderRepositorySpy()
 }
 
 describe('New Order UseCase', () => {
@@ -167,6 +185,36 @@ describe('New Order UseCase', () => {
       new NewOrderUseCase({
         loadProductByIdRepository,
         createOrderRepository: invalid
+      })
+    )
+    const httpRequest = {
+      userId: 'any_user_id',
+      products: [
+        {
+          product_id: 'any_id',
+          quantity: 1
+        },
+        {
+          product_id: 'some_id',
+          quantity: 2
+        }
+      ]
+    }
+    for (const sut of suts) {
+      const promise = sut.record(httpRequest)
+      expect(promise).rejects.toThrow()
+    }
+  })
+
+  test('Should throw if dependency throw', async () => {
+    const loadProductByIdRepository = makeLoadProductByIdRepository()
+    const suts = [].concat(
+      new NewOrderUseCase({
+        loadCategoryByIdRepository: makeLoadProductByIdRepositoryWithError()
+      }),
+      new NewOrderUseCase({
+        loadProductByIdRepository,
+        createOrderRepository: makeCreateOrderRepositoryWithError()
       })
     )
     const httpRequest = {
