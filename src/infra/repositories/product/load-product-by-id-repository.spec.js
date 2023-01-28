@@ -1,17 +1,4 @@
-class LoadProductByIdRepository {
-  constructor(productModel) {
-    this.productModel = productModel
-  }
-
-  async load(id) {
-    if (!id) {
-      throw new MissingParamServerError('id')
-    }
-    const product = await this.productModel.findOne({ _id: id })
-    return product
-  }
-}
-
+const LoadProductByIdRepository = require('./load-product-by-id-repository')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const ProductModel = require('../../entities/ProductModel')
