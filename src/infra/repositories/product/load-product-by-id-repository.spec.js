@@ -54,4 +54,10 @@ describe('LoadProductById Repository', () => {
     const product = await sut.load(fakeProduct._id)
     expect(product._id).toEqual(fakeProduct._id)
   })
+
+  test('Should throw if no ProductModel is provided', async () => {
+    const sut = new LoadProductByIdRepository()
+    const promise = sut.load('63d26841431c2ca8e12c2832')
+    expect(promise).rejects.toThrow()
+  })
 })
