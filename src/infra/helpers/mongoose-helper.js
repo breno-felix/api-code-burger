@@ -35,5 +35,9 @@ module.exports = {
 
   getObjectId() {
     return mongoose.ObjectId
+  },
+
+  getTypeOfError() {
+    return mongoose.Error
   }
 }

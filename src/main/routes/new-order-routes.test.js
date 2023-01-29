@@ -117,4 +117,20 @@ describe('New Category Routes', () => {
       expect(response.status).toBe(400)
     })
   })
+
+  test('Should return 400 if invalid product_id is provided', async () => {
+    const orderTest = {
+      products: [
+        {
+          product_id: 'invalid_product_id',
+          quantity: 1
+        }
+      ]
+    }
+    const response = await request(app)
+      .post('/api/new-order')
+      .auth(accessToken, { type: 'bearer' })
+      .send(orderTest)
+    expect(response.status).toBe(400)
+  })
 })
