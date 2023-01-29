@@ -43,6 +43,8 @@ describe('New Category Routes', () => {
     await MongooseHelper.disconnect()
   })
 
+  const requiredParams = ['products']
+
   test('Should require authorization', async () => {
     await request(app).post('/api/new-order').expect(401)
   })
@@ -84,5 +86,35 @@ describe('New Category Routes', () => {
     expect(orders[0].products.quantity).toBe(orderTest.products.quantity)
     expect(orders[0].user_id).toStrictEqual(fakeUserId)
     expect(orders[0].status).toBe('Pedido realizado')
+  })
+
+  requiredParams.forEach((param) => {
+    test(`Should return 400 if no ${param} is provided`, async () => {
+      const fakeCategory = new CategoryModel({
+        name: 'valid_name'
+      })
+      await fakeCategory.save()
+      const fakeProduct = new ProductModel({
+        name: 'valid_name',
+        price: 10.01,
+        category_id: fakeCategory._id.toString(),
+        imagePath: 'valid_name'
+      })
+      await fakeProduct.save()
+      const orderTest = {
+        products: [
+          {
+            product_id: fakeProduct._id.toString(),
+            quantity: 1
+          }
+        ]
+      }
+      delete orderTest[param]
+      const response = await request(app)
+        .post('/api/new-order')
+        .auth(accessToken, { type: 'bearer' })
+        .send(orderTest)
+      expect(response.status).toBe(400)
+    })
   })
 })
