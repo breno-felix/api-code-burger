@@ -166,4 +166,57 @@ describe('New Product Routes', () => {
       )
     expect(response.status).toBe(400)
   })
+
+  test('Should return 400 if invalid category_id is provided', async () => {
+    const productTest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: 'invalid_category_id'
+    }
+
+    const response = await request(app)
+      .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
+      .field('name', productTest.name)
+      .field('price', productTest.price)
+      .field('category_id', productTest.category_id)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
+  })
+
+  test('Should return 400 when category_id do not exist', async () => {
+    const productTest = {
+      name: 'valid_name',
+      price: 10.01,
+      category_id: '63d3b8f958d39d25d6edcd78'
+    }
+    const response = await request(app)
+      .post('/api/new-product')
+      .auth(accessToken, { type: 'bearer' })
+      .field('name', productTest.name)
+      .field('price', productTest.price)
+      .field('category_id', productTest.category_id)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
+  })
 })
