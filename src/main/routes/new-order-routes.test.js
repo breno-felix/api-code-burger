@@ -135,9 +135,6 @@ describe('New Category Routes', () => {
   })
 
   test('Should return 400 if invalid quantity is provided', async () => {
-    const orders = await OrderModel.find({})
-    expect(orders.length).toBe(0)
-
     const fakeCategory = new CategoryModel({
       name: 'valid_name'
     })
@@ -154,6 +151,23 @@ describe('New Category Routes', () => {
         {
           product_id: fakeProduct._id.toString(),
           quantity: 'invalid_quantity'
+        }
+      ]
+    }
+
+    const response = await request(app)
+      .post('/api/new-order')
+      .auth(accessToken, { type: 'bearer' })
+      .send(orderTest)
+    expect(response.status).toBe(400)
+  })
+
+  test('Should return 400 when product_id do not exist', async () => {
+    const orderTest = {
+      products: [
+        {
+          product_id: '63d3b8f958d39d25d6edcd78',
+          quantity: 1
         }
       ]
     }
