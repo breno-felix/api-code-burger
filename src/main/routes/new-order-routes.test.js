@@ -133,4 +133,35 @@ describe('New Category Routes', () => {
       .send(orderTest)
     expect(response.status).toBe(400)
   })
+
+  test('Should return 400 if invalid quantity is provided', async () => {
+    const orders = await OrderModel.find({})
+    expect(orders.length).toBe(0)
+
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name'
+    })
+    await fakeCategory.save()
+    const fakeProduct = new ProductModel({
+      name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id.toString(),
+      imagePath: 'valid_name'
+    })
+    await fakeProduct.save()
+    const orderTest = {
+      products: [
+        {
+          product_id: fakeProduct._id.toString(),
+          quantity: 'invalid_quantity'
+        }
+      ]
+    }
+
+    const response = await request(app)
+      .post('/api/new-order')
+      .auth(accessToken, { type: 'bearer' })
+      .send(orderTest)
+    expect(response.status).toBe(400)
+  })
 })
