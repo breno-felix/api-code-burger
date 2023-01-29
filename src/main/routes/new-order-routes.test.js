@@ -43,6 +43,10 @@ describe('New Category Routes', () => {
     await MongooseHelper.disconnect()
   })
 
+  test('Should require authorization', async () => {
+    await request(app).post('/api/new-order').expect(401)
+  })
+
   test('Should return 201 when valid data are provided', async () => {
     let orders = await OrderModel.find({})
     expect(orders.length).toBe(0)
