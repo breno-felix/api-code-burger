@@ -1,5 +1,5 @@
 const { adapt } = require('../adapters/express-router-adapter')
-const NewOrderRouterComposer = require('../composers/new-order-router-composer')
+const NewOrderRouterComposer = require('../composers/order/new-order-router-composer')
 const authMiddleware = require('../middlewares/auth')
 
 module.exports = (router) => {
