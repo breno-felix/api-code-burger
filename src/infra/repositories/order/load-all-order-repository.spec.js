@@ -63,4 +63,10 @@ describe('Load All Order Repository', () => {
     expect(orders[1]._id).toEqual(fakeOrderTwo._id)
     expect(orders.length).toEqual(2)
   })
+
+  test('Should throw if no OrderModel is provided', async () => {
+    const sut = new LoadAllOrderRepository()
+    const promise = sut.load()
+    expect(promise).rejects.toThrow()
+  })
 })
