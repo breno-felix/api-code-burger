@@ -35,4 +35,32 @@ describe('Load All Order Repository', () => {
     const orders = await sut.load()
     expect(orders).toStrictEqual([])
   })
+
+  test('Should return orders if orders is found', async () => {
+    const sut = makeSut()
+    const fakeOrder = new OrderModel({
+      user_id: '63d6a6f028b2aec497a3146c',
+      products: [
+        {
+          product_id: '63d6a6f028b2aec497a3146c',
+          quantity: 1
+        }
+      ]
+    })
+    await fakeOrder.save()
+    const fakeOrderTwo = new OrderModel({
+      user_id: '62d6a6f028b2aec497a3146c',
+      products: [
+        {
+          product_id: '62d6a6f028b2aec497a3146c',
+          quantity: 2
+        }
+      ]
+    })
+    await fakeOrderTwo.save()
+    const orders = await sut.load()
+    expect(orders[0]._id).toEqual(fakeOrder._id)
+    expect(orders[1]._id).toEqual(fakeOrderTwo._id)
+    expect(orders.length).toEqual(2)
+  })
 })
