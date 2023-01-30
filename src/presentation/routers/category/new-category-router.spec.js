@@ -1,24 +1,24 @@
-const NewOrderRouter = require('./new-order-router')
-const { ServerError } = require('../errors')
+const NewCategoryRouter = require('./new-category-router')
+const { ServerError } = require('../../errors')
 const {
   MissingParamError,
   InvalidParamError,
-  ProductNotCreatedError
-} = require('../../utils/errors')
+  RepeatedNameError
+} = require('../../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
-  const newOrderUseCaseSpy = makeNewOrderUseCase()
+  const newCategoryUseCaseSpy = makeNewCategoryUseCase()
 
-  const sut = new NewOrderRouter({
+  const sut = new NewCategoryRouter({
     objectShapeValidator: objectShapeValidatorSpy,
-    newOrderUseCase: newOrderUseCaseSpy
+    newCategoryUseCase: newCategoryUseCaseSpy
   })
 
   return {
     sut,
     objectShapeValidatorSpy,
-    newOrderUseCaseSpy
+    newCategoryUseCaseSpy
   }
 }
 
@@ -51,47 +51,46 @@ const makeObjectShapeValidatorWithError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
-const makeNewOrderUseCase = () => {
-  class NewOrderUseCaseSpy {
+const makeNewCategoryUseCase = () => {
+  class NewCategoryUseCaseSpy {
     async record(httpRequest) {
-      this.products = httpRequest.products
+      this.name = httpRequest.name
       return this.isRegistered
     }
   }
-  const newOrderUseCaseSpy = new NewOrderUseCaseSpy()
-  newOrderUseCaseSpy.isRegistered = true
-  return newOrderUseCaseSpy
+  const newCategoryUseCaseSpy = new NewCategoryUseCaseSpy()
+  newCategoryUseCaseSpy.isRegistered = true
+  return newCategoryUseCaseSpy
 }
 
-const makeNewOrderUseCaseWithProductNotCreatedError = () => {
-  class NewOrderUseCaseSpy {
+const makeNewCategoryUseCaseWithRepeatedNameError = () => {
+  class NewCategoryUseCaseSpy {
     async record() {
-      throw new ProductNotCreatedError()
+      throw new RepeatedNameError()
     }
   }
-  return new NewOrderUseCaseSpy()
+  return new NewCategoryUseCaseSpy()
 }
 
-const makeNewOrderUseCaseWithError = () => {
-  class NewOrderUseCaseSpy {
+const makeNewCategoryUseCaseWithError = () => {
+  class NewCategoryUseCaseSpy {
     async record() {
       throw new Error()
     }
   }
-  return new NewOrderUseCaseSpy()
+  return new NewCategoryUseCaseSpy()
 }
 
-const requiredParams = ['products']
+const requiredParams = ['name']
 const invalidRequests = [undefined, {}]
-const requiredParamsRequest = ['userId']
 
-describe('New Order Router', () => {
+describe('New Category Router', () => {
   requiredParams.forEach((param) => {
     test(`Should return 400 if no ${param} is provided`, async () => {
       const { sut } = makeSut()
       const httpRequest = {
         body: {
-          products: ['any_array']
+          name: 'any_name'
         }
       }
       delete httpRequest.body[param]
@@ -99,49 +98,6 @@ describe('New Order Router', () => {
       expect(httpResponse.statusCode).toBe(400)
       expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
     })
-  })
-
-  requiredParamsRequest.forEach((param) => {
-    test(`Should return 400 if no ${param} is provided in httpRequest`, async () => {
-      const { sut } = makeSut()
-      const httpRequest = {
-        body: {
-          products: ['any_array']
-        },
-        userId: 'any_user_id'
-      }
-      delete httpRequest[param]
-      const httpResponse = await sut.route(httpRequest)
-      expect(httpResponse.statusCode).toBe(400)
-      expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
-    })
-  })
-
-  test(`Should return 400 if no httpRequest.body is provided`, async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {},
-      userId: 'any_user_id'
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(
-      new MissingParamError('products').message
-    )
-  })
-
-  test(`Should return 400 if no httpRequest.userId is provided`, async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        products: ['any_array']
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(
-      new MissingParamError('userId').message
-    )
   })
 
   invalidRequests.forEach((httpRequest) => {
@@ -157,44 +113,40 @@ describe('New Order Router', () => {
     const { sut, objectShapeValidatorSpy } = makeSut()
     const httpRequest = {
       body: {
-        products: ['any_array']
-      },
-      userId: 'any_user_id'
+        name: 'any_name'
+      }
     }
     await sut.route(httpRequest)
     expect(objectShapeValidatorSpy.httpRequest).toBe(httpRequest.body)
   })
 
   test('Should return 400 if an invalid param is provided', async () => {
-    const sut = new NewOrderRouter({
-      objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError()
+    const newCategoryUseCase = makeNewCategoryUseCase()
+
+    const sut = new NewCategoryRouter({
+      objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError(),
+      newCategoryUseCase
     })
 
     const httpRequest = {
       body: {
-        products: ['invalid_array']
-      },
-      userId: 'any_user_id'
+        name: 'invalid_name'
+      }
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
   })
 
-  test('Should call NewOrderUseCase with correct params', async () => {
-    const { sut, newOrderUseCaseSpy } = makeSut()
-
-    const recordSpy = jest.spyOn(newOrderUseCaseSpy, 'record')
-
+  test('Should call NewCategoryUseCase with correct params', async () => {
+    const { sut, newCategoryUseCaseSpy } = makeSut()
     const httpRequest = {
       body: {
-        products: ['any_array']
-      },
-      userId: 'any_user_id'
+        name: 'any_name'
+      }
     }
     await sut.route(httpRequest)
-    expect(recordSpy).toHaveBeenCalledWith({
-      user_id: httpRequest.userId,
-      products: httpRequest.body.products
+    requiredParams.forEach((param) => {
+      expect(newCategoryUseCaseSpy[param]).toBe(httpRequest.body[param])
     })
   })
 
@@ -202,9 +154,8 @@ describe('New Order Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        products: ['valid_array']
-      },
-      userId: 'any_user_id'
+        name: 'valid_name'
+      }
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(201)
@@ -213,48 +164,46 @@ describe('New Order Router', () => {
     )
   })
 
-  test('Should return 400 when some product_id of products does not exist in product database', async () => {
+  test('Should return 400 when name provided is not unique in category database', async () => {
     const objectShapeValidator = makeObjectShapeValidator()
 
-    const sut = new NewOrderRouter({
-      newOrderUseCase: makeNewOrderUseCaseWithProductNotCreatedError(),
+    const sut = new NewCategoryRouter({
+      newCategoryUseCase: makeNewCategoryUseCaseWithRepeatedNameError(),
       objectShapeValidator
     })
 
     const httpRequest = {
       body: {
-        products: ['invalid_array']
-      },
-      userId: 'any_user_id'
+        name: 'any_name'
+      }
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(new ProductNotCreatedError().message)
+    expect(httpResponse.body.error).toBe(new RepeatedNameError().message)
   })
 
   test('Should return 500 if invalid dependencies are provided', async () => {
     const invalid = {}
-    const newOrderUseCase = makeNewOrderUseCase()
+    const newCategoryUseCase = makeNewCategoryUseCase()
     const suts = [].concat(
-      new NewOrderRouter(),
-      new NewOrderRouter({}),
-      new NewOrderRouter({
-        newOrderUseCase: invalid
+      new NewCategoryRouter(),
+      new NewCategoryRouter({}),
+      new NewCategoryRouter({
+        newCategoryUseCase: invalid
       }),
-      new NewOrderRouter({
-        newOrderUseCase
+      new NewCategoryRouter({
+        newCategoryUseCase
       }),
-      new NewOrderRouter({
-        newOrderUseCase,
+      new NewCategoryRouter({
+        newCategoryUseCase,
         objectShapeValidator: invalid
       })
     )
     for (const sut of suts) {
       const httpRequest = {
         body: {
-          products: ['any_array']
-        },
-        userId: 'any_user_id'
+          name: 'any_name'
+        }
       }
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(500)
@@ -263,22 +212,21 @@ describe('New Order Router', () => {
   })
 
   test('Should return 500 if any dependency throw a new Error()', async () => {
-    const newOrderUseCase = makeNewOrderUseCase()
+    const newCategoryUseCase = makeNewCategoryUseCase()
     const suts = [].concat(
-      new NewOrderRouter({
-        newOrderUseCase: makeNewOrderUseCaseWithError()
+      new NewCategoryRouter({
+        newCategoryUseCase: makeNewCategoryUseCaseWithError()
       }),
-      new NewOrderRouter({
-        newOrderUseCase,
+      new NewCategoryRouter({
+        newCategoryUseCase,
         objectShapeValidator: makeObjectShapeValidatorWithError()
       })
     )
     for (const sut of suts) {
       const httpRequest = {
         body: {
-          products: ['any_array']
-        },
-        userId: 'any_user_id'
+          name: 'any_name'
+        }
       }
       const httpResponse = await sut.route(httpRequest)
       expect(httpResponse.statusCode).toBe(500)

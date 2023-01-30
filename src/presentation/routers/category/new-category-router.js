@@ -1,9 +1,9 @@
-const HttpResponse = require('../helpers/http-response')
+const HttpResponse = require('../../helpers/http-response')
 const {
   MissingParamError,
   InvalidParamError,
   RepeatedNameError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 
 module.exports = class NewCategoryRouter {
   constructor({ newCategoryUseCase, objectShapeValidator } = {}) {
