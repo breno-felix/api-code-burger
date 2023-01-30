@@ -1,14 +1,4 @@
-class LoadAllOrderRepository {
-  constructor(orderModel) {
-    this.orderModel = orderModel
-  }
-
-  async load() {
-    const orders = await this.orderModel.find()
-    return orders
-  }
-}
-
+const LoadAllOrderRepository = require('./load-all-order-repository')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const OrderModel = require('../../entities/OrderModel')
