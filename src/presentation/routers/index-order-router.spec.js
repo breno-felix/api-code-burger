@@ -72,7 +72,7 @@ describe('Index Order Router', () => {
   test('Should return 500 if any dependency throw a new Error()', async () => {
     const suts = [].concat(
       new IndexOrderRouter({
-        newCategoryUseCase: makeLoadAllOrderRepositoryWithError()
+        loadAllOrderRepository: makeLoadAllOrderRepositoryWithError()
       })
     )
     for (const sut of suts) {
