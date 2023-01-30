@@ -1,11 +1,11 @@
 const SignUpRouter = require('./sign-up-router')
-const { ServerError } = require('../errors')
+const { ServerError } = require('../../errors')
 const {
   MissingParamError,
   RepeatPasswordError,
   RepeatedEmailError,
   InvalidParamError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 
 const makeSut = () => {
   const signUpUseCaseSpy = makeSignUpUseCase()

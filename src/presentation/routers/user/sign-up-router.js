@@ -1,10 +1,10 @@
-const HttpResponse = require('../helpers/http-response')
+const HttpResponse = require('../../helpers/http-response')
 const {
   MissingParamError,
   RepeatPasswordError,
   RepeatedEmailError,
   InvalidParamError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 
 module.exports = class SignUpRouter {
   constructor({ signUpUseCase, objectShapeValidator } = {}) {

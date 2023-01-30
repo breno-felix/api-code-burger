@@ -1,9 +1,9 @@
-const HttpResponse = require('../helpers/http-response')
+const HttpResponse = require('../../helpers/http-response')
 const {
   MissingParamError,
   InvalidParamError,
   ProductNotCreatedError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 
 module.exports = class NewOrderRouter {
   constructor({ objectShapeValidator, newOrderUseCase } = {}) {

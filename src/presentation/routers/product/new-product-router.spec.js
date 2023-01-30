@@ -1,10 +1,10 @@
 const NewProductRouter = require('./new-product-router')
-const { ServerError } = require('../errors')
+const { ServerError } = require('../../errors')
 const {
   MissingParamError,
   InvalidParamError,
   CategoryNotCreatedError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
