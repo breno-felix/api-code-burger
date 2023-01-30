@@ -1,5 +1,5 @@
 const { adapt } = require('../adapters/express-router-adapter')
-const IndexProductRouterComposer = require('../composers/index-product-router-composer')
+const IndexProductRouterComposer = require('../composers/product/index-product-router-composer')
 const authMiddleware = require('../middlewares/auth')
 
 module.exports = (router) => {
