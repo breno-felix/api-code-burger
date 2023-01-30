@@ -1,4 +1,4 @@
-const IndexOrderRouter = require('../../../presentation/routers/index-order-router')
+const IndexOrderRouter = require('../../../presentation/routers/order/index-order-router')
 const LoadAllOrderRepository = require('../../../infra/repositories/order/load-all-order-repository')
 const orderModel = require('../../../infra/entities/OrderModel')
 

@@ -1,4 +1,4 @@
-const NewOrderRouter = require('../../../presentation/routers/new-order-router')
+const NewOrderRouter = require('../../../presentation/routers/order/new-order-router')
 const ObjectShapeValidator = require('../../../utils/helpers/object-shape-validator')
 const NewOrderUseCase = require('../../../domain/usecases/new-order-usecase')
 const LoadProductByIdRepository = require('../../../infra/repositories/product/load-product-by-id-repository')

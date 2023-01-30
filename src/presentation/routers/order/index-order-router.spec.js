@@ -1,5 +1,5 @@
 const IndexOrderRouter = require('./index-order-router')
-const { ServerError } = require('../errors')
+const { ServerError } = require('../../errors')
 
 const makeSut = () => {
   const loadAllOrderRepositorySpy = makeLoadAllOrderRepository()
