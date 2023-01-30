@@ -45,12 +45,12 @@ describe('Index Order Router', () => {
     ])
   })
 
-  test('Should return 200 and null if loadAllOrderRepository returns null and no errors', async () => {
+  test('Should return 200 and empty array if loadAllOrderRepository returns empty array and no errors', async () => {
     const { sut, loadAllOrderRepositorySpy } = makeSut()
-    loadAllOrderRepositorySpy.orders = null
+    loadAllOrderRepositorySpy.orders = []
     const httpResponse = await sut.route()
     expect(httpResponse.statusCode).toBe(200)
-    expect(httpResponse.body).toBeNull()
+    expect(httpResponse.body).toStrictEqual([])
   })
 
   test('Should return 500 if invalid dependency is provided', async () => {
