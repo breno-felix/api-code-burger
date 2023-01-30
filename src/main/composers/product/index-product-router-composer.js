@@ -1,4 +1,4 @@
-const IndexProductRouter = require('../../../presentation/routers/index-product-router')
+const IndexProductRouter = require('../../../presentation/routers/product/index-product-router')
 const LoadAllProductRepository = require('../../../infra/repositories/product/load-all-product-repository')
 const productModel = require('../../../infra/entities/ProductModel')
 

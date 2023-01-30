@@ -1,12 +1,12 @@
-const HttpResponse = require('../helpers/http-response')
+const HttpResponse = require('../../helpers/http-response')
 const {
   MissingParamError,
   InvalidParamError,
   CategoryNotCreatedError
-} = require('../../utils/errors')
+} = require('../../../utils/errors')
 const fs = require('fs')
 const path = require('path')
-const env = require('../../main/config/envfile')
+const env = require('../../../main/config/envfile')
 const aws = require('aws-sdk')
 
 const removeUpload = async (key) => {
@@ -19,7 +19,7 @@ const removeUpload = async (key) => {
       .promise()
   } else {
     await fs.unlink(
-      path.resolve(__dirname, '..', '..', '..', 'uploads', key),
+      path.resolve(__dirname, '..', '..', '..', '..', 'uploads', key),
       () => {}
     )
   }

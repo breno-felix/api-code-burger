@@ -1,5 +1,5 @@
 const IndexProductRouter = require('./index-product-router')
-const { ServerError } = require('../errors')
+const { ServerError } = require('../../errors')
 
 const makeSut = () => {
   const loadAllProductRepositorySpy = makeLoadAllProductRepository()
