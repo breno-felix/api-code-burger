@@ -1,5 +1,5 @@
 const IndexCategoryRouter = require('./index-category-router')
-const { ServerError } = require('../errors')
+const { ServerError } = require('../../errors')
 
 const makeSut = () => {
   const loadAllCategoryRepositorySpy = makeLoadAllCategoryRepository()

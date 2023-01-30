@@ -1,4 +1,4 @@
-const IndexCategoryRouter = require('../../../presentation/routers/index-category-router')
+const IndexCategoryRouter = require('../../../presentation/routers/category/index-category-router')
 const LoadAllCategoryRepository = require('../../../infra/repositories/category/load-all-category-repository')
 const categoryModel = require('../../../infra/entities/CategoryModel')
 
