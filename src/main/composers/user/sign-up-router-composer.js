@@ -1,4 +1,4 @@
-const SignUpRouter = require('../../../presentation/routers/sign-up-router')
+const SignUpRouter = require('../../../presentation/routers/user/sign-up-router')
 const SignUpUseCase = require('../../../domain/usecases/sign-up-usecase')
 const LoadUserByEmailRepository = require('../../../infra/repositories/user/load-user-by-email-repository')
 const Encrypter = require('../../../utils/helpers/encrypter')
