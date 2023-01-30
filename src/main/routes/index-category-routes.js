@@ -1,5 +1,5 @@
 const { adapt } = require('../adapters/express-router-adapter')
-const IndexCategoryRouterComposer = require('../composers/index-category-router-composer')
+const IndexCategoryRouterComposer = require('../composers/category/index-category-router-composer')
 const authMiddleware = require('../middlewares/auth')
 
 module.exports = (router) => {
