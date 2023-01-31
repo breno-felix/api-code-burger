@@ -25,7 +25,8 @@ describe('New Product Routes', () => {
     const fakeUser = new UserModel({
       name: 'valid_name',
       email: 'valid_email@mail.com',
-      password: bcrypt.hashSync('hashed_password', 10)
+      password: bcrypt.hashSync('hashed_password', 10),
+      admin: true
     })
     await fakeUser.save()
     accessToken = await accessloginRouter(fakeUser.email, 'hashed_password')
@@ -43,6 +44,23 @@ describe('New Product Routes', () => {
 
   test('Should require authorization', async () => {
     await request(app).post('/api/new-product').expect(401)
+  })
+
+  test('Should require User Admin authorization', async () => {
+    const fakeUserNoAdmin = new UserModel({
+      name: 'valid_name_two',
+      email: 'valid_email_two@mail.com',
+      password: bcrypt.hashSync('hashed_password', 10)
+    })
+    await fakeUserNoAdmin.save()
+    const accessTokenTwo = await accessloginRouter(
+      fakeUserNoAdmin.email,
+      'hashed_password'
+    )
+    await request(app)
+      .post('/api/new-product')
+      .auth(accessTokenTwo, { type: 'bearer' })
+      .expect(403)
   })
 
   test('Should return 201 when valid data are provided', async () => {
