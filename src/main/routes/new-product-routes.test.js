@@ -98,6 +98,7 @@ describe('New Product Routes', () => {
     products = await ProductModel.find({})
     expect(products.length).toBe(1)
     expect(products[0]._id).toEqual(expect.anything())
+    expect(products[0].offer).toBe(false)
     expect(products[0].name).toBe(productTest.name)
     expect(products[0].price).toBe(productTest.price)
     expect(products[0].category_id.toString()).toBe(productTest.category_id)

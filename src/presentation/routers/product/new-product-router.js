@@ -46,12 +46,13 @@ module.exports = class NewProductRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
-      const { name, price, category_id } = httpRequest.body
+      const { name, price, category_id, offer } = httpRequest.body
       const { key: imagePath } = httpRequest.file
       await this.newProductUseCase.record({
         name,
         price,
         category_id,
+        offer,
         imagePath
       })
       return HttpResponse.created()

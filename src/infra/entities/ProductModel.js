@@ -16,7 +16,8 @@ const productSchema = MongooseHelper.newSchema(
       ref: 'Category',
       required: true
     },
-    imagePath: { type: String, required: true }
+    imagePath: { type: String, required: true },
+    offer: { type: Boolean, default: false }
   },
   {
     timestamps: true
