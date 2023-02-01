@@ -172,6 +172,20 @@ describe('Update Product UseCase', () => {
     )
   })
 
+  test('Should no throw new CategoryNotCreatedError if category_id no provided', async () => {
+    const { sut } = makeSut()
+
+    const httpRequest = {
+      name: 'valid_name',
+      price: 10.01,
+      offer: false,
+      imagePath: 'valid_name',
+      product_id: 'any_product_id'
+    }
+
+    expect(sut.update(httpRequest)).resolves.toBe()
+  })
+
   test('Should call UpdateProductRepository with correct values', async () => {
     const { sut, updateProductRepositorySpy } = makeSut()
 

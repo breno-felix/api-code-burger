@@ -42,10 +42,4 @@ describe('LoadCategoryById Repository', () => {
     const promise = sut.load('63d26841431c2ca8e12c2832')
     expect(promise).rejects.toThrow()
   })
-
-  test('Should throw if no id is provided', async () => {
-    const sut = makeSut()
-    const promise = sut.load()
-    expect(promise).rejects.toThrow(new MissingParamServerError('id'))
-  })
 })

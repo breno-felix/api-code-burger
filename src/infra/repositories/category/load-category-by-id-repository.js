@@ -1,7 +1,4 @@
-const {
-  MissingParamServerError,
-  InvalidParamError
-} = require('../../../utils/errors')
+const { InvalidParamError } = require('../../../utils/errors')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 
 module.exports = class LoadCategoryByIdRepository {
@@ -10,9 +7,6 @@ module.exports = class LoadCategoryByIdRepository {
   }
 
   async load(id) {
-    if (!id) {
-      throw new MissingParamServerError('id')
-    }
     try {
       const category = await this.categoryModel.findOne({ _id: id })
       return category
