@@ -94,25 +94,9 @@ const makeUpdateProductUseCaseWithError = () => {
   return new UpdateProductUseCaseSpy()
 }
 
-const requiredParamsRequestParams = ['product_id']
 const invalidRequests = [undefined, {}]
 
 describe('Update Product Router', () => {
-  requiredParamsRequestParams.forEach((param) => {
-    test(`Should return 400 if no ${param} is provided in httpRequest.params`, async () => {
-      const { sut } = makeSut()
-      const httpRequest = {
-        params: {
-          product_id: 'any_product_id'
-        }
-      }
-      delete httpRequest.params[param]
-      const httpResponse = await sut.route(httpRequest)
-      expect(httpResponse.statusCode).toBe(400)
-      expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
-    })
-  })
-
   invalidRequests.forEach((httpRequest) => {
     test('Should return 500 if the httpRequest is invalid', async () => {
       const { sut } = makeSut()

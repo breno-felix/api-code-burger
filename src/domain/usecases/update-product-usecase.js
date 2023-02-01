@@ -15,7 +15,7 @@ module.exports = class UpdateProductUseCase {
     this.updateProductRepository = updateProductRepository
   }
 
-  async record(httpRequest) {
+  async update(httpRequest) {
     if (!httpRequest) {
       throw new MissingParamServerError('httpRequest')
     }

@@ -1,6 +1,5 @@
 const HttpResponse = require('../../helpers/http-response')
 const {
-  MissingParamError,
   InvalidParamError,
   CategoryNotCreatedError,
   ProductNotCreatedError
@@ -34,12 +33,6 @@ module.exports = class UpdateProductRouter {
 
   async route(httpRequest) {
     try {
-      const requiredParamsRequestParams = ['product_id']
-      requiredParamsRequestParams.forEach((param) => {
-        if (!httpRequest.params[param]) {
-          throw new MissingParamError(param)
-        }
-      })
       await this.objectShapeValidator.isValid(httpRequest.body)
       const { name, price, category_id, offer } = httpRequest.body
       let imagePath
@@ -65,8 +58,6 @@ module.exports = class UpdateProductRouter {
       } else if (error instanceof ProductNotCreatedError) {
         return HttpResponse.badRequest(new ProductNotCreatedError())
       } else if (error instanceof InvalidParamError) {
-        return HttpResponse.badRequest(error)
-      } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
       }
       return HttpResponse.serverError()

@@ -97,7 +97,7 @@ const makeUpdateProductRepositoryWithError = () => {
 describe('Update Product UseCase', () => {
   test('Should throw new MissingParamServerError if no httpRequest is provided', async () => {
     const { sut } = makeSut()
-    expect(sut.record()).rejects.toThrow(
+    expect(sut.update()).rejects.toThrow(
       new MissingParamServerError('httpRequest')
     )
   })
@@ -115,7 +115,7 @@ describe('Update Product UseCase', () => {
       imagePath: 'any_name',
       product_id: 'any_product_id'
     }
-    await sut.record(httpRequest)
+    await sut.update(httpRequest)
     expect(loadSpy).toHaveBeenCalledWith(httpRequest.product_id)
   })
 
@@ -132,7 +132,7 @@ describe('Update Product UseCase', () => {
       product_id: 'invalid_product_id'
     }
 
-    expect(sut.record(httpRequest)).rejects.toThrow(
+    expect(sut.update(httpRequest)).rejects.toThrow(
       new ProductNotCreatedError()
     )
   })
@@ -150,7 +150,7 @@ describe('Update Product UseCase', () => {
       imagePath: 'any_name',
       product_id: 'any_product_id'
     }
-    await sut.record(httpRequest)
+    await sut.update(httpRequest)
     expect(loadSpy).toHaveBeenCalledWith(httpRequest.category_id)
   })
 
@@ -167,7 +167,7 @@ describe('Update Product UseCase', () => {
       product_id: 'any_product_id'
     }
 
-    expect(sut.record(httpRequest)).rejects.toThrow(
+    expect(sut.update(httpRequest)).rejects.toThrow(
       new CategoryNotCreatedError()
     )
   })
@@ -186,7 +186,7 @@ describe('Update Product UseCase', () => {
       product_id: 'valid_product_id'
     }
 
-    await sut.record(httpRequest)
+    await sut.update(httpRequest)
     expect(updateSpy).toHaveBeenCalledWith(httpRequest)
   })
 
@@ -226,7 +226,7 @@ describe('Update Product UseCase', () => {
       product_id: 'any_product_id'
     }
     for (const sut of suts) {
-      const promise = sut.record(httpRequest)
+      const promise = sut.update(httpRequest)
       expect(promise).rejects.toThrow()
     }
   })
@@ -257,7 +257,7 @@ describe('Update Product UseCase', () => {
       product_id: 'any_product_id'
     }
     for (const sut of suts) {
-      const promise = sut.record(httpRequest)
+      const promise = sut.update(httpRequest)
       expect(promise).rejects.toThrow()
     }
   })

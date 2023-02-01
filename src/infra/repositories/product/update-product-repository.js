@@ -11,7 +11,7 @@ module.exports = class UpdateProductRepository {
     }
     const { name, price, offer, category_id, imagePath, product_id } =
       productObject
-    await this.productModel.update(
+    await this.productModel.updateOne(
       { _id: product_id },
       {
         name,
