@@ -29,7 +29,7 @@ const productSchema = MongooseHelper.newSchema(
           if (process.env.NODE_ENV === 'production') {
             return `${env.storageURL}/${this.imagePath}`
           }
-          return `${env.appUrl}/product-file/${this.imagePath}`
+          return `${env.appUrl}/file/${this.imagePath}`
         }
       }
     }

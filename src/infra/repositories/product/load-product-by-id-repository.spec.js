@@ -32,7 +32,8 @@ describe('LoadProductById Repository', () => {
   test('Should return an product if product is found', async () => {
     const sut = makeSut()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({

@@ -38,7 +38,8 @@ describe('CreateOrder Repository', () => {
     })
     await fakeUser.save()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 
@@ -99,7 +100,8 @@ describe('CreateOrder Repository', () => {
     })
     await fakeUser.save()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 
@@ -146,7 +148,8 @@ describe('CreateOrder Repository', () => {
     })
     await fakeUser.save()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 

@@ -26,7 +26,8 @@ describe('Update Product Repository', () => {
   test('Should update product with the given object', async () => {
     const sut = makeSut()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 
@@ -39,7 +40,8 @@ describe('Update Product Repository', () => {
     await fakeProduct.save()
 
     const otherFakeCategory = new CategoryModel({
-      name: 'other_valid_name'
+      name: 'other_valid_name',
+      imagePath: 'any_name'
     })
     await otherFakeCategory.save()
 
@@ -67,7 +69,8 @@ describe('Update Product Repository', () => {
   test('Should throw if no productModel is provided', async () => {
     const sut = new UpdateProductRepository()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 
@@ -80,7 +83,8 @@ describe('Update Product Repository', () => {
     await fakeProduct.save()
 
     const otherFakeCategory = new CategoryModel({
-      name: 'other_valid_name'
+      name: 'other_valid_name',
+      imagePath: 'any_name'
     })
     await otherFakeCategory.save()
 

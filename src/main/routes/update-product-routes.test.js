@@ -5,7 +5,6 @@ const MongooseHelper = require('../../infra/helpers/mongoose-helper')
 const ProductModel = require('../../infra/entities/ProductModel')
 const CategoryModel = require('../../infra/entities/CategoryModel')
 const UserModel = require('../../infra/entities/UserModel')
-const MissingParamError = require('../../utils/errors/missing-param-error')
 const path = require('path')
 const bcrypt = require('bcrypt')
 let accessToken
@@ -68,7 +67,8 @@ describe('Update Product Routes', () => {
     expect(products.length).toBe(0)
 
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({
@@ -80,7 +80,8 @@ describe('Update Product Routes', () => {
     await fakeProduct.save()
 
     const otherFakeCategory = new CategoryModel({
-      name: 'other_valid_name'
+      name: 'other_valid_name',
+      imagePath: 'any_name'
     })
     await otherFakeCategory.save()
 
@@ -126,7 +127,8 @@ describe('Update Product Routes', () => {
 
   test('Should return 400 if invalid price is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({
@@ -138,7 +140,8 @@ describe('Update Product Routes', () => {
     await fakeProduct.save()
 
     const otherFakeCategory = new CategoryModel({
-      name: 'other_valid_name'
+      name: 'other_valid_name',
+      imagePath: 'any_name'
     })
     await otherFakeCategory.save()
 
@@ -172,7 +175,8 @@ describe('Update Product Routes', () => {
 
   test('Should return 400 if invalid category_id is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({
@@ -184,7 +188,8 @@ describe('Update Product Routes', () => {
     await fakeProduct.save()
 
     const otherFakeCategory = new CategoryModel({
-      name: 'other_valid_name'
+      name: 'other_valid_name',
+      imagePath: 'any_name'
     })
     await otherFakeCategory.save()
 
@@ -218,7 +223,8 @@ describe('Update Product Routes', () => {
 
   test('Should return 400 when category_id do not exist', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({

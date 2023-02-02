@@ -68,7 +68,8 @@ describe('New Product Routes', () => {
     expect(products.length).toBe(0)
 
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const productTest = {
@@ -108,7 +109,8 @@ describe('New Product Routes', () => {
 
   test('Should return 400 if no name is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const productTest = {
@@ -138,7 +140,8 @@ describe('New Product Routes', () => {
 
   test('Should return 400 if no file is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const productTest = {
@@ -157,7 +160,8 @@ describe('New Product Routes', () => {
 
   test('Should return 400 if invalid price is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const productTest = {

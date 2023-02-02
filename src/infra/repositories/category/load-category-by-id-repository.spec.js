@@ -2,7 +2,6 @@ const LoadCategoryByIdRepository = require('./load-category-by-id-repository')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const CategoryModel = require('../../entities/CategoryModel')
-const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
   return new LoadCategoryByIdRepository(CategoryModel)
@@ -30,7 +29,8 @@ describe('LoadCategoryById Repository', () => {
   test('Should return an category if category is found', async () => {
     const sut = makeSut()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const category = await sut.load(fakeCategory._id)
