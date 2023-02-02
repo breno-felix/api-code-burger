@@ -19,6 +19,12 @@ module.exports = class NewCategoryRouter {
           throw new MissingParamError(param)
         }
       })
+      const requiredParamsFile = ['key']
+      requiredParamsFile.forEach((param) => {
+        if (!httpRequest.file || !httpRequest.file[param]) {
+          throw new MissingParamError(param)
+        }
+      })
       await this.objectShapeValidator.isValid(httpRequest.body)
       await this.newCategoryUseCase.record(httpRequest.body)
       return HttpResponse.created()
