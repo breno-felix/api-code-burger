@@ -4,7 +4,7 @@ const {
   ProductNotCreatedError,
   MissingParamError
 } = require('../../utils/errors')
-
+const RemoveUpload = require('../../presentation/helpers/remove-upload')
 module.exports = class UpdateProductUseCase {
   constructor({
     loadCategoryByIdRepository,
@@ -39,7 +39,9 @@ module.exports = class UpdateProductUseCase {
         throw new CategoryNotCreatedError()
       }
     }
-
     await this.updateProductRepository.update(httpRequest)
+    if (product.imagePath) {
+      RemoveUpload.remove(product.imagePath)
+    }
   }
 }
