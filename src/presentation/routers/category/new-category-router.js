@@ -33,7 +33,7 @@ module.exports = class NewCategoryRouter {
       return HttpResponse.created()
     } catch (error) {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
-        RemoveUpload.remove(httpRequest.file.key)
+        await RemoveUpload.remove(httpRequest.file.key)
       }
       if (error instanceof RepeatedNameError) {
         return HttpResponse.badRequest(new RepeatedNameError())

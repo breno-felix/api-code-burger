@@ -41,7 +41,7 @@ module.exports = class UpdateProductUseCase {
     }
     await this.updateProductRepository.update(httpRequest)
     if (product.imagePath) {
-      RemoveUpload.remove(product.imagePath)
+      await RemoveUpload.remove(product.imagePath)
     }
   }
 }

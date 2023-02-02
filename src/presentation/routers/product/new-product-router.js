@@ -38,7 +38,7 @@ module.exports = class NewProductRouter {
       return HttpResponse.created()
     } catch (error) {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
-        RemoveUpload.remove(httpRequest.file.key)
+        await RemoveUpload.remove(httpRequest.file.key)
       }
       if (error instanceof CategoryNotCreatedError) {
         return HttpResponse.badRequest(new CategoryNotCreatedError())

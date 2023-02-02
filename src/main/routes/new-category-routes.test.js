@@ -123,23 +123,51 @@ describe('New Category Routes', () => {
     expect(response.status).toBe(400)
   })
 
-  // test('Should return 400 when name is not unique', async () => {
-  //   const category = {
-  //     name: 'any_name'
-  //   }
-  //   await request(app)
-  //     .post('/api/new-category')
-  //     .auth(accessToken, { type: 'bearer' })
-  //     .send(category)
-  //     .expect(201)
+  test('Should return 400 when name is not unique', async () => {
+    let categories = await CategoryModel.find({})
+    expect(categories.length).toBe(0)
 
-  //   const categoryTest = {
-  //     name: 'any_name'
-  //   }
-  //   const response = await request(app)
-  //     .post('/api/new-category')
-  //     .auth(accessToken, { type: 'bearer' })
-  //     .send(categoryTest)
-  //   expect(response.status).toBe(400)
-  // })
+    const category = {
+      name: 'any_name'
+    }
+    await request(app)
+      .post('/api/new-category')
+      .auth(accessToken, { type: 'bearer' })
+      .field('name', category.name)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+      .expect(201)
+    categories = await CategoryModel.find({})
+    expect(categories.length).toBe(1)
+
+    const categoryTest = {
+      name: 'any_name'
+    }
+    const response = await request(app)
+      .post('/api/new-category')
+      .auth(accessToken, { type: 'bearer' })
+      .field('name', categoryTest.name)
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
+    await categories[0].remove()
+  })
 })
