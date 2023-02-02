@@ -132,6 +132,18 @@ describe('New Category Router', () => {
     expect(httpResponse.body.error).toBe(new MissingParamError('name').message)
   })
 
+  test(`Should return 400 if no httpRequest.file is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new MissingParamError('key').message)
+  })
+
   invalidRequests.forEach((httpRequest) => {
     test('Should return 500 if the httpRequest is invalid', async () => {
       const { sut } = makeSut()
