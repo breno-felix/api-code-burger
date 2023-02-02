@@ -111,6 +111,18 @@ describe('New Category Routes', () => {
     expect(response.status).toBe(400)
   })
 
+  test('Should return 400 if no file is provided', async () => {
+    const categoryTest = {
+      name: 'valid_name'
+    }
+
+    const response = await request(app)
+      .post('/api/new-category')
+      .auth(accessToken, { type: 'bearer' })
+      .send(categoryTest)
+    expect(response.status).toBe(400)
+  })
+
   // test('Should return 400 when name is not unique', async () => {
   //   const category = {
   //     name: 'any_name'
