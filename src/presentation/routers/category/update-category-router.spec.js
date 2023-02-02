@@ -1,25 +1,25 @@
-const UpdateProductRouter = require('./update-product-router')
+const UpdateCategoryRouter = require('./update-category-router')
 const { ServerError } = require('../../errors')
 const {
   MissingParamError,
   InvalidParamError,
-  CategoryNotCreatedError,
-  ProductNotCreatedError
+  RepeatedNameError,
+  CategoryNotCreatedError
 } = require('../../../utils/errors')
 
 const makeSut = () => {
   const objectShapeValidatorSpy = makeObjectShapeValidator()
-  const updateProductUseCaseSpy = makeUpdateProductUseCase()
+  const updateCategoryUseCaseSpy = makeUpdateCategoryUseCase()
 
-  const sut = new UpdateProductRouter({
+  const sut = new UpdateCategoryRouter({
     objectShapeValidator: objectShapeValidatorSpy,
-    updateProductUseCase: updateProductUseCaseSpy
+    updateCategoryUseCase: updateCategoryUseCaseSpy
   })
 
   return {
     sut,
     objectShapeValidatorSpy,
-    updateProductUseCaseSpy
+    updateCategoryUseCaseSpy
   }
 }
 
@@ -52,60 +52,57 @@ const makeObjectShapeValidatorWithError = () => {
   return new ObjectShapeValidatorSpy()
 }
 
-const makeUpdateProductUseCase = () => {
-  class UpdateProductUseCaseSpy {
-    async update({ name, price, category_id, offer, imagePath, product_id }) {
-      this.name = name
-      this.email = price
-      this.category_id = category_id
-      this.offer = offer
-      this.imagePath = imagePath
-      this.product_id = product_id
+const makeUpdateCategoryUseCase = () => {
+  class UpdateCategoryUseCaseSpy {
+    async update(httpRequest) {
+      this.name = httpRequest.name
+      this.imagePath = httpRequest.imagePath
+      this.category_id = httpRequest.category_id
     }
   }
-  const updateProductUseCaseSpy = new UpdateProductUseCaseSpy()
-  return updateProductUseCaseSpy
+  const updateCategoryUseCaseSpy = new UpdateCategoryUseCaseSpy()
+  return updateCategoryUseCaseSpy
 }
 
-const makeUpdateProductUseCaseWithCategoryNotCreatedError = () => {
-  class UpdateProductUseCaseSpy {
+const makeUpdateCategoryUseCaseWithRepeatedNameError = () => {
+  class UpdateCategoryUseCaseSpy {
+    async update() {
+      throw new RepeatedNameError()
+    }
+  }
+  return new UpdateCategoryUseCaseSpy()
+}
+
+const makeUpdateCategoryUseCaseWithCategoryNotCreatedError = () => {
+  class UpdateCategoryUseCaseSpy {
     async update() {
       throw new CategoryNotCreatedError()
     }
   }
-  return new UpdateProductUseCaseSpy()
+  return new UpdateCategoryUseCaseSpy()
 }
 
-const makeUpdateProductUseCaseWithProductNotCreatedError = () => {
-  class UpdateProductUseCaseSpy {
-    async update() {
-      throw new ProductNotCreatedError()
-    }
-  }
-  return new UpdateProductUseCaseSpy()
-}
-
-const makeUpdateProductUseCaseWithMissingParamError = () => {
-  class UpdateProductUseCaseSpy {
+const makeUpdateCategoryUseCaseWithMissingParamError = () => {
+  class UpdateCategoryUseCaseSpy {
     async update() {
       throw new MissingParamError('all params')
     }
   }
-  return new UpdateProductUseCaseSpy()
+  return new UpdateCategoryUseCaseSpy()
 }
 
-const makeUpdateProductUseCaseWithError = () => {
-  class UpdateProductUseCaseSpy {
+const makeUpdateCategoryUseCaseWithError = () => {
+  class UpdateCategoryUseCaseSpy {
     async update() {
       throw new Error()
     }
   }
-  return new UpdateProductUseCaseSpy()
+  return new UpdateCategoryUseCaseSpy()
 }
 
 const invalidRequests = [undefined, {}]
 
-describe('Update Product Router', () => {
+describe('Update Category Router', () => {
   invalidRequests.forEach((httpRequest) => {
     test('Should return 500 if the httpRequest is invalid', async () => {
       const { sut } = makeSut()
@@ -119,16 +116,13 @@ describe('Update Product Router', () => {
     const { sut, objectShapeValidatorSpy } = makeSut()
     const httpRequest = {
       body: {
-        name: 'any_name',
-        price: 10.01,
-        category_id: 'any_category_id',
-        offer: false
+        name: 'any_name'
       },
       file: {
         key: 'any_name'
       },
       params: {
-        product_id: 'any_product_id'
+        category_id: 'any_category_id'
       }
     }
     await sut.route(httpRequest)
@@ -136,54 +130,49 @@ describe('Update Product Router', () => {
   })
 
   test('Should return 400 if an invalid param is provided', async () => {
-    const sut = new UpdateProductRouter({
-      objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError()
+    const updateCategoryUseCase = makeUpdateCategoryUseCase()
+
+    const sut = new UpdateCategoryRouter({
+      objectShapeValidator: makeObjectShapeValidatorWithInvalidParamError(),
+      updateCategoryUseCase
     })
 
     const httpRequest = {
       body: {
-        name: 'invalid_name',
-        price: 'invalid_price',
-        category_id: 'invalid_category_id',
-        offer: 'anything_other_than_boolean'
+        name: 'invalid_name'
       },
       file: {
         key: 'any_name'
       },
       params: {
-        product_id: 'any_product_id'
+        category_id: 'any_category_id'
       }
     }
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
   })
 
-  test('Should call UpdateProductUseCase with correct values', async () => {
-    const { sut, updateProductUseCaseSpy } = makeSut()
+  test('Should call UpdateCategoryUseCase with correct params', async () => {
+    const { sut, updateCategoryUseCaseSpy } = makeSut()
 
-    const updateSpy = jest.spyOn(updateProductUseCaseSpy, 'update')
+    const updateSpy = jest.spyOn(updateCategoryUseCaseSpy, 'update')
 
     const httpRequest = {
       body: {
-        name: 'any_name',
-        price: 10.01,
-        category_id: 'any_category_id'
+        name: 'any_name'
       },
       file: {
         key: 'any_name'
       },
       params: {
-        product_id: 'any_product_id'
+        category_id: 'any_category_id'
       }
     }
-
     await sut.route(httpRequest)
     expect(updateSpy).toHaveBeenCalledWith({
       name: httpRequest.body.name,
-      price: httpRequest.body.price,
-      category_id: httpRequest.body.category_id,
       imagePath: httpRequest.file.key,
-      product_id: httpRequest.params.product_id
+      category_id: httpRequest.params.category_id
     })
   })
 
@@ -191,15 +180,13 @@ describe('Update Product Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        name: 'valid_name',
-        price: 10.01,
-        category_id: 'valid_category_id'
+        name: 'valid_name'
       },
       file: {
         key: 'valid_name'
       },
       params: {
-        product_id: 'valid_product_id'
+        category_id: 'valid_category_id'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -213,12 +200,10 @@ describe('Update Product Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        name: 'valid_name',
-        price: 10.01,
-        category_id: 'valid_category_id'
+        name: 'valid_name'
       },
       params: {
-        product_id: 'valid_product_id'
+        category_id: 'valid_category_id'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -228,26 +213,48 @@ describe('Update Product Router', () => {
     )
   })
 
-  test('Should return 400 when category_id does not exist in category database', async () => {
+  test('Should return 400 when name provided is not unique in category database', async () => {
     const objectShapeValidator = makeObjectShapeValidator()
 
-    const sut = new UpdateProductRouter({
-      updateProductUseCase:
-        makeUpdateProductUseCaseWithCategoryNotCreatedError(),
+    const sut = new UpdateCategoryRouter({
+      updateCategoryUseCase: makeUpdateCategoryUseCaseWithRepeatedNameError(),
       objectShapeValidator
     })
 
     const httpRequest = {
       body: {
-        name: 'valid_name',
-        price: 10.01,
-        category_id: 'invalid_category_id'
+        name: 'invalid_name'
       },
       file: {
         key: 'valid_name'
       },
       params: {
-        product_id: 'valid_product_id'
+        category_id: 'valid_category_id'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new RepeatedNameError().message)
+  })
+
+  test('Should return 400 when category_id does not exist in category database', async () => {
+    const objectShapeValidator = makeObjectShapeValidator()
+
+    const sut = new UpdateCategoryRouter({
+      updateCategoryUseCase:
+        makeUpdateCategoryUseCaseWithCategoryNotCreatedError(),
+      objectShapeValidator
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name'
+      },
+      file: {
+        key: 'valid_name'
+      },
+      params: {
+        category_id: 'invalid_category_id'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -255,47 +262,21 @@ describe('Update Product Router', () => {
     expect(httpResponse.body.error).toBe(new CategoryNotCreatedError().message)
   })
 
-  test('Should return 400 when product_id does not exist in product database', async () => {
-    const objectShapeValidator = makeObjectShapeValidator()
-
-    const sut = new UpdateProductRouter({
-      updateProductUseCase:
-        makeUpdateProductUseCaseWithProductNotCreatedError(),
-      objectShapeValidator
-    })
-
-    const httpRequest = {
-      body: {
-        name: 'valid_name',
-        price: 10.01,
-        category_id: 'valid_category_id'
-      },
-      file: {
-        key: 'valid_name'
-      },
-      params: {
-        product_id: 'invalid_product_id'
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body.error).toBe(new ProductNotCreatedError().message)
-  })
-
   test('Should return 400 when no params is provided', async () => {
     const objectShapeValidator = makeObjectShapeValidator()
 
-    const sut = new UpdateProductRouter({
-      updateProductUseCase: makeUpdateProductUseCaseWithMissingParamError(),
+    const sut = new UpdateCategoryRouter({
+      updateCategoryUseCase: makeUpdateCategoryUseCaseWithMissingParamError(),
       objectShapeValidator
     })
 
     const httpRequest = {
       body: {},
       params: {
-        product_id: 'valid_product_id'
+        category_id: 'valid_category_id'
       }
     }
+
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(
@@ -307,31 +288,29 @@ describe('Update Product Router', () => {
     const invalid = {}
     const objectShapeValidator = makeObjectShapeValidator()
     const suts = [].concat(
-      new UpdateProductRouter(),
-      new UpdateProductRouter({}),
-      new UpdateProductRouter({
+      new UpdateCategoryRouter(),
+      new UpdateCategoryRouter({}),
+      new UpdateCategoryRouter({
         objectShapeValidator: invalid
       }),
-      new UpdateProductRouter({
+      new UpdateCategoryRouter({
         objectShapeValidator
       }),
-      new UpdateProductRouter({
+      new UpdateCategoryRouter({
         objectShapeValidator,
-        updateProductUseCase: invalid
+        updateCategoryUseCase: invalid
       })
     )
     for (const sut of suts) {
       const httpRequest = {
         body: {
-          name: 'any_name',
-          price: 10.01,
-          category_id: 'any_category_id'
+          name: 'any_name'
         },
         file: {
           key: 'any_name'
         },
         params: {
-          product_id: 'any_product_id'
+          category_id: 'any_category_id'
         }
       }
       const httpResponse = await sut.route(httpRequest)
@@ -341,28 +320,26 @@ describe('Update Product Router', () => {
   })
 
   test('Should return 500 if any dependency throw a new Error()', async () => {
-    const objectShapeValidator = makeObjectShapeValidator()
+    const updateCategoryUseCase = makeUpdateCategoryUseCase()
     const suts = [].concat(
-      new UpdateProductRouter({
-        objectShapeValidator: makeObjectShapeValidatorWithError()
+      new UpdateCategoryRouter({
+        updateCategoryUseCase: makeUpdateCategoryUseCaseWithError()
       }),
-      new UpdateProductRouter({
-        objectShapeValidator,
-        updateProductUseCase: makeUpdateProductUseCaseWithError()
+      new UpdateCategoryRouter({
+        updateCategoryUseCase,
+        objectShapeValidator: makeObjectShapeValidatorWithError()
       })
     )
     for (const sut of suts) {
       const httpRequest = {
         body: {
-          name: 'any_name',
-          price: 10.01,
-          category_id: 'any_category_id'
+          name: 'any_name'
         },
         file: {
           key: 'any_name'
         },
         params: {
-          product_id: 'any_product_id'
+          category_id: 'any_category_id'
         }
       }
       const httpResponse = await sut.route(httpRequest)
