@@ -1,30 +1,10 @@
 const HttpResponse = require('../../helpers/http-response')
+const RemoveUpload = require('../../helpers/remove-upload')
 const {
   MissingParamError,
   InvalidParamError,
   CategoryNotCreatedError
 } = require('../../../utils/errors')
-const fs = require('fs')
-const path = require('path')
-const env = require('../../../main/config/envfile')
-const aws = require('aws-sdk')
-
-const removeUpload = async (key) => {
-  if (env.storageTypes === 's3') {
-    new aws.S3()
-      .deleteObject({
-        Bucket: 'codeburger',
-        Key: key
-      })
-      .promise()
-  } else {
-    await fs.unlink(
-      path.resolve(__dirname, '..', '..', '..', '..', 'uploads', key),
-      () => {}
-    )
-  }
-}
-
 module.exports = class NewProductRouter {
   constructor({ objectShapeValidator, newProductUseCase } = {}) {
     this.objectShapeValidator = objectShapeValidator
@@ -58,7 +38,7 @@ module.exports = class NewProductRouter {
       return HttpResponse.created()
     } catch (error) {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
-        removeUpload(httpRequest.file.key)
+        RemoveUpload.remove(httpRequest.file.key)
       }
       if (error instanceof CategoryNotCreatedError) {
         return HttpResponse.badRequest(new CategoryNotCreatedError())
