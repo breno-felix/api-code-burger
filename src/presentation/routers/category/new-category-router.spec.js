@@ -186,6 +186,9 @@ describe('New Category Router', () => {
 
   test('Should call NewCategoryUseCase with correct params', async () => {
     const { sut, newCategoryUseCaseSpy } = makeSut()
+
+    const recordSpy = jest.spyOn(newCategoryUseCaseSpy, 'record')
+
     const httpRequest = {
       body: {
         name: 'any_name'
@@ -195,8 +198,10 @@ describe('New Category Router', () => {
       }
     }
     await sut.route(httpRequest)
-    requiredParams.forEach((param) => {
-      expect(newCategoryUseCaseSpy[param]).toBe(httpRequest.body[param])
+
+    expect(recordSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name,
+      imagePath: httpRequest.file.key
     })
   })
 

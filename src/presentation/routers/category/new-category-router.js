@@ -26,7 +26,10 @@ module.exports = class NewCategoryRouter {
         }
       })
       await this.objectShapeValidator.isValid(httpRequest.body)
-      await this.newCategoryUseCase.record(httpRequest.body)
+      await this.newCategoryUseCase.record({
+        name: httpRequest.body.name,
+        imagePath: httpRequest.file.key
+      })
       return HttpResponse.created()
     } catch (error) {
       if (error instanceof RepeatedNameError) {
