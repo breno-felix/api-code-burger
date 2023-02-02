@@ -2,7 +2,8 @@ const HttpResponse = require('../../helpers/http-response')
 const {
   InvalidParamError,
   CategoryNotCreatedError,
-  ProductNotCreatedError
+  ProductNotCreatedError,
+  MissingParamError
 } = require('../../../utils/errors')
 const fs = require('fs')
 const path = require('path')
@@ -58,6 +59,8 @@ module.exports = class UpdateProductRouter {
       } else if (error instanceof ProductNotCreatedError) {
         return HttpResponse.badRequest(new ProductNotCreatedError())
       } else if (error instanceof InvalidParamError) {
+        return HttpResponse.badRequest(error)
+      } else if (error instanceof MissingParamError) {
         return HttpResponse.badRequest(error)
       }
       return HttpResponse.serverError()

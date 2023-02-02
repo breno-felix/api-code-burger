@@ -85,6 +85,15 @@ const makeUpdateProductUseCaseWithProductNotCreatedError = () => {
   return new UpdateProductUseCaseSpy()
 }
 
+const makeUpdateProductUseCaseWithMissingParamError = () => {
+  class UpdateProductUseCaseSpy {
+    async update() {
+      throw new MissingParamError('all params')
+    }
+  }
+  return new UpdateProductUseCaseSpy()
+}
+
 const makeUpdateProductUseCaseWithError = () => {
   class UpdateProductUseCaseSpy {
     async update() {
@@ -271,6 +280,27 @@ describe('Update Product Router', () => {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body.error).toBe(new ProductNotCreatedError().message)
+  })
+
+  test('Should return 400 when no params is provided', async () => {
+    const objectShapeValidator = makeObjectShapeValidator()
+
+    const sut = new UpdateProductRouter({
+      updateProductUseCase: makeUpdateProductUseCaseWithMissingParamError(),
+      objectShapeValidator
+    })
+
+    const httpRequest = {
+      body: {},
+      params: {
+        product_id: 'invalid_product_id'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(
+      new MissingParamError('all params').message
+    )
   })
 
   test('Should return 500 if invalid dependencies are provided', async () => {
