@@ -2,7 +2,8 @@ const UpdateProductUseCase = require('./update-product-usecase')
 const {
   MissingParamServerError,
   CategoryNotCreatedError,
-  ProductNotCreatedError
+  ProductNotCreatedError,
+  MissingParamError
 } = require('../../utils/errors')
 
 const makeSut = () => {
@@ -99,6 +100,16 @@ describe('Update Product UseCase', () => {
     const { sut } = makeSut()
     expect(sut.update()).rejects.toThrow(
       new MissingParamServerError('httpRequest')
+    )
+  })
+
+  test('Should throw new MissingParamError if no params is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      product_id: 'any_product_id'
+    }
+    expect(sut.update(httpRequest)).rejects.toThrow(
+      new MissingParamError('all params')
     )
   })
 

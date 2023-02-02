@@ -1,7 +1,8 @@
 const {
   MissingParamServerError,
   CategoryNotCreatedError,
-  ProductNotCreatedError
+  ProductNotCreatedError,
+  MissingParamError
 } = require('../../utils/errors')
 
 module.exports = class UpdateProductUseCase {
@@ -20,17 +21,20 @@ module.exports = class UpdateProductUseCase {
       throw new MissingParamServerError('httpRequest')
     }
 
-    const product = await this.loadProductByIdRepository.load(
-      httpRequest.product_id
-    )
+    const { name, price, offer, category_id, imagePath, product_id } =
+      httpRequest
+
+    if (!name && !price && !offer && !category_id && !imagePath) {
+      throw new MissingParamError('all params')
+    }
+
+    const product = await this.loadProductByIdRepository.load(product_id)
     if (!product) {
       throw new ProductNotCreatedError()
     }
 
     if (httpRequest.category_id) {
-      const category = await this.loadCategoryByIdRepository.load(
-        httpRequest.category_id
-      )
+      const category = await this.loadCategoryByIdRepository.load(category_id)
       if (!category) {
         throw new CategoryNotCreatedError()
       }
