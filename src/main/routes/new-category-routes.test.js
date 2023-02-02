@@ -39,8 +39,6 @@ describe('New Category Routes', () => {
     await MongooseHelper.disconnect()
   })
 
-  const requiredParams = ['name']
-
   test('Should require authorization', async () => {
     await request(app).post('/api/new-category').expect(401)
   })
@@ -95,18 +93,22 @@ describe('New Category Routes', () => {
     await categories[0].remove()
   })
 
-  requiredParams.forEach((param) => {
-    test(`Should return 400 if no ${param} is provided`, async () => {
-      const categoryTest = {
-        name: 'valid_name'
-      }
-      delete categoryTest[param]
-      const response = await request(app)
-        .post('/api/new-category')
-        .auth(accessToken, { type: 'bearer' })
-        .send(categoryTest)
-      expect(response.status).toBe(400)
-    })
+  test('Should return 400 if no name is provided', async () => {
+    const response = await request(app)
+      .post('/api/new-category')
+      .auth(accessToken, { type: 'bearer' })
+      .attach(
+        'file',
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'test-upload',
+          'image_to_test.png'
+        )
+      )
+    expect(response.status).toBe(400)
   })
 
   // test('Should return 400 when name is not unique', async () => {
