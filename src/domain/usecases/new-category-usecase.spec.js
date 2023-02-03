@@ -43,11 +43,9 @@ const makeLoadCategoryByNameRepositoryWithError = () => {
 
 const makeCreateCategoryRepository = () => {
   class CreateCategoryRepositorySpy {
-    async create({ name, email, password, admin }) {
+    async create({ name, imagePath }) {
       this.name = name
-      this.email = email
-      this.password = password
-      this.admin = admin
+      this.imagePath = imagePath
     }
   }
   const createCategoryRepositorySpy = new CreateCategoryRepositorySpy()
@@ -118,7 +116,7 @@ describe('New Category UseCase', () => {
       new NewCategoryUseCase(),
       new NewCategoryUseCase({}),
       new NewCategoryUseCase({
-        loadUserByEmailRepository: invalid
+        loadCategoryByNameRepository: invalid
       }),
       new NewCategoryUseCase({
         loadCategoryByNameRepository

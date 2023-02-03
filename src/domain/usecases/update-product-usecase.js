@@ -33,7 +33,7 @@ module.exports = class UpdateProductUseCase {
       throw new ProductNotCreatedError()
     }
 
-    if (httpRequest.category_id) {
+    if (category_id) {
       const category = await this.loadCategoryByIdRepository.load(category_id)
       if (!category) {
         throw new CategoryNotCreatedError()

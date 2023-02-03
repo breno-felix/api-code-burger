@@ -223,7 +223,7 @@ describe('Update Product UseCase', () => {
       new UpdateProductUseCase(),
       new UpdateProductUseCase({}),
       new UpdateProductUseCase({
-        loadUserByEmailRepository: invalid
+        loadCategoryByIdRepository: invalid
       }),
       new UpdateProductUseCase({
         loadCategoryByIdRepository
@@ -239,7 +239,7 @@ describe('Update Product UseCase', () => {
       new UpdateProductUseCase({
         loadCategoryByIdRepository,
         loadProductByIdRepository,
-        updateProductRepositorySpy: invalid
+        updateProductRepository: invalid
       })
     )
     const httpRequest = {
@@ -270,7 +270,7 @@ describe('Update Product UseCase', () => {
       new UpdateProductUseCase({
         loadCategoryByIdRepository,
         loadProductByIdRepository,
-        updateProductRepositorySpy: makeUpdateProductRepositoryWithError
+        updateProductRepository: makeUpdateProductRepositoryWithError()
       })
     )
     const httpRequest = {
