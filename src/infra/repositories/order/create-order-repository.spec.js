@@ -14,7 +14,6 @@ const makeSut = () => {
 describe('CreateOrder Repository', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
-    await UserModel.deleteMany()
   })
 
   afterEach(async () => {
