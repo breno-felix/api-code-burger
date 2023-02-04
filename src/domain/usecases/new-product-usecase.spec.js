@@ -138,10 +138,10 @@ describe('New Product UseCase', () => {
       })
     )
     const httpRequest = {
-      name: 'valid_name',
+      name: 'any_name',
       price: 10.01,
-      category_id: 'invalid_category_id',
-      imagePath: 'valid_name'
+      category_id: 'any_category_id',
+      imagePath: 'any_name'
     }
     for (const sut of suts) {
       const promise = sut.record(httpRequest)
@@ -161,10 +161,10 @@ describe('New Product UseCase', () => {
       })
     )
     const httpRequest = {
-      name: 'valid_name',
+      name: 'any_name',
       price: 10.01,
-      category_id: 'invalid_category_id',
-      imagePath: 'valid_name'
+      category_id: 'any_category_id',
+      imagePath: 'any_name'
     }
     for (const sut of suts) {
       const promise = sut.record(httpRequest)

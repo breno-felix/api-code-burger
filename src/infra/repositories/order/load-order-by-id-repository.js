@@ -4,9 +4,9 @@ const {
 } = require('../../../utils/errors')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 
-module.exports = class LoadProductByIdRepository {
-  constructor(productModel) {
-    this.productModel = productModel
+module.exports = class LoadOrderByIdRepository {
+  constructor(orderModel) {
+    this.orderModel = orderModel
   }
 
   async load(id) {
@@ -14,8 +14,8 @@ module.exports = class LoadProductByIdRepository {
       throw new MissingParamServerError('id')
     }
     try {
-      const product = await this.productModel.findOne({ _id: id })
-      return product
+      const order = await this.orderModel.findOne({ _id: id })
+      return order
     } catch (error) {
       if (error instanceof MongooseHelper.getTypeOfError()) {
         throw new InvalidParamError(error)

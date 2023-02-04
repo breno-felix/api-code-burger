@@ -25,14 +25,16 @@ describe('CreateCategory Repository', () => {
     const sut = makeSut()
 
     const validCategory = {
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     }
     await sut.create(validCategory)
     const category = await CategoryModel.findOne({
       name: validCategory.name
     })
     expect({
-      name: category.name
+      name: category.name,
+      imagePath: category.imagePath
     }).toEqual(validCategory)
     expect(category._id).toEqual(expect.anything())
   })

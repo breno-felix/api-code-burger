@@ -1,4 +1,4 @@
-const CreateOrderRepository = require('./create-order-repository')
+const UpdateOrderRepository = require('./update-order-repository')
 const MongooseHelper = require('../../helpers/mongoose-helper')
 const env = require('../../../main/config/envfile')
 const OrderModel = require('../../entities/OrderModel')
@@ -8,10 +8,10 @@ const ProductModel = require('../../entities/ProductModel')
 const { MissingParamServerError } = require('../../../utils/errors')
 
 const makeSut = () => {
-  return new CreateOrderRepository(OrderModel)
+  return new UpdateOrderRepository(OrderModel)
 }
 
-describe('CreateOrder Repository', () => {
+describe('UpdateOrder Repository', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
   })
@@ -27,7 +27,7 @@ describe('CreateOrder Repository', () => {
     await MongooseHelper.disconnect()
   })
 
-  test('Should create order with the given object', async () => {
+  test('Should update order with the given object', async () => {
     const sut = makeSut()
     const fakeUser = new UserModel({
       name: 'valid_name',
@@ -58,7 +58,7 @@ describe('CreateOrder Repository', () => {
     })
     await fakeProductTwo.save()
 
-    const validOrder = {
+    const fakeOrder = new OrderModel({
       user_id: fakeUser._id,
       products: [
         {
@@ -70,75 +70,23 @@ describe('CreateOrder Repository', () => {
           quantity: 2
         }
       ]
+    })
+    await fakeOrder.save()
+
+    const orderObjectToUpdate = {
+      status: 'other_name',
+      order_id: fakeOrder._id
     }
-    const order = await sut.create(validOrder)
+    await sut.update(orderObjectToUpdate)
+    const updatedOrder = await OrderModel.find({})
     expect({
-      user_id: order.user_id,
-      products: [
-        {
-          product_id: order.products[0].product_id,
-          quantity: order.products[0].quantity
-        },
-        {
-          product_id: order.products[1].product_id,
-          quantity: order.products[1].quantity
-        }
-      ]
-    }).toEqual(validOrder)
-    expect(order._id).toEqual(expect.anything())
-  })
-
-  test('Should create order with the status param with some value by default', async () => {
-    const sut = makeSut()
-
-    const fakeUser = new UserModel({
-      name: 'valid_name',
-      email: 'valid_email@mail.com',
-      password: 'valid_password',
-      admin: false
-    })
-    await fakeUser.save()
-    const fakeCategory = new CategoryModel({
-      name: 'valid_name',
-      imagePath: 'any_name'
-    })
-    await fakeCategory.save()
-
-    const fakeProduct = new ProductModel({
-      name: 'valid_name',
-      price: 10.01,
-      category_id: fakeCategory._id,
-      imagePath: 'valid_image_path'
-    })
-    await fakeProduct.save()
-
-    const fakeProductTwo = new ProductModel({
-      name: 'valid_name',
-      price: 10.01,
-      category_id: fakeCategory._id,
-      imagePath: 'valid_image_path'
-    })
-    await fakeProductTwo.save()
-
-    const validOrder = {
-      user_id: fakeUser._id,
-      products: [
-        {
-          product_id: fakeProduct._id,
-          quantity: 1
-        },
-        {
-          product_id: fakeProductTwo._id,
-          quantity: 2
-        }
-      ]
-    }
-    const order = await sut.create(validOrder)
-    expect(order.status).toBe('Pedido realizado')
+      status: updatedOrder[0].status,
+      order_id: fakeOrder._id
+    }).toEqual(orderObjectToUpdate)
   })
 
   test('Should throw if no orderModel is provided', async () => {
-    const sut = new CreateOrderRepository()
+    const sut = new UpdateOrderRepository()
     const fakeUser = new UserModel({
       name: 'valid_name',
       email: 'valid_email@mail.com',
@@ -168,7 +116,7 @@ describe('CreateOrder Repository', () => {
     })
     await fakeProductTwo.save()
 
-    const validOrder = {
+    const fakeOrder = new OrderModel({
       user_id: fakeUser._id,
       products: [
         {
@@ -180,14 +128,20 @@ describe('CreateOrder Repository', () => {
           quantity: 2
         }
       ]
+    })
+    await fakeOrder.save()
+
+    const orderObjectToUpdate = {
+      status: 'other_name',
+      order_id: fakeOrder._id
     }
-    const promise = sut.create(validOrder)
+    const promise = sut.update(orderObjectToUpdate)
     expect(promise).rejects.toThrow()
   })
 
   test('Should throw if no orderObject is provided', async () => {
     const sut = makeSut()
-    expect(sut.create()).rejects.toThrow(
+    expect(sut.update()).rejects.toThrow(
       new MissingParamServerError('orderObject')
     )
   })

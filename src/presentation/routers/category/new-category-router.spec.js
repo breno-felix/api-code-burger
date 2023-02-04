@@ -82,6 +82,7 @@ const makeNewCategoryUseCaseWithError = () => {
 }
 
 const requiredParams = ['name']
+const requiredParamsFile = ['key']
 const invalidRequests = [undefined, {}]
 
 describe('New Category Router', () => {
@@ -100,6 +101,49 @@ describe('New Category Router', () => {
     })
   })
 
+  requiredParamsFile.forEach((param) => {
+    test(`Should return 400 if no ${param} is provided in httpRequest.file`, async () => {
+      const { sut } = makeSut()
+      const httpRequest = {
+        body: {
+          name: 'any_name'
+        },
+        file: {
+          key: 'any_name'
+        }
+      }
+      delete httpRequest.file[param]
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(400)
+      expect(httpResponse.body.error).toBe(new MissingParamError(param).message)
+    })
+  })
+
+  test(`Should return 400 if no httpRequest.body is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {},
+      file: {
+        key: 'any_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new MissingParamError('name').message)
+  })
+
+  test(`Should return 400 if no httpRequest.file is provided`, async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body.error).toBe(new MissingParamError('key').message)
+  })
+
   invalidRequests.forEach((httpRequest) => {
     test('Should return 500 if the httpRequest is invalid', async () => {
       const { sut } = makeSut()
@@ -114,6 +158,9 @@ describe('New Category Router', () => {
     const httpRequest = {
       body: {
         name: 'any_name'
+      },
+      file: {
+        key: 'any_name'
       }
     }
     await sut.route(httpRequest)
@@ -139,14 +186,22 @@ describe('New Category Router', () => {
 
   test('Should call NewCategoryUseCase with correct params', async () => {
     const { sut, newCategoryUseCaseSpy } = makeSut()
+
+    const recordSpy = jest.spyOn(newCategoryUseCaseSpy, 'record')
+
     const httpRequest = {
       body: {
         name: 'any_name'
+      },
+      file: {
+        key: 'any_name'
       }
     }
     await sut.route(httpRequest)
-    requiredParams.forEach((param) => {
-      expect(newCategoryUseCaseSpy[param]).toBe(httpRequest.body[param])
+
+    expect(recordSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name,
+      imagePath: httpRequest.file.key
     })
   })
 
@@ -155,6 +210,9 @@ describe('New Category Router', () => {
     const httpRequest = {
       body: {
         name: 'valid_name'
+      },
+      file: {
+        key: 'valid_name'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -175,6 +233,9 @@ describe('New Category Router', () => {
     const httpRequest = {
       body: {
         name: 'any_name'
+      },
+      file: {
+        key: 'any_name'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -203,6 +264,9 @@ describe('New Category Router', () => {
       const httpRequest = {
         body: {
           name: 'any_name'
+        },
+        file: {
+          key: 'any_name'
         }
       }
       const httpResponse = await sut.route(httpRequest)
@@ -226,6 +290,9 @@ describe('New Category Router', () => {
       const httpRequest = {
         body: {
           name: 'any_name'
+        },
+        file: {
+          key: 'any_name'
         }
       }
       const httpResponse = await sut.route(httpRequest)

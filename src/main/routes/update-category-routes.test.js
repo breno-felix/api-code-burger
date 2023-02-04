@@ -17,7 +17,7 @@ const accessloginRouter = async (email, password) => {
   return response.body.accessToken
 }
 
-describe('New Category Routes', () => {
+describe('Update Category Routes', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
     const fakeUser = new UserModel({
@@ -40,7 +40,7 @@ describe('New Category Routes', () => {
   })
 
   test('Should require authorization', async () => {
-    await request(app).post('/api/new-category').expect(401)
+    await request(app).put('/api/update-category/any_id').expect(401)
   })
 
   test('Should require User Admin authorization', async () => {
@@ -55,23 +55,29 @@ describe('New Category Routes', () => {
       'hashed_password'
     )
     await request(app)
-      .post('/api/new-category')
+      .put('/api/update-category/any_id')
       .auth(accessTokenTwo, { type: 'bearer' })
       .expect(403)
   })
 
-  test('Should return 201 when valid data are provided', async () => {
+  test('Should return 204 when valid data are provided', async () => {
     let categories = await CategoryModel.find({})
     expect(categories.length).toBe(0)
 
-    const categoryTest = {
-      name: 'valid_name'
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name',
+      imagePath: 'any_name'
+    })
+    await fakeCategory.save()
+
+    const categoryObjectToUpdate = {
+      name: 'other_valid_name'
     }
 
     const response = await request(app)
-      .post('/api/new-category')
+      .put(`/api/update-category/${fakeCategory._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', categoryTest.name)
+      .field('name', categoryObjectToUpdate.name)
       .attach(
         'file',
         path.resolve(
@@ -83,79 +89,33 @@ describe('New Category Routes', () => {
           'image_to_test.png'
         )
       )
-    expect(response.status).toBe(201)
+    expect(response.status).toBe(204)
 
     categories = await CategoryModel.find({})
     expect(categories.length).toBe(1)
-    expect(categories[0]._id).toEqual(expect.anything())
-    expect(categories[0].name).toBe(categoryTest.name)
-    expect(categories[0].imagePath).toEqual(expect.anything())
+    expect(categories[0].name).toBe(categoryObjectToUpdate.name)
+    expect(categories[0].imagePath).not.toBe(fakeCategory.imagePath)
     await categories[0].remove()
-  })
-
-  test('Should return 400 if no name is provided', async () => {
-    const response = await request(app)
-      .post('/api/new-category')
-      .auth(accessToken, { type: 'bearer' })
-      .attach(
-        'file',
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          'test-upload',
-          'image_to_test.png'
-        )
-      )
-    expect(response.status).toBe(400)
-  })
-
-  test('Should return 400 if no file is provided', async () => {
-    const categoryTest = {
-      name: 'valid_name'
-    }
-
-    const response = await request(app)
-      .post('/api/new-category')
-      .auth(accessToken, { type: 'bearer' })
-      .send(categoryTest)
-    expect(response.status).toBe(400)
   })
 
   test('Should return 400 when name is not unique', async () => {
-    let categories = await CategoryModel.find({})
+    const categories = await CategoryModel.find({})
     expect(categories.length).toBe(0)
 
-    const category = {
-      name: 'any_name'
-    }
-    await request(app)
-      .post('/api/new-category')
-      .auth(accessToken, { type: 'bearer' })
-      .field('name', category.name)
-      .attach(
-        'file',
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          'test-upload',
-          'image_to_test.png'
-        )
-      )
-      .expect(201)
-    categories = await CategoryModel.find({})
-    expect(categories.length).toBe(1)
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name',
+      imagePath: 'any_name'
+    })
+    await fakeCategory.save()
 
-    const categoryTest = {
-      name: 'any_name'
+    const categoryObjectToUpdate = {
+      name: 'valid_name'
     }
+
     const response = await request(app)
-      .post('/api/new-category')
+      .put(`/api/update-category/${fakeCategory._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', categoryTest.name)
+      .field('name', categoryObjectToUpdate.name)
       .attach(
         'file',
         path.resolve(
@@ -168,6 +128,5 @@ describe('New Category Routes', () => {
         )
       )
     expect(response.status).toBe(400)
-    await categories[0].remove()
   })
 })

@@ -26,7 +26,8 @@ describe('Create Product Repository', () => {
   test('Should create product with the given object', async () => {
     const sut = makeSut()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 
@@ -49,7 +50,8 @@ describe('Create Product Repository', () => {
   test('Should throw if no productModel is provided', async () => {
     const sut = new CreateProductRepository()
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
 

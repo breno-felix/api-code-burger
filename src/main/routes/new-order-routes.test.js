@@ -54,7 +54,8 @@ describe('New Order Routes', () => {
     expect(orders.length).toBe(0)
 
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({
@@ -91,7 +92,8 @@ describe('New Order Routes', () => {
   requiredParams.forEach((param) => {
     test(`Should return 400 if no ${param} is provided`, async () => {
       const fakeCategory = new CategoryModel({
-        name: 'valid_name'
+        name: 'valid_name',
+        imagePath: 'any_name'
       })
       await fakeCategory.save()
       const fakeProduct = new ProductModel({
@@ -136,7 +138,8 @@ describe('New Order Routes', () => {
 
   test('Should return 400 if invalid quantity is provided', async () => {
     const fakeCategory = new CategoryModel({
-      name: 'valid_name'
+      name: 'valid_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeProduct = new ProductModel({
