@@ -5,7 +5,6 @@ const MongooseHelper = require('../../infra/helpers/mongoose-helper')
 const ProductModel = require('../../infra/entities/ProductModel')
 const CategoryModel = require('../../infra/entities/CategoryModel')
 const UserModel = require('../../infra/entities/UserModel')
-const MissingParamError = require('../../utils/errors/missing-param-error')
 const path = require('path')
 const bcrypt = require('bcrypt')
 let accessToken
@@ -19,7 +18,7 @@ const accessloginRouter = async (email, password) => {
   return response.body.accessToken
 }
 
-describe('New Product Routes', () => {
+describe('Update Product Routes', () => {
   beforeAll(async () => {
     await MongooseHelper.connect(env.urlMongooseTest)
     const fakeUser = new UserModel({
@@ -43,7 +42,7 @@ describe('New Product Routes', () => {
   })
 
   test('Should require authorization', async () => {
-    await request(app).post('/api/new-product').expect(401)
+    await request(app).put('/api/update-product/any_id').expect(401)
   })
 
   test('Should require User Admin authorization', async () => {
@@ -58,12 +57,12 @@ describe('New Product Routes', () => {
       'hashed_password'
     )
     await request(app)
-      .post('/api/new-product')
+      .put('/api/update-product/any_id')
       .auth(accessTokenTwo, { type: 'bearer' })
       .expect(403)
   })
 
-  test('Should return 201 when valid data are provided', async () => {
+  test('Should return 204 when valid data are provided', async () => {
     let products = await ProductModel.find({})
     expect(products.length).toBe(0)
 
@@ -72,17 +71,34 @@ describe('New Product Routes', () => {
       imagePath: 'any_name'
     })
     await fakeCategory.save()
-    const productTest = {
+    const fakeProduct = new ProductModel({
       name: 'valid_name',
       price: 10.01,
-      category_id: fakeCategory._id.toString()
+      category_id: fakeCategory._id.toString(),
+      imagePath: 'any_name'
+    })
+    await fakeProduct.save()
+
+    const otherFakeCategory = new CategoryModel({
+      name: 'other_valid_name',
+      imagePath: 'any_name'
+    })
+    await otherFakeCategory.save()
+
+    const productObjectToUpdate = {
+      name: 'other_name',
+      price: 10.05,
+      offer: true,
+      category_id: otherFakeCategory._id.toString()
     }
+
     const response = await request(app)
-      .post('/api/new-product')
+      .put(`/api/update-product/${fakeProduct._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', productTest.name)
-      .field('price', productTest.price)
-      .field('category_id', productTest.category_id)
+      .field('name', productObjectToUpdate.name)
+      .field('price', productObjectToUpdate.price)
+      .field('offer', productObjectToUpdate.offer)
+      .field('category_id', productObjectToUpdate.category_id)
       .attach(
         'file',
         path.resolve(
@@ -94,68 +110,19 @@ describe('New Product Routes', () => {
           'image_to_test.png'
         )
       )
-    expect(response.status).toBe(201)
+    expect(response.status).toBe(204)
 
     products = await ProductModel.find({})
     expect(products.length).toBe(1)
-    expect(products[0]._id).toEqual(expect.anything())
-    expect(products[0].offer).toBe(false)
-    expect(products[0].name).toBe(productTest.name)
-    expect(products[0].price).toBe(productTest.price)
-    expect(products[0].category_id.toString()).toBe(productTest.category_id)
-    expect(products[0].imagePath).toEqual(expect.anything())
+    expect(products[0].offer).toBe(productObjectToUpdate.offer)
+    expect(products[0].name).toBe(productObjectToUpdate.name)
+    expect(products[0].price).toBe(productObjectToUpdate.price)
+    expect(products[0].category_id.toString()).toBe(
+      productObjectToUpdate.category_id
+    )
+    expect(products[0].imagePath).not.toBe(fakeProduct.imagePath)
+
     await products[0].remove()
-  })
-
-  test('Should return 400 if no name is provided', async () => {
-    const fakeCategory = new CategoryModel({
-      name: 'valid_name',
-      imagePath: 'any_name'
-    })
-    await fakeCategory.save()
-    const productTest = {
-      price: 10.01,
-      category_id: fakeCategory._id.toString()
-    }
-
-    const response = await request(app)
-      .post('/api/new-product')
-      .auth(accessToken, { type: 'bearer' })
-      .field('price', productTest.price)
-      .field('category_id', productTest.category_id)
-      .attach(
-        'file',
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          'test-upload',
-          'image_to_test.png'
-        )
-      )
-    expect(response.status).toBe(400)
-    expect(response.body.error).toBe(new MissingParamError('name').message)
-  })
-
-  test('Should return 400 if no file is provided', async () => {
-    const fakeCategory = new CategoryModel({
-      name: 'valid_name',
-      imagePath: 'any_name'
-    })
-    await fakeCategory.save()
-    const productTest = {
-      name: 'valid_name',
-      price: 10.01,
-      category_id: fakeCategory._id.toString()
-    }
-
-    const response = await request(app)
-      .post('/api/new-product')
-      .auth(accessToken, { type: 'bearer' })
-      .send(productTest)
-    expect(response.status).toBe(400)
-    expect(response.body.error).toBe(new MissingParamError('key').message)
   })
 
   test('Should return 400 if invalid price is provided', async () => {
@@ -164,18 +131,34 @@ describe('New Product Routes', () => {
       imagePath: 'any_name'
     })
     await fakeCategory.save()
-    const productTest = {
+    const fakeProduct = new ProductModel({
       name: 'valid_name',
+      price: 10.01,
+      category_id: fakeCategory._id.toString(),
+      imagePath: 'any_name'
+    })
+    await fakeProduct.save()
+
+    const otherFakeCategory = new CategoryModel({
+      name: 'other_valid_name',
+      imagePath: 'any_name'
+    })
+    await otherFakeCategory.save()
+
+    const productObjectToUpdate = {
+      name: 'other_name',
       price: 'invalid_price',
-      category_id: fakeCategory._id.toString()
+      offer: true,
+      category_id: otherFakeCategory._id.toString()
     }
 
     const response = await request(app)
-      .post('/api/new-product')
+      .put(`/api/update-product/${fakeProduct._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', productTest.name)
-      .field('price', productTest.price)
-      .field('category_id', productTest.category_id)
+      .field('name', productObjectToUpdate.name)
+      .field('price', productObjectToUpdate.price)
+      .field('offer', productObjectToUpdate.offer)
+      .field('category_id', productObjectToUpdate.category_id)
       .attach(
         'file',
         path.resolve(
@@ -191,18 +174,39 @@ describe('New Product Routes', () => {
   })
 
   test('Should return 400 if invalid category_id is provided', async () => {
-    const productTest = {
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name',
+      imagePath: 'any_name'
+    })
+    await fakeCategory.save()
+    const fakeProduct = new ProductModel({
       name: 'valid_name',
       price: 10.01,
+      category_id: fakeCategory._id.toString(),
+      imagePath: 'any_name'
+    })
+    await fakeProduct.save()
+
+    const otherFakeCategory = new CategoryModel({
+      name: 'other_valid_name',
+      imagePath: 'any_name'
+    })
+    await otherFakeCategory.save()
+
+    const productObjectToUpdate = {
+      name: 'other_name',
+      price: 10.01,
+      offer: true,
       category_id: 'invalid_category_id'
     }
 
     const response = await request(app)
-      .post('/api/new-product')
+      .put(`/api/update-product/${fakeProduct._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', productTest.name)
-      .field('price', productTest.price)
-      .field('category_id', productTest.category_id)
+      .field('name', productObjectToUpdate.name)
+      .field('price', productObjectToUpdate.price)
+      .field('offer', productObjectToUpdate.offer)
+      .field('category_id', productObjectToUpdate.category_id)
       .attach(
         'file',
         path.resolve(
@@ -218,17 +222,33 @@ describe('New Product Routes', () => {
   })
 
   test('Should return 400 when category_id do not exist', async () => {
-    const productTest = {
+    const fakeCategory = new CategoryModel({
+      name: 'valid_name',
+      imagePath: 'any_name'
+    })
+    await fakeCategory.save()
+    const fakeProduct = new ProductModel({
       name: 'valid_name',
       price: 10.01,
+      category_id: fakeCategory._id.toString(),
+      imagePath: 'any_name'
+    })
+    await fakeProduct.save()
+
+    const productObjectToUpdate = {
+      name: 'other_name',
+      price: 10.01,
+      offer: true,
       category_id: '63d3b8f958d39d25d6edcd78'
     }
+
     const response = await request(app)
-      .post('/api/new-product')
+      .put(`/api/update-product/${fakeProduct._id}`)
       .auth(accessToken, { type: 'bearer' })
-      .field('name', productTest.name)
-      .field('price', productTest.price)
-      .field('category_id', productTest.category_id)
+      .field('name', productObjectToUpdate.name)
+      .field('price', productObjectToUpdate.price)
+      .field('offer', productObjectToUpdate.offer)
+      .field('category_id', productObjectToUpdate.category_id)
       .attach(
         'file',
         path.resolve(

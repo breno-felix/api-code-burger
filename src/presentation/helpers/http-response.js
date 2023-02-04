@@ -42,4 +42,13 @@ module.exports = class HttpResponse {
         'The request was successful and a new resource was created as a result.'
     }
   }
+
+  static noContent(data) {
+    return {
+      statusCode: 204,
+      body:
+        data ||
+        'The request was successfully processed but is not returning any content.'
+    }
+  }
 }

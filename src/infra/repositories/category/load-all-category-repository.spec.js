@@ -29,11 +29,13 @@ describe('Load All Category Repository', () => {
   test('Should return categories if categories is found', async () => {
     const sut = makeSut()
     const fakeCategory = new CategoryModel({
-      name: 'any_name'
+      name: 'any_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeCategoryTwo = new CategoryModel({
-      name: 'some_name'
+      name: 'some_name',
+      imagePath: 'any_name'
     })
     await fakeCategoryTwo.save()
     const categories = await sut.load()

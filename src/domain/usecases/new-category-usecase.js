@@ -22,8 +22,6 @@ module.exports = class NewCategoryUseCase {
       throw new RepeatedNameError()
     }
 
-    await this.createCategoryRepository.create({
-      name: httpRequest.name
-    })
+    await this.createCategoryRepository.create(httpRequest)
   }
 }

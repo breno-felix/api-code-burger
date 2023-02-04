@@ -43,11 +43,9 @@ const makeLoadCategoryByNameRepositoryWithError = () => {
 
 const makeCreateCategoryRepository = () => {
   class CreateCategoryRepositorySpy {
-    async create({ name, email, password, admin }) {
+    async create({ name, imagePath }) {
       this.name = name
-      this.email = email
-      this.password = password
-      this.admin = admin
+      this.imagePath = imagePath
     }
   }
   const createCategoryRepositorySpy = new CreateCategoryRepositorySpy()
@@ -77,12 +75,11 @@ describe('New Category UseCase', () => {
     const loadSpy = jest.spyOn(loadCategoryByNameRepositorySpy, 'load')
 
     const httpRequest = {
-      body: {
-        name: 'any_name'
-      }
+      name: 'any_name',
+      imagePath: 'any_name'
     }
-    await sut.record(httpRequest.body)
-    expect(loadSpy).toHaveBeenCalledWith(httpRequest.body.name)
+    await sut.record(httpRequest)
+    expect(loadSpy).toHaveBeenCalledWith(httpRequest.name)
   })
 
   test('Should throw new RepeatedNameError if name provided already exists', async () => {
@@ -91,14 +88,11 @@ describe('New Category UseCase', () => {
       id: 'any_id'
     }
     const httpRequest = {
-      body: {
-        name: 'any_name'
-      }
+      name: 'any_name',
+      imagePath: 'any_name'
     }
 
-    expect(sut.record(httpRequest.body)).rejects.toThrow(
-      new RepeatedNameError()
-    )
+    expect(sut.record(httpRequest)).rejects.toThrow(new RepeatedNameError())
   })
 
   test('Should call CreateCategoryRepository with correct values', async () => {
@@ -107,15 +101,12 @@ describe('New Category UseCase', () => {
     const createSpy = jest.spyOn(createCategoryRepositorySpy, 'create')
 
     const httpRequest = {
-      body: {
-        name: 'valid_name'
-      }
+      name: 'valid_name',
+      imagePath: 'any_name'
     }
 
-    await sut.record(httpRequest.body)
-    expect(createSpy).toHaveBeenCalledWith({
-      name: httpRequest.body.name
-    })
+    await sut.record(httpRequest)
+    expect(createSpy).toHaveBeenCalledWith(httpRequest)
   })
 
   test('Should throw if invalid dependencies are provided', async () => {
@@ -125,7 +116,7 @@ describe('New Category UseCase', () => {
       new NewCategoryUseCase(),
       new NewCategoryUseCase({}),
       new NewCategoryUseCase({
-        loadUserByEmailRepository: invalid
+        loadCategoryByNameRepository: invalid
       }),
       new NewCategoryUseCase({
         loadCategoryByNameRepository
@@ -136,12 +127,11 @@ describe('New Category UseCase', () => {
       })
     )
     const httpRequest = {
-      body: {
-        name: 'any_name'
-      }
+      name: 'any_name',
+      imagePath: 'any_name'
     }
     for (const sut of suts) {
-      const promise = sut.record(httpRequest.body)
+      const promise = sut.record(httpRequest)
       expect(promise).rejects.toThrow()
     }
   })
@@ -159,12 +149,11 @@ describe('New Category UseCase', () => {
       })
     )
     const httpRequest = {
-      body: {
-        name: 'any_name'
-      }
+      name: 'any_name',
+      imagePath: 'any_name'
     }
     for (const sut of suts) {
-      const promise = sut.record(httpRequest.body)
+      const promise = sut.record(httpRequest)
       expect(promise).rejects.toThrow()
     }
   })

@@ -187,7 +187,7 @@ describe('New Order UseCase', () => {
     const loadProductByIdRepository = makeLoadProductByIdRepository()
     const suts = [].concat(
       new NewOrderUseCase({
-        loadCategoryByIdRepository: makeLoadProductByIdRepositoryWithError()
+        loadProductByIdRepository: makeLoadProductByIdRepositoryWithError()
       }),
       new NewOrderUseCase({
         loadProductByIdRepository,

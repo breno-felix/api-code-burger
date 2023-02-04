@@ -16,7 +16,8 @@ const productSchema = MongooseHelper.newSchema(
       ref: 'Category',
       required: true
     },
-    imagePath: { type: String, required: true }
+    imagePath: { type: String, required: true },
+    offer: { type: Boolean, default: false }
   },
   {
     timestamps: true
@@ -28,7 +29,7 @@ const productSchema = MongooseHelper.newSchema(
           if (process.env.NODE_ENV === 'production') {
             return `${env.storageURL}/${this.imagePath}`
           }
-          return `${env.appUrl}/product-file/${this.imagePath}`
+          return `${env.appUrl}/file/${this.imagePath}`
         }
       }
     }

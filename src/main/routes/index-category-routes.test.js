@@ -46,11 +46,13 @@ describe('Index Category Routes', () => {
     expect(categories.length).toBe(0)
 
     const fakeCategory = new CategoryModel({
-      name: 'any_name'
+      name: 'any_name',
+      imagePath: 'any_name'
     })
     await fakeCategory.save()
     const fakeCategoryTwo = new CategoryModel({
-      name: 'some_name'
+      name: 'some_name',
+      imagePath: 'any_name'
     })
     await fakeCategoryTwo.save()
 

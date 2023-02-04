@@ -1,47 +1,43 @@
 const HttpResponse = require('../../helpers/http-response')
 const RemoveUpload = require('../../helpers/remove-upload')
 const {
-  MissingParamError,
   InvalidParamError,
-  CategoryNotCreatedError
+  CategoryNotCreatedError,
+  ProductNotCreatedError,
+  MissingParamError
 } = require('../../../utils/errors')
-module.exports = class NewProductRouter {
-  constructor({ objectShapeValidator, newProductUseCase } = {}) {
+module.exports = class UpdateProductRouter {
+  constructor({ objectShapeValidator, updateProductUseCase } = {}) {
     this.objectShapeValidator = objectShapeValidator
-    this.newProductUseCase = newProductUseCase
+    this.updateProductUseCase = updateProductUseCase
   }
 
   async route(httpRequest) {
     try {
-      const requiredParamsBody = ['name', 'price', 'category_id']
-      requiredParamsBody.forEach((param) => {
-        if (!httpRequest.body[param]) {
-          throw new MissingParamError(param)
-        }
-      })
-      const requiredParamsFile = ['key']
-      requiredParamsFile.forEach((param) => {
-        if (!httpRequest.file || !httpRequest.file[param]) {
-          throw new MissingParamError(param)
-        }
-      })
       await this.objectShapeValidator.isValid(httpRequest.body)
       const { name, price, category_id, offer } = httpRequest.body
-      const { key: imagePath } = httpRequest.file
-      await this.newProductUseCase.record({
+      let imagePath
+      if (httpRequest.file) {
+        imagePath = httpRequest.file.key
+      }
+      const { product_id } = httpRequest.params
+      await this.updateProductUseCase.update({
         name,
         price,
         category_id,
         offer,
-        imagePath
+        imagePath,
+        product_id
       })
-      return HttpResponse.created()
+      return HttpResponse.noContent()
     } catch (error) {
       if (httpRequest && httpRequest.file && httpRequest.file.key) {
         await RemoveUpload.remove(httpRequest.file.key)
       }
       if (error instanceof CategoryNotCreatedError) {
         return HttpResponse.badRequest(new CategoryNotCreatedError())
+      } else if (error instanceof ProductNotCreatedError) {
+        return HttpResponse.badRequest(new ProductNotCreatedError())
       } else if (error instanceof InvalidParamError) {
         return HttpResponse.badRequest(error)
       } else if (error instanceof MissingParamError) {

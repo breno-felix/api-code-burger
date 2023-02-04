@@ -1,16 +1,16 @@
 const { adapt } = require('../adapters/express-router-adapter')
-const NewCategoryRouterComposer = require('../composers/category/new-category-router-composer')
+const UpdateOrderRouterComposer = require('../composers/order/update-order-router-composer')
 const multerMiddleware = require('../middlewares/multer')
 const authMiddleware = require('../middlewares/auth')
 const authAdminMiddleware = require('../middlewares/authAdmin')
 
 module.exports = (router) => {
-  const newCategoryRouter = NewCategoryRouterComposer.compose()
-  router.post(
-    '/new-category',
+  const updateOrderRouter = UpdateOrderRouterComposer.compose()
+  router.patch(
+    '/update-order/:order_id',
     authMiddleware,
     authAdminMiddleware,
     multerMiddleware,
-    adapt(newCategoryRouter)
+    adapt(updateOrderRouter)
   )
 }
