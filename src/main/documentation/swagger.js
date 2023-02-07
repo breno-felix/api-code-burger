@@ -46,6 +46,31 @@ module.exports = {
           }
         }
       }
+    },
+    '/login': {
+      post: {
+        summary: 'Sign in user',
+        description: 'Performs user authentication and returns access token',
+        tags: ['User'],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/UserLogin'
+        },
+        responses: {
+          200: {
+            $ref: '#/components/responses/Success'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
     }
   },
   components: {
@@ -98,6 +123,24 @@ module.exports = {
           }
         }
       },
+      Success: {
+        description: 'The user was successfully signed in',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                  description: 'JWT Token for authenticated user',
+                  example:
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJyZW5vIEZlbGl4IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+                }
+              }
+            }
+          }
+        }
+      },
       BadRequest: {
         description: 'Bad Request - Missing or Invalid Parameters',
         content: {
@@ -109,6 +152,23 @@ module.exports = {
                   type: 'string',
                   description: 'Error message',
                   example: 'email must be unique in user database.'
+                }
+              }
+            }
+          }
+        }
+      },
+      Unauthorized: {
+        description: 'Unauthorized - Incorrect credentials',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                error: {
+                  type: 'string',
+                  description: 'Error message',
+                  example: 'Incorrect email or password.'
                 }
               }
             }
@@ -158,6 +218,32 @@ module.exports = {
         },
         description:
           'User object needed to create a new user. RepeatPassword is mandatory and must be equal to password.',
+        required: true
+      },
+      UserLogin: {
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                email: {
+                  type: 'string',
+                  description: "The user's email",
+                  required: true,
+                  example: 'brenodev.felix@gmail.com'
+                },
+                password: {
+                  type: 'string',
+                  description: "The user's password",
+                  required: true,
+                  example: 'password123'
+                }
+              },
+              additionalProperties: false
+            }
+          }
+        },
+        description: 'User object needed to sign in a existing user.',
         required: true
       }
     }
