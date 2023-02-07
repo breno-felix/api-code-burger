@@ -71,6 +71,40 @@ module.exports = {
           }
         }
       }
+    },
+    '/new-category': {
+      post: {
+        security: [
+          {
+            bearerAuth: []
+          }
+        ],
+        summary: 'Create a new category',
+        description:
+          'This endpoint creates a new category with the given name and file.',
+        tags: ['Category'],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/NewCategory'
+        },
+        responses: {
+          201: {
+            $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          403: {
+            $ref: '#/components/responses/Forbidden'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
     }
   },
   components: {
@@ -107,7 +141,7 @@ module.exports = {
     },
     responses: {
       Created: {
-        description: 'The user was successfully created',
+        description: 'Created',
         content: {
           'application/json': {
             schema: {
@@ -116,7 +150,8 @@ module.exports = {
                 message: {
                   type: 'string',
                   description: 'Success message',
-                  default: 'The user was successfully created.'
+                  default:
+                    'The request was successful and a new resource was created as a result.'
                 }
               }
             }
@@ -151,7 +186,7 @@ module.exports = {
                 error: {
                   type: 'string',
                   description: 'Error message',
-                  example: 'email must be unique in user database.'
+                  example: 'Missing param: paramName'
                 }
               }
             }
@@ -168,7 +203,24 @@ module.exports = {
                 error: {
                   type: 'string',
                   description: 'Error message',
-                  example: 'Incorrect email or password.'
+                  example: 'Unauthorized'
+                }
+              }
+            }
+          }
+        }
+      },
+      Forbidden: {
+        description: 'Forbidden',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                error: {
+                  type: 'string',
+                  description: 'Error message',
+                  example: 'Access denied you do not have permission to access'
                 }
               }
             }
@@ -245,6 +297,38 @@ module.exports = {
         },
         description: 'User object needed to sign in a existing user.',
         required: true
+      },
+      NewCategory: {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: "The category's name, it must be unique",
+                  required: true,
+                  example: 'Petiscos'
+                },
+                file: {
+                  type: 'string',
+                  description: "The category's image (jpeg, pjpeg, png, gif)",
+                  required: true,
+                  format: 'binary'
+                }
+              }
+            }
+          }
+        },
+        description: 'Category object needed to create a new category.',
+        required: true
+      }
+    },
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT'
       }
     }
   }
