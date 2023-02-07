@@ -105,6 +105,40 @@ module.exports = {
           }
         }
       }
+    },
+    '/new-product': {
+      post: {
+        security: [
+          {
+            bearerAuth: []
+          }
+        ],
+        summary: 'Create a new product',
+        description:
+          'This endpoint creates a new product with the given name, price, category_id, offer and file.',
+        tags: ['Product'],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/NewProduct'
+        },
+        responses: {
+          201: {
+            $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          403: {
+            $ref: '#/components/responses/Forbidden'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
     }
   },
   components: {
@@ -321,6 +355,50 @@ module.exports = {
           }
         },
         description: 'Category object needed to create a new category.',
+        required: true
+      },
+      NewProduct: {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: "The product's name",
+                  required: true,
+                  example: 'Batata Frita'
+                },
+                price: {
+                  type: 'number',
+                  description: "The product's price",
+                  required: true,
+                  minimum: 0,
+                  example: '10.50'
+                },
+                category_id: {
+                  type: 'string',
+                  description: "The product's category, it must exist",
+                  required: true,
+                  example: 'Petiscos'
+                },
+                offer: {
+                  type: 'boolean',
+                  description: "The product's offer, default to false",
+                  required: false,
+                  example: true
+                },
+                file: {
+                  type: 'string',
+                  description: "The product's image (jpeg, pjpeg, png, gif)",
+                  required: true,
+                  format: 'binary'
+                }
+              }
+            }
+          }
+        },
+        description: 'Product object needed to create a new product.',
         required: true
       }
     },
