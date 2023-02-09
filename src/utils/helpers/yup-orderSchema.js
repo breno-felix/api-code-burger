@@ -7,7 +7,7 @@ module.exports = yup.object().shape({
     .of(
       yup.object().shape({
         product_id: yup.string().required(),
-        quantity: yup.number().required().positive().integer()
+        quantity: yup.number().required().positive().integer().min(1)
       })
     )
 })
