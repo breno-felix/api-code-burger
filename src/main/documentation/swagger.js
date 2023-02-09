@@ -14,7 +14,12 @@ module.exports = {
       email: 'brenodev.felix@edu.unifor.br'
     }
   },
-  tags: [{ name: 'User', description: 'Operations about user' }],
+  tags: [
+    { name: 'User', description: 'Operations about user' },
+    { name: 'Category', description: 'Operations about category' },
+    { name: 'Product', description: 'Operations about product' },
+    { name: 'Order', description: 'Operations about order' }
+  ],
   servers: [
     {
       url: `${env.appUrl}/api`,
@@ -96,7 +101,7 @@ module.exports = {
         ],
         summary: 'Create a new category',
         description:
-          'This endpoint creates a new category with the given name and file.',
+          'This endpoint creates a new category with the given name and file. Needed login with admin user',
         tags: ['Category'],
         requestBody: {
           required: true,
@@ -121,24 +126,38 @@ module.exports = {
         }
       }
     },
-    '/new-product': {
-      post: {
+    '/update-category/{category_id}': {
+      put: {
         security: [
           {
             bearerAuth: []
           }
         ],
-        summary: 'Create a new product',
+        summary: 'Update a category',
         description:
-          'This endpoint creates a new product with the given name, price, category_id, offer and file.',
-        tags: ['Product'],
+          'This endpoint update a category with the given name or file. Needed login with admin user',
+        tags: ['Category'],
+        parameters: [
+          {
+            name: 'category_id',
+            in: 'path',
+            description: 'ID of category to update',
+            required: true,
+            schema: {
+              type: 'string',
+              description: "The category's id, it must exist",
+              required: true,
+              example: '63e41caae48b4160afb18192'
+            }
+          }
+        ],
         requestBody: {
           required: true,
-          $ref: '#/components/requestBodies/NewProduct'
+          $ref: '#/components/requestBodies/UpdateCategory'
         },
         responses: {
-          201: {
-            $ref: '#/components/responses/Created'
+          204: {
+            $ref: '#/components/responses/NoContent'
           },
           400: {
             $ref: '#/components/responses/BadRequest'
@@ -148,46 +167,6 @@ module.exports = {
           },
           403: {
             $ref: '#/components/responses/Forbidden'
-          },
-          500: {
-            $ref: '#/components/responses/ServerError'
-          }
-        }
-      }
-    },
-    '/new-order': {
-      post: {
-        summary: 'Create a new order',
-        description:
-          'This endpoint creates a new order with the given array of products with quantity',
-        tags: ['Order'],
-        parameters: [
-          {
-            name: 'Authorization',
-            in: 'header',
-            description: 'Bearer token including user_id',
-            required: true,
-            schema: {
-              type: 'string',
-              description: 'JWT Token for authenticated user',
-              example:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJyZW5vIEZlbGl4IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
-            }
-          }
-        ],
-        requestBody: {
-          required: true,
-          $ref: '#/components/requestBodies/NewOrder'
-        },
-        responses: {
-          201: {
-            $ref: '#/components/responses/Created'
-          },
-          400: {
-            $ref: '#/components/responses/BadRequest'
-          },
-          401: {
-            $ref: '#/components/responses/Unauthorized'
           },
           500: {
             $ref: '#/components/responses/ServerError'
@@ -229,6 +208,40 @@ module.exports = {
         }
       }
     },
+    '/new-product': {
+      post: {
+        security: [
+          {
+            bearerAuth: []
+          }
+        ],
+        summary: 'Create a new product',
+        description:
+          'This endpoint creates a new product with the given name, price, category_id, offer and file. Needed login with admin user ',
+        tags: ['Product'],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/NewProduct'
+        },
+        responses: {
+          201: {
+            $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          403: {
+            $ref: '#/components/responses/Forbidden'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
+    },
     '/index-product': {
       get: {
         security: [
@@ -253,6 +266,46 @@ module.exports = {
                 }
               }
             }
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
+    },
+    '/new-order': {
+      post: {
+        summary: 'Create a new order',
+        description:
+          'This endpoint creates a new order with the given array of products with quantity. Needed login.',
+        tags: ['Order'],
+        parameters: [
+          {
+            name: 'Authorization',
+            in: 'header',
+            description: 'Bearer token including user_id',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'JWT Token for authenticated user',
+              example:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJyZW5vIEZlbGl4IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/NewOrder'
+        },
+        responses: {
+          201: {
+            $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
           },
           401: {
             $ref: '#/components/responses/Unauthorized'
@@ -522,6 +575,24 @@ module.exports = {
           }
         }
       },
+      NoContent: {
+        description: 'NoContent',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: {
+                  type: 'string',
+                  description: 'Success message',
+                  default:
+                    'The request was successfully processed but is not returning any content.'
+                }
+              }
+            }
+          }
+        }
+      },
       BadRequest: {
         description: 'Bad Request - Missing or Invalid Parameters',
         content: {
@@ -740,6 +811,29 @@ module.exports = {
           }
         },
         description: 'Products array needed to create a new order.',
+        required: true
+      },
+      UpdateCategory: {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: "The category's name, it must be unique",
+                  example: 'Petiscos'
+                },
+                file: {
+                  type: 'string',
+                  description: "The category's image (jpeg, pjpeg, png, gif)",
+                  format: 'binary'
+                }
+              }
+            }
+          }
+        },
+        description: 'Category object needed to update a category.',
         required: true
       }
     },
