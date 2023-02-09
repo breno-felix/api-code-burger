@@ -135,7 +135,7 @@ module.exports = {
         ],
         summary: 'Update a category',
         description:
-          'This endpoint update a category with the given name or file. Needed login with admin user',
+          'This endpoint updates a category with the given name or file. Needed login with admin user',
         tags: ['Category'],
         parameters: [
           {
@@ -226,6 +226,54 @@ module.exports = {
         responses: {
           201: {
             $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          403: {
+            $ref: '#/components/responses/Forbidden'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
+    },
+    '/update-product/{product_id}': {
+      put: {
+        security: [
+          {
+            bearerAuth: []
+          }
+        ],
+        summary: 'Update a product',
+        description:
+          'This endpoint updates a product with the given name, price, category_id, offer or file. Needed login with admin user ',
+        tags: ['Product'],
+        parameters: [
+          {
+            name: 'product_id',
+            in: 'path',
+            description: 'ID of product to update',
+            required: true,
+            schema: {
+              type: 'string',
+              description: "The product's id, it must exist",
+              required: true,
+              example: '63e41caae48b4160afb18192'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/UpdateProduct'
+        },
+        responses: {
+          204: {
+            $ref: '#/components/responses/NoContent'
           },
           400: {
             $ref: '#/components/responses/BadRequest'
@@ -834,6 +882,45 @@ module.exports = {
           }
         },
         description: 'Category object needed to update a category.',
+        required: true
+      },
+      UpdateProduct: {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: "The product's name",
+                  example: 'Batata Frita'
+                },
+                price: {
+                  type: 'number',
+                  description: "The product's price",
+                  minimum: 0,
+                  example: 10.5
+                },
+                category_id: {
+                  type: 'string',
+                  description: "The product's category, it must exist",
+                  example: '63e41caae48b4160afb18192'
+                },
+                offer: {
+                  type: 'boolean',
+                  description: "The product's offer, default to false",
+                  example: true
+                },
+                file: {
+                  type: 'string',
+                  description: "The product's image (jpeg, pjpeg, png, gif)",
+                  format: 'binary'
+                }
+              }
+            }
+          }
+        },
+        description: 'Product object needed to update a product.',
         required: true
       }
     },
