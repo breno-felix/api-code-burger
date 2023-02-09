@@ -139,6 +139,46 @@ module.exports = {
           }
         }
       }
+    },
+    '/new-order': {
+      post: {
+        summary: 'Create a new order',
+        description:
+          'This endpoint creates a new order with the given array of products with quantity',
+        tags: ['Order'],
+        parameters: [
+          {
+            name: 'Authorization',
+            in: 'header',
+            description: 'Bearer token including user_id',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'JWT Token for authenticated user',
+              example:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJyZW5vIEZlbGl4IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+            }
+          }
+        ],
+        requestBody: {
+          required: true,
+          $ref: '#/components/requestBodies/NewOrder'
+        },
+        responses: {
+          201: {
+            $ref: '#/components/responses/Created'
+          },
+          400: {
+            $ref: '#/components/responses/BadRequest'
+          },
+          401: {
+            $ref: '#/components/responses/Unauthorized'
+          },
+          500: {
+            $ref: '#/components/responses/ServerError'
+          }
+        }
+      }
     }
   },
   components: {
@@ -374,13 +414,13 @@ module.exports = {
                   description: "The product's price",
                   required: true,
                   minimum: 0,
-                  example: '10.50'
+                  example: 10.5
                 },
                 category_id: {
                   type: 'string',
                   description: "The product's category, it must exist",
                   required: true,
-                  example: 'Petiscos'
+                  example: '63e41caae48b4160afb18192'
                 },
                 offer: {
                   type: 'boolean',
@@ -399,6 +439,35 @@ module.exports = {
           }
         },
         description: 'Product object needed to create a new product.',
+        required: true
+      },
+      NewOrder: {
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  product_id: {
+                    type: 'string',
+                    description: "Some order's product, it must exist",
+                    required: true,
+                    example: '63e41caae48b4160afb18192'
+                  },
+                  quantity: {
+                    type: 'integer',
+                    description: "The product's quantity",
+                    required: true,
+                    minimum: 1,
+                    example: 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        description: 'Products array needed to create a new order.',
         required: true
       }
     },
