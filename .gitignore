@@ -6,3 +6,4 @@ coverage
 globalConfig.json
 yarn.lock
 Amazon S3.md
+.DS_Store
