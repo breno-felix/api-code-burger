@@ -7,34 +7,28 @@ const aws = require('aws-sdk')
 
 const s3 = new aws.S3()
 
-const productSchema = MongooseHelper.newSchema(
-  {
-    name: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
-    category_id: {
-      type: MongooseHelper.getObjectId(),
-      ref: 'Category',
-      required: true
-    },
-    imagePath: { type: String, required: true },
-    offer: { type: Boolean, default: false }
+const productSchema = MongooseHelper.newSchema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true, min: 0 },
+  category_id: {
+    type: MongooseHelper.getObjectId(),
+    ref: 'Category',
+    required: true
   },
-  {
-    timestamps: true
-  },
-  {
-    virtuals: {
-      urlPath: {
-        get() {
-          if (process.env.NODE_ENV === 'production') {
-            return `${env.storageURL}/${this.imagePath}`
-          }
-          return `${env.appUrl}/file/${this.imagePath}`
-        }
-      }
-    }
+  imagePath: { type: String, required: true },
+  offer: { type: Boolean, default: false }
+})
+
+productSchema.virtual('urlPath').get(function () {
+  if (process.env.NODE_ENV === 'production') {
+    return `${env.storageURL}/${this.imagePath}`
   }
-)
+  return `${env.appUrl}/file/${this.imagePath}`
+})
+
+productSchema.set('toJSON', { virtuals: true })
+productSchema.set('id', false)
+productSchema.set('timestamps', true)
 
 productSchema.pre('remove', function () {
   if (env.storageTypes === 's3') {
