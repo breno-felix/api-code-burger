@@ -1,0 +1,26 @@
+.husky
+.vscode
+coverage
+node_modules
+test-upload
+uploads
+
+.env.dev
+.env.example
+.env.test.local
+.eslintrc.js
+.lintstagedrc.json
+.prettierrc
+Amazon S3.md
+globalConfig.json
+jest-integration-config.js
+jest-mongodb-config.js
+jest-unit-config.js
+jest.config.js
+nodemon.json
+README.md
+
+.DS_Store
+
+**/*.spec.js
+**/*.test.js
