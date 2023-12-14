@@ -20,19 +20,19 @@ describe('Token Generator', () => {
   test('Should return null if JWT return null', async () => {
     const sut = makeSut()
     jwt.token = null
-    const token = await sut.generate('any_id')
+    const token = await sut.generate('any_id', 'any_name')
     expect(token).toBeNull()
   })
 
   test('Should return a token if JWT returns token', async () => {
     const sut = makeSut()
-    const token = await sut.generate('any_id')
+    const token = await sut.generate('any_id', 'any_name')
     expect(token).toBe(jwt.token)
   })
 
   test('Should call JWT with correct values', async () => {
     const sut = makeSut()
-    await sut.generate('any_id')
+    await sut.generate('any_id', 'any_name')
     expect(jwt.id).toBe('any_id')
     expect(jwt.secret).toBe(sut.secret)
     expect(jwt.expiresIn).toBe(sut.expiresIn)
