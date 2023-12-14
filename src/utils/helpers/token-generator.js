@@ -7,13 +7,16 @@ module.exports = class TokenGenerator {
     this.expiresIn = expiresIn
   }
 
-  async generate(id) {
+  async generate(id, name) {
     if (!this.secret) {
       throw new MissingParamServerError('secret')
     }
     if (!id) {
       throw new MissingParamServerError('id')
     }
-    return jwt.sign({ id }, this.secret, { expiresIn: this.expiresIn })
+    if (!name) {
+      throw new MissingParamServerError('name')
+    }
+    return jwt.sign({ id, name }, this.secret, { expiresIn: this.expiresIn })
   }
 }
