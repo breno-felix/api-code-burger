@@ -7,8 +7,7 @@ module.exports = (request, response, next) => {
     upload(request, response, function (err) {
       if (err) {
         return response.status(400).json({
-          error:
-            'A error occurred when uploading. Errors of this type can occur due to sending files that are invalid due to format or size.'
+          error: err
         })
       }
       return next()

@@ -1,8 +1,16 @@
 const multer = require('multer')
 const path = require('path')
-const aws = require('aws-sdk')
+const { S3 } = require('@aws-sdk/client-s3')
 const multerS3 = require('multer-s3')
 const env = require('./envfile')
+
+const s3 = new S3({
+  region: env.awsDefaultRegion,
+  credentials: {
+    accessKeyId: env.awsAccessKeyId,
+    secretAccessKey: env.awsSecretAccessKey
+  }
+})
 
 const storageTypes = {
   local: multer.diskStorage({
@@ -18,8 +26,8 @@ const storageTypes = {
     }
   }),
   s3: multerS3({
-    s3: new aws.S3(),
-    bucket: 'upload-code-burger',
+    s3,
+    bucket: env.awsBucketName,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: 'public-read',
     key: (request, file, callback) => {

@@ -3,9 +3,7 @@ const env = require('../../main/config/envfile')
 const fs = require('fs')
 const path = require('path')
 const { promisify } = require('util')
-const aws = require('aws-sdk')
-
-const s3 = new aws.S3()
+const { S3 } = require('@aws-sdk/client-s3')
 
 const categorySchema = MongooseHelper.newSchema({
   name: { type: String, required: true, unique: true },
@@ -23,18 +21,35 @@ categorySchema.set('toJSON', { virtuals: true })
 categorySchema.set('id', false)
 categorySchema.set('timestamps', true)
 
-categorySchema.pre('remove', function () {
+categorySchema.pre('remove', async function () {
   if (env.storageTypes === 's3') {
-    return s3
-      .deleteObject({
-        Bucket: 'codeburger',
+    try {
+      const s3 = new S3({
+        region: env.awsDefaultRegion,
+        credentials: {
+          accessKeyId: env.awsAccessKeyId,
+          secretAccessKey: env.awsSecretAccessKey
+        }
+      })
+
+      await s3.deleteObject({
+        Bucket: env.awsBucketName,
         Key: this.imagePath
       })
-      .promise()
+    } catch (error) {
+      console.error('Erro ao excluir objeto do S3:', error)
+      throw error
+    }
+  } else {
+    try {
+      await promisify(fs.unlink)(
+        path.resolve(__dirname, '..', '..', '..', 'uploads', this.imagePath)
+      )
+    } catch (error) {
+      console.error('Erro ao excluir arquivo local:', error)
+      throw error
+    }
   }
-  return promisify(fs.unlink)(
-    path.resolve(__dirname, '..', '..', '..', 'uploads', this.imagePath)
-  )
 })
 
 module.exports = MongooseHelper.newModel('Category', categorySchema)

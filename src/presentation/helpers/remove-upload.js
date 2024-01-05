@@ -1,22 +1,38 @@
 const fs = require('fs')
 const path = require('path')
 const env = require('../../main/config/envfile')
-const aws = require('aws-sdk')
+const { S3 } = require('@aws-sdk/client-s3')
 
 module.exports = class RemoveUpload {
   static async remove(key) {
     if (env.storageTypes === 's3') {
-      new aws.S3()
-        .deleteObject({
-          Bucket: 'codeburger',
+      try {
+        const s3 = new S3({
+          region: env.awsDefaultRegion,
+          credentials: {
+            accessKeyId: env.awsAccessKeyId,
+            secretAccessKey: env.awsSecretAccessKey
+          }
+        })
+
+        await s3.deleteObject({
+          Bucket: env.awsBucketName,
           Key: key
         })
-        .promise()
+      } catch (error) {
+        console.error('Erro ao excluir objeto do S3:', error)
+        throw error
+      }
     } else {
-      await fs.unlink(
-        path.resolve(__dirname, '..', '..', '..', 'uploads', key),
-        () => {}
-      )
+      try {
+        await fs.unlink(
+          path.resolve(__dirname, '..', '..', '..', 'uploads', key),
+          () => {}
+        )
+      } catch (error) {
+        console.error('Erro ao excluir arquivo local:', error)
+        throw error
+      }
     }
   }
 }
